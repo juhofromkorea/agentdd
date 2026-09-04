@@ -1,0 +1,23 @@
+.inquiry-search-actions {
+  display: grid;
+  width: min(100%, 420px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.inquiry-search-actions .button {
+  width: 100%;
+  min-width: 0;
+}
+
+.inquiry-result-card .accounting-panel {
+  padding-bottom: 8px;
+}
+
+@media (max-width: 720px) {
+  .inquiry-search-actions {
+    gap: 8px;
+    margin-top: 8px;
+  }
+}

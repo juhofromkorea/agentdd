@@ -1,0 +1,59 @@
+.login-card {
+  display: flex;
+  width: min(100%, 640px);
+  min-height: 340px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 48px;
+}
+
+.login-card__brand {
+  display: grid;
+  width: 56px;
+  height: 48px;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  place-items: center;
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.login-card__car {
+  width: 36px;
+}
+
+.login-card__title {
+  margin-bottom: var(--space-5);
+  font-size: 1.18rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.login-form {
+  display: grid;
+  width: min(100%, 330px);
+  gap: var(--space-3);
+}
+
+.login-form__actions {
+  display: grid;
+  margin-top: var(--space-4);
+  gap: var(--space-2);
+}
+
+@media (max-width: 640px) {
+  .login-card {
+    min-height: 390px;
+    padding: 32px 20px;
+  }
+
+  .login-card__title {
+    margin-bottom: var(--space-6);
+    font-size: 1.08rem;
+  }
+
+  .login-form {
+    width: 100%;
+  }
+}

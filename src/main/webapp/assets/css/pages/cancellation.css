@@ -1,0 +1,22 @@
+.cancellation-result-card .accounting-panel {
+  padding-bottom: 8px;
+}
+
+.cancellation-print-button {
+  min-width: 210px;
+}
+
+.cancellation-complete-content {
+  margin-top: 56px;
+}
+
+@media (max-width: 720px) {
+  .cancellation-print-button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .cancellation-complete-content {
+    margin-top: 38px;
+  }
+}
