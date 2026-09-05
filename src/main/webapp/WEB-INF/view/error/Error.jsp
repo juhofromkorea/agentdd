@@ -1,11 +1,12 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" session="false" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!doctype html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
-    <title>予期せぬエラー | Agent d.d</title>
+    <title>エラー | Agent d.d</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/reset.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/tokens.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/layout.css" />
@@ -19,6 +20,11 @@
       id="theme-toggle"
       aria-label="ダークモードに切り替える"
     />
+
+    <c:url var="backUrl"
+      value="${empty requestScope.errorBackUrl ? '/login' : requestScope.errorBackUrl}" />
+    <c:set var="backLabel"
+      value="${empty requestScope.errorBackLabel ? 'ログイン画面へ戻る' : requestScope.errorBackLabel}" />
 
     <div class="app-shell">
       <header class="app-header">
@@ -48,12 +54,11 @@
         <section class="card content-card error-card" aria-labelledby="error-title">
           <div class="error-content">
             <h1 class="error-message" id="error-title">
-              予期せぬエラーが発生しました。
-              <br>
-              システム管理者に連絡してください。
+              <c:out
+                value="${empty requestScope.error ? '予期せぬエラーが発生しました。' : requestScope.error}" />
             </h1>
-            <a class="button button--primary error-back-button" href="${pageContext.request.contextPath}/mockup/top">
-              TOPへ戻る
+            <a class="button button--primary error-back-button" href="${backUrl}">
+              <c:out value="${backLabel}" />
             </a>
           </div>
         </section>

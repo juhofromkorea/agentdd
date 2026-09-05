@@ -24,7 +24,7 @@ public class SystemConst {
     // DBユーザー名
     public static final String JDBC_USER = getEnvironmentValue(
         "AGENTDD_DB_USER",
-        "mysql"
+        "root"
     );
 
     // DBパスワード名
