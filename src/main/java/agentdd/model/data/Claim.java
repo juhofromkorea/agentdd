@@ -16,122 +16,116 @@ public class Claim {
     private Integer licenseColor;
     private Integer ageLimit;
 
-    
+    public Integer getCoverId() {
+        return coverId;
+    }
 
+    public void setCoverId(Integer coverId) {
+        this.coverId = coverId;
+    }
 
+    public String getInsatsuRenban() {
+        return insatsuRenban;
+    }
 
+    public void setInsatsuRenban(String insatsuRenban) {
+        this.insatsuRenban = insatsuRenban;
+    }
 
-public Integer getCoverId() {
-    return coverId;
-}
+    public Integer getPremiumAmount() {
+        return premiumAmount;
+    }
 
-public void setCoverId(Integer coverId) {
-    this.coverId = coverId;
-}
+    public void setPremiumAmount(Integer premiumAmount) {
+        this.premiumAmount = premiumAmount;
+    }
 
-public String getInsatsuRenban() {
-    return insatsuRenban;
-}
+    public Integer getPremiumInstallment() {
+        return premiumInstallment;
+    }
 
-public void setInsatsuRenban(String insatsuRenban) {
-    this.insatsuRenban = insatsuRenban;
-}
+    public void setPremiumInstallment(Integer premiumInstallment) {
+        this.premiumInstallment = premiumInstallment;
+    }
 
-public Integer getPremiumAmount() {
-    return premiumAmount;
-}
+    public String getMaker() {
+        return maker;
+    }
 
-public void setPremiumAmount(Integer premiumAmount) {
-    this.premiumAmount = premiumAmount;
-}
+    public void setMaker(String maker) {
+        this.maker = maker;
+    }
 
-public Integer getPremiumInstallment() {
-    return premiumInstallment;
-}
+    public String getCarName() {
+        return carName;
+    }
 
-public void setPremiumInstallment(Integer premiumInstallment) {
-    this.premiumInstallment = premiumInstallment;
-}
+    public void setCarName(String carName) {
+        this.carName = carName;
+    }
 
-public String getMaker() {
-    return maker;
-}
+    public String getLicenseNo() {
+        return licenseNo;
+    }
 
-public void setMaker(String maker) {
-    this.maker = maker;
-}
+    public void setLicenseNo(String licenseNo) {
+        this.licenseNo = licenseNo;
+    }
 
-public String getCarName() {
-    return carName;
-}
+    public Integer getVehiclePrice() {
+        return vehiclePrice;
+    }
 
-public void setCarName(String carName) {
-    this.carName = carName;
-}
+    public void setVehiclePrice(Integer vehiclePrice) {
+        this.vehiclePrice = vehiclePrice;
+    }
 
-public String getLicenseNo() {
-    return licenseNo;
-}
+    public Integer getVehicleRates() {
+        return vehicleRates;
+    }
 
-public void setLicenseNo(String licenseNo) {
-    this.licenseNo = licenseNo;
-}
+    public void setVehicleRates(Integer vehicleRates) {
+        this.vehicleRates = vehicleRates;
+    }
 
-public Integer getVehiclePrice() {
-    return vehiclePrice;
-}
+    public Integer getBodilyRates() {
+        return bodilyRates;
+    }
 
-public void setVehiclePrice(Integer vehiclePrice) {
-    this.vehiclePrice = vehiclePrice;
-}
+    public void setBodilyRates(Integer bodilyRates) {
+        this.bodilyRates = bodilyRates;
+    }
 
-public Integer getVehicleRates() {
-    return vehicleRates;
-}
+    public Integer getPropertyDamageRates() {
+        return propertyDamageRates;
+    }
 
-public void setVehicleRates(Integer vehicleRates) {
-    this.vehicleRates = vehicleRates;
-}
+    public void setPropertyDamageRates(Integer propertyDamageRates) {
+        this.propertyDamageRates = propertyDamageRates;
+    }
 
-public Integer getBodilyRates() {
-    return bodilyRates;
-}
+    public Integer getAccidentRates() {
+        return accidentRates;
+    }
 
-public void setBodilyRates(Integer bodilyRates) {
-    this.bodilyRates = bodilyRates;
-}
+    public void setAccidentRates(Integer accidentRates) {
+        this.accidentRates = accidentRates;
+    }
 
-public Integer getPropertyDamageRates() {
-    return propertyDamageRates;
-}
+    public Integer getLicenseColor() {
+        return licenseColor;
+    }
 
-public void setPropertyDamageRates(Integer propertyDamageRates) {
-    this.propertyDamageRates = propertyDamageRates;
-}
+    public void setLicenseColor(Integer licenseColor) {
+        this.licenseColor = licenseColor;
+    }
 
-public Integer getAccidentRates() {
-    return accidentRates;
-}
+    public Integer getAgeLimit() {
+        return ageLimit;
+    }
 
-public void setAccidentRates(Integer accidentRates) {
-    this.accidentRates = accidentRates;
-}
-
-public Integer getLicenseColor() {
-    return licenseColor;
-}
-
-public void setLicenseColor(Integer licenseColor) {
-    this.licenseColor = licenseColor;
-}
-
-public Integer getAgeLimit() {
-    return ageLimit;
-}
-
-public void setAgeLimit(Integer ageLimit) {
-    this.ageLimit = ageLimit;
-}
+    public void setAgeLimit(Integer ageLimit) {
+        this.ageLimit = ageLimit;
+    }
 
 }
-    
