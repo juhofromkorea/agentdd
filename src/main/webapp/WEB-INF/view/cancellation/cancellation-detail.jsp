@@ -57,7 +57,7 @@
           <h1 class="sr-only" id="cancellation-detail-title">
             個人契約の解約確認
           </h1>
-          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/mockup/top">トップへ戻る</a>
+          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
           <div class="accounting-workspace">
             <input
@@ -187,7 +187,7 @@
                 <div class="accounting-actions">
                   <a
                     class="button button--primary accounting-button-link cancellation-print-button"
-                    href="${pageContext.request.contextPath}/mockup/cancellation-complete"
+                    href="${pageContext.request.contextPath}/cancellation-complete"
                   >解約申込書印刷</a>
                 </div>
               </section>
@@ -251,7 +251,7 @@
                 <div class="accounting-actions">
                   <a
                     class="button button--primary accounting-button-link cancellation-print-button"
-                    href="${pageContext.request.contextPath}/mockup/cancellation-complete"
+                    href="${pageContext.request.contextPath}/cancellation-complete"
                   >解約申込書印刷</a>
                 </div>
               </section>

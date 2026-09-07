@@ -53,7 +53,7 @@
           class="card content-card accounting-card accounting-card--complete"
           aria-labelledby="accounting-complete-title"
         >
-          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/mockup/top">トップへ戻る</a>
+          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
           <div class="accounting-complete-content">
             <div class="accounting-complete-mark" aria-hidden="true">✓</div>

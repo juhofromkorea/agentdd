@@ -59,46 +59,36 @@
       <main class="app-main">
         <section class="card top-menu-card" aria-labelledby="top-menu-title">
           <div class="top-menu__list" role="group" aria-label="業務メニュー">
-            <form action="${pageContext.request.contextPath}/mockup/estimate" method="get">
-              <button
-                class="button button--primary top-menu__button"
-                type="submit"
-              >
-                新規試算
-              </button>
-            </form>
-            <form action="${pageContext.request.contextPath}/mockup/accounting" method="get">
-              <button
-                class="button button--primary top-menu__button"
-                type="submit"
-              >
-                計上
-              </button>
-            </form>
-            <form action="${pageContext.request.contextPath}/mockup/inquiry" method="get">
-              <button
-                class="button button--primary top-menu__button"
-                type="submit"
-              >
-                契約内容照会
-              </button>
-            </form>
-            <form action="${pageContext.request.contextPath}/mockup/cancellation" method="get">
-              <button
-                class="button button--primary top-menu__button"
-                type="submit"
-              >
-                解約
-              </button>
-            </form>
-            <form action="${pageContext.request.contextPath}/mockup/accident" method="get">
-              <button
-                class="button button--primary top-menu__button"
-                type="submit"
-              >
-                事故受付
-              </button>
-            </form>
+            <a
+              class="button button--primary top-menu__button"
+              href="${pageContext.request.contextPath}/estimate"
+            >
+              新規試算
+            </a>
+            <a
+              class="button button--primary top-menu__button"
+              href="${pageContext.request.contextPath}/accounting"
+            >
+              計上
+            </a>
+            <a
+              class="button button--primary top-menu__button"
+              href="${pageContext.request.contextPath}/inquiry"
+            >
+              契約内容照会
+            </a>
+            <a
+              class="button button--primary top-menu__button"
+              href="${pageContext.request.contextPath}/cancellation"
+            >
+              解約
+            </a>
+            <a
+              class="button button--primary top-menu__button"
+              href="${pageContext.request.contextPath}/accident"
+            >
+              事故受付
+            </a>
           </div>
         </section>
       </main>

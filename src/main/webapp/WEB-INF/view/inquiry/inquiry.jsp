@@ -54,7 +54,7 @@
           class="card content-card accounting-card accounting-card--start"
           aria-labelledby="inquiry-start-title"
         >
-          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/mockup/top">トップへ戻る</a>
+          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
           <div class="accounting-start-content">
             <h1 class="accounting-page-title" id="inquiry-start-title">
@@ -63,7 +63,7 @@
 
             <form
               class="accounting-start-form"
-              action="${pageContext.request.contextPath}/mockup/inquiry-detail"
+              action="${pageContext.request.contextPath}/inquiry-detail"
               method="get"
             >
               <label class="accounting-start-field">

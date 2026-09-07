@@ -50,7 +50,7 @@
 
       <main class="app-main print-main">
         <section class="card print-card" aria-labelledby="print-complete-title">
-          <a class="print-breadcrumb" href="${pageContext.request.contextPath}/mockup/top">トップへ戻る</a>
+          <a class="print-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
           <div class="print-content print-content--complete">
             <h1 class="print-title" id="print-complete-title">

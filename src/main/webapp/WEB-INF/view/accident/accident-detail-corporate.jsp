@@ -51,9 +51,9 @@
           aria-labelledby="accident-detail-title"
         >
           <h1 class="sr-only" id="accident-detail-title">法人契約の事故受付入力</h1>
-          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/mockup/top">トップへ戻る</a>
+          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
-          <form class="accounting-workspace" action="${pageContext.request.contextPath}/mockup/accident-complete-corporate" method="get">
+          <form class="accounting-workspace" action="${pageContext.request.contextPath}/accident-complete-corporate" method="get">
             <input
               class="accounting-controller"
               type="radio"
@@ -259,7 +259,7 @@
                 </fieldset>
 
                 <div class="accident-panel-actions">
-                  <button class="button button--primary" type="submit" formaction="${pageContext.request.contextPath}/mockup/accident-update-complete-corporate">状況更新</button>
+                  <button class="button button--primary" type="submit" formaction="${pageContext.request.contextPath}/accident-update-complete-corporate">状況更新</button>
                   <button class="button button--primary" type="submit">事故受付完了</button>
                 </div>
               </section>
@@ -283,7 +283,7 @@
                   <div class="accounting-data-row"><dt>FAX番号</dt><dd>03-1234-5678</dd></div>
                 </dl>
                 <div class="accident-panel-actions">
-                  <button class="button button--primary" type="submit" formaction="${pageContext.request.contextPath}/mockup/accident-update-complete-corporate">状況更新</button>
+                  <button class="button button--primary" type="submit" formaction="${pageContext.request.contextPath}/accident-update-complete-corporate">状況更新</button>
                   <button class="button button--primary" type="submit">事故受付完了</button>
                 </div>
               </section>
@@ -310,7 +310,7 @@
                   <div class="accounting-data-row"><dt>年齢条件</dt><dd>21歳以上</dd></div>
                 </dl>
                 <div class="accident-panel-actions">
-                  <button class="button button--primary" type="submit" formaction="${pageContext.request.contextPath}/mockup/accident-update-complete-corporate">状況更新</button>
+                  <button class="button button--primary" type="submit" formaction="${pageContext.request.contextPath}/accident-update-complete-corporate">状況更新</button>
                   <button class="button button--primary" type="submit">事故受付完了</button>
                 </div>
               </section>

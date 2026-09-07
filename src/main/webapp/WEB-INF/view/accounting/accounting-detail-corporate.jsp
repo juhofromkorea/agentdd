@@ -56,7 +56,7 @@
           <h1 class="sr-only" id="accounting-detail-title">
             法人契約の計上内容確認
           </h1>
-          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/mockup/top">トップへ戻る</a>
+          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
           <div class="accounting-workspace">
             <input
@@ -168,7 +168,7 @@
                 <div class="accounting-actions">
                   <a
                     class="button button--primary accounting-button-link"
-                    href="${pageContext.request.contextPath}/mockup/accounting-complete-corporate"
+                    href="${pageContext.request.contextPath}/accounting-complete-corporate"
                   >代理店計上</a>
                 </div>
               </section>
@@ -232,7 +232,7 @@
                 <div class="accounting-actions accounting-actions--split">
                   <a
                     class="button button--primary accounting-button-link"
-                    href="${pageContext.request.contextPath}/mockup/accounting-complete-corporate"
+                    href="${pageContext.request.contextPath}/accounting-complete-corporate"
                   >代理店計上</a>
                 </div>
               </section>

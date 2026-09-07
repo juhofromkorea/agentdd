@@ -50,7 +50,7 @@
 
       <main class="app-main print-main">
         <section class="card print-card" aria-labelledby="print-title">
-          <a class="print-breadcrumb" href="${pageContext.request.contextPath}/mockup/top">トップへ戻る</a>
+          <a class="print-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
           <div class="print-content">
             <h1 class="print-title" id="print-title">申込書印刷確認</h1>
@@ -81,11 +81,11 @@
             <div class="print-actions">
               <a
                 class="button button--secondary print-button-link"
-                href="${pageContext.request.contextPath}/mockup/estimate"
+                href="${pageContext.request.contextPath}/estimate"
               >戻る</a>
               <a
                 class="button button--primary print-button-link"
-                href="${pageContext.request.contextPath}/mockup/application-print-complete"
+                href="${pageContext.request.contextPath}/application-print-complete"
               >印刷</a>
             </div>
           </div>

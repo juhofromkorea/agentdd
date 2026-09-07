@@ -26,7 +26,7 @@ public class TopController extends HttpServlet {
             request.setAttribute("error", ErrorMsgConst.SESSION_ERROR);
 
             RequestDispatcher rd = request.getRequestDispatcher(
-                    "/WEB-INF/view/error/Error.jsp");
+                    "/WEB-INF/view/error/error.jsp");
             rd.forward(request, response);
             return;
         }
@@ -36,7 +36,7 @@ public class TopController extends HttpServlet {
         response.setDateHeader("Expires", 0);
 
         RequestDispatcher rd = request.getRequestDispatcher(
-                "/WEB-INF/view/top/Top.jsp");
+                "/WEB-INF/view/top/top.jsp");
         rd.forward(request, response);
     }
 }

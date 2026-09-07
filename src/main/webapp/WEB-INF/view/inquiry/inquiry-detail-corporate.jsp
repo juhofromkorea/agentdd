@@ -57,7 +57,7 @@
           <h1 class="sr-only" id="inquiry-detail-title">
             法人契約の契約内容照会確認
           </h1>
-          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/mockup/top">トップへ戻る</a>
+          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
           <div class="accounting-workspace">
             <input

@@ -34,7 +34,7 @@ public class LoginController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
         throws ServletException, IOException {
             
-        RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/view/login/Login.jsp");
+        RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/view/login/login.jsp");
         rd.forward(request, response);
     }
 
@@ -120,7 +120,7 @@ public class LoginController extends HttpServlet {
             request.setAttribute("error", e.getMessage());
 
             RequestDispatcher rd = request.getRequestDispatcher(
-                    "/WEB-INF/view/login/Login.jsp");
+                    "/WEB-INF/view/login/login.jsp");
             rd.forward(request, response);
 
         } catch (SQLException e) {
@@ -130,7 +130,7 @@ public class LoginController extends HttpServlet {
                     "error", ErrorMsgConst.SYSTEM_ERROR);
 
             RequestDispatcher rd = request.getRequestDispatcher(
-                    "/WEB-INF/view/error/Error.jsp");
+                    "/WEB-INF/view/error/error.jsp");
             rd.forward(request, response);
         }
     }
