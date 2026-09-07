@@ -1,8 +1,5 @@
 package agentdd.model.data;
 
-import java.text.NumberFormat;
-import java.util.Locale;
-
 public class Contract {
 
     private String insatsuRenban;
