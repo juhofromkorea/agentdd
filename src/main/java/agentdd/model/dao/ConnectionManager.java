@@ -11,6 +11,14 @@ import agentdd.model.constant.SystemConst;
  */
 public final class ConnectionManager {
 
+    static {
+        try {
+            Class.forName(SystemConst.JDBC_DRIVER_NAME);
+        } catch (ClassNotFoundException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+    
     // インスタンス生成を禁止する。
     private ConnectionManager() {
 
