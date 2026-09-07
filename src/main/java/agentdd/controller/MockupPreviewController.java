@@ -72,6 +72,16 @@ public class MockupPreviewController extends HttpServlet {
             return;
         }
 
+        if ("error-system".equals(screen)) {
+            request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
+            request.setAttribute("errorBackUrl", "/top");
+            request.setAttribute("errorBackLabel", "TOPへ戻る");
+        } else if ("error-unexpected".equals(screen)) {
+            request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
+            request.setAttribute("errorBackUrl", "/top");
+            request.setAttribute("errorBackLabel", "TOPへ戻る");
+        }
+
         request.getRequestDispatcher(view).forward(request, response);
     }
 }
