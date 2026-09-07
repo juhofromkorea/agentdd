@@ -3,6 +3,7 @@ package agentdd.controller;
 import java.io.IOException;
 import java.util.Map;
 
+import agentdd.model.constant.ErrorMsgConst;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -70,6 +71,16 @@ public class MockupPreviewController extends HttpServlet {
         if (view == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
+        }
+
+        if ("error-system".equals(screen)) {
+            request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
+            request.setAttribute("errorBackUrl", "/top");
+            request.setAttribute("errorBackLabel", "TOPへ戻る");
+        } else if ("error-unexpected".equals(screen)) {
+            request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
+            request.setAttribute("errorBackUrl", "/top");
+            request.setAttribute("errorBackLabel", "TOPへ戻る");
         }
 
         if ("error-system".equals(screen)) {

@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!doctype html>
 <html lang="ja">
   <head>
@@ -70,7 +71,7 @@
             AGENT D.D
           </h1>
 
-          <form class="login-form" action="${pageContext.request.contextPath}/mockup/top" method="get">
+          <form class="login-form" action="${pageContext.request.contextPath}/login" method="post">
             <label class="sr-only" for="login-id">ID</label>
             <div class="form-field">
               <svg
@@ -86,8 +87,11 @@
                 id="login-id"
                 name="userId"
                 type="text"
+                value="<c:out value='${requestScope.userId}' />"
                 placeholder="ID"
                 autocomplete="username"
+                aria-describedby="login-error-message"
+                aria-invalid="${not empty requestScope.error}"
                 required
               />
             </div>
@@ -112,9 +116,19 @@
                 type="password"
                 placeholder="パスワード"
                 autocomplete="current-password"
+                aria-describedby="login-error-message"
+                aria-invalid="${not empty requestScope.error}"
                 required
               />
             </div>
+
+            <p
+              class="login-form__error-space"
+              id="login-error-message"
+              aria-live="polite"
+            >
+              <c:out value="${requestScope.error}" />
+            </p>
 
             <div class="login-form__actions">
               <button class="button button--primary" type="submit">

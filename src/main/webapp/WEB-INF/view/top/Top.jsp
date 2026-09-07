@@ -43,7 +43,7 @@
         <div class="top-header__actions">
           <a
             class="button button--secondary top-header__logout"
-            href="${pageContext.request.contextPath}/mockup/login"
+            href="${pageContext.request.contextPath}/logout"
           >
             ログアウト
           </a>
