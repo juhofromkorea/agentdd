@@ -16,54 +16,10 @@ public class Claim {
     private Integer licenseColor;
     private Integer ageLimit;
 
-    public String ratesMaster(Integer rates){
-        if (rates==0) {
-        return "0.0倍";
-
-    } else if (rates==1) {
-        return "1.0倍";
-
-    } else if (rates==2) {
-        return "1.2倍";
-
-    } else if (rates==3) {
-        return "1.4倍";
-
-    } else if (rates==4) {
-        return "1.6倍";
-
-    } else {
-        return "1.9倍";
-    }
-
-}
-
-public String ageMaster(Integer ageLimit){
-        if (ageLimit==1) {
-        return "無制限";
-
-    } else if (ageLimit==2) {
-        return "21歳以上";
-
     
-    } else {
-        return "26歳以上";
-    }
 
-}
-public String licenseColorMaster(Integer licenseColor){
-        if (licenseColor==1) {
-        return "ブルー";
 
-    } else if (licenseColor==2) {
-        return "グリーン";
 
-    
-    } else {
-        return "ゴールド";
-    }
-
-}
 
 public Integer getCoverId() {
     return coverId;
