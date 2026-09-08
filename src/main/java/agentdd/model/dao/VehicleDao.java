@@ -19,6 +19,7 @@ public class VehicleDao {
             pstmt.setString(2, claim.getCarName());
 
                 ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
                 claim.setVehiclePrice(rs.getInt("vehicle_price") * 10);
                 claim.setVehicleRates(rs.getInt("vehicle_rates"));
                 claim.setBodilyRates(rs.getInt("bodily_rates"));
@@ -26,7 +27,9 @@ public class VehicleDao {
                 claim.setAccidentRates(rs.getInt("accident_rates"));
             }
             return claim;
-        
+        } catch (SQLException e) {
+            throw new SQLException("車両情報の取得に失敗しました。", e);
+        }
     }
     
 }
