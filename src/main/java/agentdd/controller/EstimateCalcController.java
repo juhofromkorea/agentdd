@@ -85,12 +85,6 @@ public class EstimateCalcController extends HttpServlet {
             double pRate = rateDao.getRate((int) claim.getPropertyDamageRates());
             double aRate = rateDao.getRate((int) claim.getAccidentRates());
 
-            // 4. 情報の統合（変換した数字をメインの claim にセット）
-            // claim.setVehiclePrice(vehicleInfo.getVehiclePrice());
-            // ※ Claim クラスに係数を保持するフィールドがあれば以下もセット
-            // claim.setLicenseColorRate(licenseColorRate);
-            // claim.setAgeLimitRate(ageLimitRate);
-
             // 5. 保険料のガチ計算
             InsuranceCalc calc = new InsuranceCalc();
             int totalPremium = calc.insurancecalc(contract, claim, vRate, bRate, pRate, aRate);
