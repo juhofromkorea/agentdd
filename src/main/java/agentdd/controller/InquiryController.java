@@ -15,10 +15,21 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.RequestDispatcher;
 
 @WebServlet("/inquiry")
 
 public class InquiryController extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        RequestDispatcher rd = request.getRequestDispatcher(
+                "/WEB-INF/view/inquiry/inquiry.jsp");
+        rd.forward(request, response);
+
+    }
 
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response)
