@@ -62,7 +62,7 @@
         <section class="card estimate-card" aria-labelledby="estimate-title">
           <h1 class="sr-only" id="estimate-title">新規試算</h1>
 
-          <a class="estimate-breadcrumb" href="${pageContext.request.contextPath}/mockup/top">トップへ戻る</a>
+          <a class="estimate-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
           <div class="estimate-workspace">
             <!-- CSS-only demo: 一時保存 moves 3 -> 4 -> 5 items. -->

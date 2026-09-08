@@ -79,7 +79,6 @@ public class EstimateCalcController extends HttpServlet {
             RatesDao rateDao = new RatesDao();
     
             // 3. マスタの料率IDを RatesDao で実際の数字に変換
-            // ※ RateDao が double などの数値を返す前提のコードです
             double vRate = rateDao.getRate((int) claim.getVehicleRates());
             double bRate = rateDao.getRate((int) claim.getBodilyRates());
             double pRate = rateDao.getRate((int) claim.getPropertyDamageRates());

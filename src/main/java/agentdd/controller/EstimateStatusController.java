@@ -34,7 +34,7 @@ public class EstimateStatusController extends HttpServlet {
         session.setAttribute("contract", contract);
         session.setAttribute("claim", claim);
         
-        // 2. 確認画面と完了画面にデータを持ち越すため、セッションに保存する！
+        // 2. 確認画面と完了画面にデータを持ち越すため、セッションに保存する
         session.setAttribute("printContract", contract);
         session.setAttribute("printClaim", claim);
         

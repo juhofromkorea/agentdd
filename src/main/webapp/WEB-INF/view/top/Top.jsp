@@ -59,7 +59,7 @@
       <main class="app-main">
         <section class="card top-menu-card" aria-labelledby="top-menu-title">
           <div class="top-menu__list" role="group" aria-label="業務メニュー">
-            <form action="${pageContext.request.contextPath}/mockup/estimate" method="get">
+            <form action="${pageContext.request.contextPath}/estimate" method="get">
               <button
                 class="button button--primary top-menu__button"
                 type="submit"
