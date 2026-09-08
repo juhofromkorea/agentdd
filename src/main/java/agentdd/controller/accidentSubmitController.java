@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import agentdd.model.dao.AccidentDao;
+import agentdd.model.data.Accident; 
 
 @WebServlet("/accident/submit")
 public class AccidentSubmitController extends HttpServlet {
@@ -31,7 +32,7 @@ public class AccidentSubmitController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         try {
-            // 1. バリデーション：過失割合の合計が100になるかチェック（JSPのnameにあわせる）
+            // 1. バリデーション：過失割合の合計が100になるかチェック
             int myFault = (int) parseLong(request.getParameter("ratingBlameMyself"));
             int yourFault = (int) parseLong(request.getParameter("ratingBlameYourself"));
             
@@ -44,12 +45,46 @@ public class AccidentSubmitController extends HttpServlet {
             // 2. 先に保険金額（支払金額）を計算する
             long paymentAmount = calculatePaymentAmount(request);
 
-            // 3. ボタンの action パラメータによる分岐とDB更新
+            // 3. ボタンの action パラメータによる分岐とステータスの決定
             String action = request.getParameter("action");
             int claimStatus = "completeReceipt".equals(action) ? 9 : 1; // 1:受付中, 9:完了済み
             String completeMessage = claimStatus == 9 ? "事故受付が完了しました" : "事故状況を更新しました";
 
-            saveAccidentData(request, paymentAmount, claimStatus);
+            // --- ★ ここで直接 Accident オブジェクトを作って DAO を呼ぶ！ ---
+            Accident accident = new Accident();
+            accident.setClaimNo(request.getParameter("claimNo"));
+            accident.setCoverId((int) parseLong(request.getParameter("coverId"))); 
+            accident.setCoverId(00000001);
+            accident.setClaimStatus(claimStatus);
+            accident.setPaymentPrice(paymentAmount);
+
+            // 事故場所・日時・状況
+            accident.setAccidentLocationKana1(request.getParameter("accidentLocationKana1"));
+            accident.setAccidentLocationKana2(request.getParameter("accidentLocationKana2"));
+            accident.setAccidentLocationKanji1(request.getParameter("accidentLocationKanji1"));
+            accident.setAccidentLocationKanji2(request.getParameter("accidentLocationKanji2"));
+            accident.setAccidentDate(request.getParameter("accidentDate"));
+            accident.setAccidentSituation(request.getParameter("accidentSituation"));
+
+            // 過失割合
+            accident.setRatingBlameMyself(myFault);
+            accident.setRatingBlameYourself(yourFault);
+
+            // 各種損害額
+            accident.setDamageCarPrice(parseLong(request.getParameter("damageCarPrice")));
+            accident.setDamageBodilyPrice(parseLong(request.getParameter("damageBodilyPrice")));
+            accident.setDamagePropertyPrice(parseLong(request.getParameter("damagePropertyPrice")));
+            accident.setDamageAccidentPrice(parseLong(request.getParameter("damageAccidentPrice")));
+
+            // 各種損害の状態
+            accident.setDamageCarState(request.getParameter("damageCarState"));
+            accident.setDamageBodilyState(request.getParameter("damageBodilyState"));
+            accident.setDamagePropertyState(request.getParameter("damagePropertyState"));
+            accident.setDamageAccidentState(request.getParameter("damageAccidentState"));
+
+            // DAOのメソッドを直接実行（新規ならINSERT、既存ならUPDATE）
+            accidentDao.setAccident(accident);
+            // -----------------------------------------------------------
 
             // 4. 完了画面表示用データのセット
             request.setAttribute("claimNo", request.getParameter("claimNo"));
@@ -68,67 +103,8 @@ public class AccidentSubmitController extends HttpServlet {
         }
     }
 
-    private void saveAccidentData(HttpServletRequest request, long paymentAmount, int claimStatus) {
-        try {
-            java.lang.reflect.Method method = AccidentDao.class.getMethod(
-                    "saveAccidentData",
-                    HttpServletRequest.class,
-                    long.class,
-                    int.class
-            );
-            method.invoke(accidentDao, request, paymentAmount, claimStatus);
-            return;
-        } catch (NoSuchMethodException e) {
-            // フォールバック
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("事故データの保存に失敗しました。", e);
-        }
-
-        try {
-            Class<?> accidentClass = Class.forName("agentdd.model.data.Accident");
-            Object accident = accidentClass.getDeclaredConstructor().newInstance();
-
-            setProperty(accident, "accidentNo", request.getParameter("claimNo"));
-            setProperty(accident, "accidentFlag", claimStatus);
-            setProperty(accident, "paymentAmount", Math.toIntExact(paymentAmount));
-            // JSPのname属性（ratingBlameMyself, damageCarPrice等）に合わせる
-            setProperty(accident, "negligenceInsured", parseLong(request.getParameter("ratingBlameMyself")));
-            setProperty(accident, "negligenceOpponent", parseLong(request.getParameter("ratingBlameYourself")));
-            setProperty(accident, "damageVehicle", parseLong(request.getParameter("damageCarPrice")));
-            setProperty(accident, "damagePerson", parseLong(request.getParameter("damageBodilyPrice")));
-            setProperty(accident, "damageObject", parseLong(request.getParameter("damagePropertyPrice")));
-            setProperty(accident, "damageInjury", parseLong(request.getParameter("damageAccidentPrice")));
-
-            java.lang.reflect.Method saveMethod = AccidentDao.class.getMethod("setAccident", accidentClass);
-            saveMethod.invoke(accidentDao, accident);
-        } catch (ReflectiveOperationException e) {
-            // 例外処理
-        }
-    }
-
-    private void setProperty(Object target, String propertyName, Object value) {
-        if (target == null || propertyName == null || propertyName.isBlank()) {
-            return;
-        }
-        try {
-            java.lang.reflect.Field field = target.getClass().getDeclaredField(propertyName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (NoSuchFieldException e) {
-            try {
-                java.lang.reflect.Method setter = target.getClass().getMethod(
-                        "set" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1),
-                        value == null ? Object.class : value.getClass()
-                );
-                setter.invoke(target, value);
-            } catch (ReflectiveOperationException ignored) {
-            }
-        } catch (IllegalAccessException ignored) {
-        }
-    }
 
     private long calculatePaymentAmount(HttpServletRequest request) {
-        // JSP側の損害項目名（damageCarPriceなど）に合わせて取得
         long vehicleDamage = parseLong(request.getParameter("damageCarPrice"));
         long bodilyDamage = parseLong(request.getParameter("damageBodilyPrice"));
         long propertyDamage = parseLong(request.getParameter("damagePropertyPrice"));
