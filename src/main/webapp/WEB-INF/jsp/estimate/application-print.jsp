@@ -71,7 +71,7 @@
               </div>
               <div>
                 <dt>総額保険料</dt>
-                <dd><fmt:formatNumber value="${claim.totalPremium}" />円</dd>
+                <dd><fmt:formatNumber value="${claim.premiumAmount}" />円</dd>
               </div>
               <div>
                 <dt>契約者</dt>
@@ -99,7 +99,7 @@
             <div class="print-actions">
               <a
                 class="button button--secondary print-button-link"
-                href="${pageContext.request.contextPath}/estimatestatus?mode=back"
+                href="${pageContext.request.contextPath}/estimateprint"
               >戻る</a>
               <form
                 action="${pageContext.request.contextPath}/estimateprint"

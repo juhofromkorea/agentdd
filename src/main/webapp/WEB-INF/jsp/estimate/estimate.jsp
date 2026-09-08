@@ -374,6 +374,17 @@
                       </label>
 
                       <label class="estimate-field">
+                        <span class="estimate-field__label">保険期間開始日</span>
+                        <input
+                          class="estimate-control"
+                          type="date"
+                          name="inceptionDate"
+                          form="coverage-form"
+                          <c:if test="${not empty contract.inceptionDate and fn:length(contract.inceptionDate) == 8}">value="${fn:substring(contract.inceptionDate, 0, 4)}-${fn:substring(contract.inceptionDate, 4, 6)}-${fn:substring(contract.inceptionDate, 6, 8)}"</c:if>
+                        />
+                      </label>
+
+                      <label class="estimate-field">
                         <span class="estimate-field__label">保険期間開始時刻</span>
                         <select
                           class="estimate-control"
