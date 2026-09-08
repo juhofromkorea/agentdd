@@ -847,13 +847,13 @@
       { maker: "トヨタ", name: "アクア" },
       { maker: "トヨタ", name: "クラウン" },
       { maker: "スバル", name: "レガシィ" },
-      { maker: "スバル", name: "WRX" },
+      { maker: "スバル", name: "WRX", dbName: "ＷＲＸ" },
       { maker: "スバル", name: "レヴォーグ" },
       { maker: "スズキ", name: "スイフト" },
       { maker: "スズキ", name: "キザシ" },
       { maker: "スズキ", name: "エスクード" },
-      { maker: "三菱", name: "アウトランダーPHEV" },
-      { maker: "三菱", name: "デリカD:5" }
+      { maker: "三菱", name: "アウトランダーPHEV", dbName: "アウトランダーＰＨＥＶ" },
+      { maker: "三菱", name: "デリカD:5", dbName: "デリカＤ：５" }
   ];
 
   // --- 2. 画面が開いた時の初期設定 ---
@@ -906,13 +906,22 @@
           makerSelect.value = initialMaker;
           updateCarSelect(); // メーカーに合わせて車名を絞り込む
       }
+
+          if (initialCarName) {
+            const initialCar = carDatabase.find(car =>
+              car.name === initialCarName || getDbCarName(car) === initialCarName);
+            if (initialCar) {
+              document.getElementById("carNameSelect").value = getDbCarName(initialCar);
+            }
+          }
       
-      if (initialCarName) {
-          document.getElementById("carNameSelect").value = initialCarName;
-      }
   });
 
   // --- 3. イベント処理 (双方向連動の魔法) ---
+
+  function getDbCarName(car) {
+      return car.dbName || car.name;
+  }
 
   // パターンA：メーカーが選ばれたら → 車名を絞り込む
   function onMakerChange() {
@@ -926,7 +935,7 @@
       
       if (selectedCarName) {
           // 選ばれた車名から、該当する車データを検索
-          const foundCar = carDatabase.find(car => car.name === selectedCarName);
+            const foundCar = carDatabase.find(car => getDbCarName(car) === selectedCarName);
           if (foundCar) {
               // 見つかったメーカーをセット
               makerSelect.value = foundCar.maker;
@@ -956,15 +965,15 @@
       }
 
       // 絞り込んだ結果をプルダウンに追加
-      filteredCars.forEach(car => {
+        filteredCars.forEach(car => {
           const option = document.createElement("option");
-          option.value = car.name;
+          option.value = getDbCarName(car);
           option.textContent = car.name;
           carSelect.appendChild(option);
       });
       
       // リセット前に選んでいた車名が、絞り込み後のリストに残っていれば再選択状態にする
-      if(filteredCars.some(car => car.name === currentCarValue)){
+        if(filteredCars.some(car => getDbCarName(car) === currentCarValue)){
           carSelect.value = currentCarValue;
       }
   }
