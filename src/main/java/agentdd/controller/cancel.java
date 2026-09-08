@@ -17,8 +17,4 @@
 //           request.setCharacterEncoding(SystemConst.CHAR_SET);
 
 //           String nextJsp = "/WEB-INF/view/cancellation.jsp";
-
-   
-         
-        
 // }

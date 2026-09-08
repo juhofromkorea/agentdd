@@ -8,29 +8,14 @@ import java.sql.Types;
 
 import agentdd.model.data.Claim;
 
-/**
- * 補償情報テーブル（COVER_TBL）に対するSQL操作を行う。
- */
 public class ClaimDao {
 
     private final Connection con;
 
-    /**
-     * コンストラクタ
-     *
-     * @param con DBコネクション（クローズ・トランザクション管理は呼び出し元で行う）
-     */
     public ClaimDao(Connection con) {
         this.con = con;
     }
 
-    /**
-     * 印刷連番に関連する補償情報を取得する。＜計上＞
-     *
-     * @param insatsuRenban 印刷連番
-     * @return 補償情報（該当するデータがない場合はnull）
-     * @throws SQLException DBエラーが発生した場合
-     */
     public Claim getClaimForAccount(String insatsuRenban) throws SQLException {
         String sql = "SELECT * FROM COVER_TBL WHERE insatsu_renban = ?";
 
@@ -46,15 +31,8 @@ public class ClaimDao {
         return null;
     }
 
-    /**
-     * 証券番号に関連する補償情報を取得する。＜照会・解約・事故受付＞
-     *
-     * @param polNo 証券番号
-     * @return 補償情報（該当するデータがない場合はnull）
-     * @throws SQLException DBエラーが発生した場合
-     */
     public Claim getClaim(String polNo) throws SQLException {
-        // COVER_TBLには証券番号がないため、印刷連番で契約情報テーブルと結合する。
+
         String sql = "SELECT COVER_TBL.* "
                 + "FROM COVER_TBL "
                 + "INNER JOIN CONTRACTINFO_TBL "
@@ -73,16 +51,8 @@ public class ClaimDao {
         return null;
     }
 
-    /**
-     * 新規試算の補償情報を登録する。
-     * 同じ印刷連番の契約情報を先に登録してから呼び出す。
-     *
-     * @param claim 補償情報
-     * @return 登録件数
-     * @throws SQLException DBエラーが発生した場合
-     */
     public int setEstimate(Claim claim) throws SQLException {
-        // cover_idはAUTO_INCREMENTのため、INSERTの対象に含めない。
+
         String sql = "INSERT INTO COVER_TBL ("
                 + "insatsu_renban, premium_amount, premium_installment, "
                 + "maker, car_name, license_no, vehicle_price, "
@@ -92,7 +62,6 @@ public class ClaimDao {
 
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, claim.getInsatsuRenban());
-            // setObjectを使用し、未設定の金額・区分はSQLのNULLとして登録する。
             stmt.setObject(2, claim.getPremiumAmount(), Types.BIGINT);
             stmt.setObject(3, claim.getPremiumInstallment(), Types.BIGINT);
             stmt.setString(4, claim.getMaker());
@@ -110,13 +79,6 @@ public class ClaimDao {
         }
     }
 
-    /**
-     * 検索結果1件を補償情報に設定する。
-     *
-     * @param res 現在行に補償情報がある検索結果
-     * @return 補償情報
-     * @throws SQLException 検索結果の取得に失敗した場合
-     */
     private Claim createClaim(ResultSet res) throws SQLException {
         Claim claim = new Claim();
 
