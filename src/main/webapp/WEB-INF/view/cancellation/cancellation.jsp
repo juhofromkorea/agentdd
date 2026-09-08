@@ -78,6 +78,7 @@
                   pattern="[A-Za-z0-9]{1,10}"
                   aria-describedby="cancellation-start-message"
                   required
+                  value="${sessionScope.constract.polNo }"
                 />
               </label>
 

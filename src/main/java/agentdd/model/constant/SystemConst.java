@@ -30,7 +30,7 @@ public class SystemConst {
     // DBパスワード名
     public static final String JDBC_PASSWORD = getEnvironmentValue(
         "AGENTDD_DB_PASSWORD",
-        "mysql"
+        "A726346b/th"
     );
 
     // 文字コード
