@@ -186,4 +186,22 @@ public class Accident {
     public void setStatusInjury(String statusInjury) {
         this.statusInjury = statusInjury;
     }
+
+
+    private String claimNo;
+private String polNo;
+
+public String getClaimNo() {
+    return claimNo;
+}
+public void setClaimNo(String claimNo) {
+    this.claimNo = claimNo;
+}
+
+public String getPolNo() {
+    return polNo;
+}
+public void setPolNo(String polNo) {
+    this.polNo = polNo;
+}
 }

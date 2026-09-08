@@ -12,7 +12,7 @@ import agentdd.model.data.Accident;
  * 事故受付テーブル（accident）への検索・登録などのDB操作を担当します。
  */
 public class AccidentDao {
-    
+
     private Connection con;
 
     /**
@@ -34,8 +34,7 @@ public class AccidentDao {
      */
     public Accident getAccident(String accidentNo) throws SQLException {
         Accident accident = null;
-        
-        // SQL文（検索処理）
+
         String sql = "SELECT * FROM accident WHERE accident_no = ?";
 
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -44,8 +43,7 @@ public class AccidentDao {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     accident = new Accident();
-                    
-                    // DBから取得した値を Accident オブジェクトの各フィールドにセット
+
                     accident.setAccidentNo(rs.getString("accident_no"));
                     accident.setClaim(rs.getInt("claim"));
                     accident.setAccidentFlag(rs.getInt("accident_flag"));
@@ -74,23 +72,45 @@ public class AccidentDao {
     }
 
     /**
-     * 事故受付情報の新規登録（入力画面からのデータをDBへ挿入）
-     * 
+     * 新規の事故受付番号を自動採番する
+     * @return 新規事故受付番号
+     * @throws SQLException
+     */
+    public String generateNextClaimNo() throws SQLException {
+        String newClaimNo = "AC00001";
+        String sql = "SELECT MAX(accident_no) FROM accident";
+        try (PreparedStatement stmt = con.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next() && rs.getString(1) != null) {
+                String maxNo = rs.getString(1);
+                if (maxNo.startsWith("AC")) {
+                    try {
+                        int num = Integer.parseInt(maxNo.substring(2)) + 1;
+                        newClaimNo = String.format("AC%05d", num);
+                    } catch (NumberFormatException e) {
+                        // パース失敗時のフォールバック
+                    }
+                }
+            }
+        }
+        return newClaimNo;
+    }
+
+    /**
+     * 事故受付情報の新規登録
      * @param accident 登録対象の事故受付データ
      * @throws SQLException
      */
     public void insertAccident(Accident accident) throws SQLException {
-        // SQL文（登録処理）
         String sql = "INSERT INTO accident ("
-                + "  accident_no, claim, accident_flag, payment_amount, "
-                + "  occur_place_kana1, occur_place_kana2, occur_place_kanji1, occur_place_kanji2, "
-                + "  occur_date, opponent_status, negligence_insured, negligence_opponent, "
-                + "  damage_vehicle, damage_person, damage_object, damage_injury, "
-                + "  status_vehicle, status_person, status_object, status_injury"
+                + " accident_no, claim, accident_flag, payment_amount, "
+                + " occur_place_kana1, occur_place_kana2, occur_place_kanji1, occur_place_kanji2, "
+                + " occur_date, opponent_status, negligence_insured, negligence_opponent, "
+                + " damage_vehicle, damage_person, damage_object, damage_injury, "
+                + " status_vehicle, status_person, status_object, status_injury"
                 + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
-            // Accident オブジェクトから取り出した値を SQL にセット
             stmt.setString(1, accident.getAccidentNo());
             stmt.setInt(2, accident.getClaim());
             stmt.setInt(3, accident.getAccidentFlag());
@@ -112,8 +132,16 @@ public class AccidentDao {
             stmt.setString(19, accident.getStatusObject());
             stmt.setString(20, accident.getStatusInjury());
 
-            // 登録SQLの実行
             stmt.executeUpdate();
         }
+    }
+
+    /**
+     * コントローラーからのリフレクション呼び出し（setAccident）に対応するメソッド
+     * @param accident 事故データ
+     * @throws SQLException
+     */
+    public void setAccident(Accident accident) throws SQLException {
+        insertAccident(accident);
     }
 }
