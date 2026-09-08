@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.RequestDispatcher;
+import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.data.Contract;
 import agentdd.model.data.Claim;
 import agentdd.model.util.InsuranceCalc;
@@ -115,7 +116,10 @@ public class EstimateCalcController extends HttpServlet {
     
         } catch (Exception e) {
             e.printStackTrace();
-            request.getRequestDispatcher("/WEB-INF/view/error/error.jsp").forward(request, response);
+            request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
+            request.setAttribute("errorBackUrl", "/estimate");
+            request.setAttribute("errorBackLabel", "試算画面へ戻る");
+            request.getRequestDispatcher("/WEB-INF/view/error/Error.jsp").forward(request, response);
         }       
     }
 

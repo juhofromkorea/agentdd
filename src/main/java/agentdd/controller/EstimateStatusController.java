@@ -12,6 +12,7 @@ import agentdd.model.data.Claim;
 import agentdd.model.dao.RatesDao;
 import agentdd.model.dao.VehicleDao;
 import agentdd.model.util.InsuranceCalc;
+import agentdd.model.constant.ErrorMsgConst;
 
 @WebServlet("/estimatestatus")
 public class EstimateStatusController extends HttpServlet {
@@ -30,16 +31,24 @@ public class EstimateStatusController extends HttpServlet {
 
         updateContractFromRequest(request, contract);
         updateClaimFromRequest(request, claim);
-        calculateClaimIfReady(contract, claim);
-        session.setAttribute("contract", contract);
-        session.setAttribute("claim", claim);
-        
-        // 2. 確認画面と完了画面にデータを持ち越すため、セッションに保存する！
-        session.setAttribute("printContract", contract);
-        session.setAttribute("printClaim", claim);
-        
-        // 3. 申込書印刷確認画面へフォワード
-        request.getRequestDispatcher("/WEB-INF/view/estimate/application-print.jsp").forward(request, response);
+        try {
+            calculateClaimIfReady(contract, claim);
+            session.setAttribute("contract", contract);
+            session.setAttribute("claim", claim);
+
+            // 2. 確認画面と完了画面にデータを持ち越すため、セッションに保存する！
+            session.setAttribute("printContract", contract);
+            session.setAttribute("printClaim", claim);
+
+            // 3. 申込書印刷確認画面へフォワード
+            request.getRequestDispatcher("/WEB-INF/view/estimate/application-print.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
+            request.setAttribute("errorBackUrl", "/estimate");
+            request.setAttribute("errorBackLabel", "試算画面へ戻る");
+            request.getRequestDispatcher("/WEB-INF/view/error/Error.jsp").forward(request, response);
+        }
     }
 
     private void updateContractFromRequest(HttpServletRequest request, Contract contract) {
