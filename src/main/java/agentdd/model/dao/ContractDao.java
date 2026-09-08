@@ -21,7 +21,7 @@ public class ContractDao {
             + "LEFT JOIN M_INSURED_TBL i ON c.insured_kbn = i.id "
             + "LEFT JOIN M_GENDER_TBL g ON c.gender = g.id ";
 
-    public ContractDao() throws SQLException, ClassNotFoundException {
+    public ContractDao() throws SQLException {
         this.con = ConnectionManager.getConnection();
     }
 

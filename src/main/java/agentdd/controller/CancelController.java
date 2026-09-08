@@ -47,7 +47,7 @@ public class CancelController extends HttpServlet {
                         "該当する契約情報がありません。");
 
                 request.getRequestDispatcher(
-                        "/WEB-INF/view/cancellatation.jsp").forward(request, response);
+                        "/WEB-INF/view/cancellation/cancellatation.jsp").forward(request, response);
 
                 return;
 
@@ -60,10 +60,10 @@ public class CancelController extends HttpServlet {
             if (claim == null) {
 
                 request.setAttribute(
-                        "errorMessage",
+                        "error",
                         "該当する補償情報がありません。");
                 request.getRequestDispatcher(
-                        "/WEB-INF/view/cancellatation.jsp").forward(request, response);
+                        "/WEB-INF/view/cancellation/cancellatation.jsp").forward(request, response);
 
                 return;
 
@@ -78,20 +78,20 @@ public class CancelController extends HttpServlet {
 
                 // 法人
                 request.getRequestDispatcher(
-                        "/WEB-INF/view/cancellation-detail-corporate.jsp").forward(request, response);
+                        "/WEB-INF/view/cancellation/cancellation-detail-corporate.jsp").forward(request, response);
 
             } else {
 
                 // 個人
                 request.getRequestDispatcher(
-                        "/WEB-INF/view/cancellation-detail.jsp").forward(request, response);
+                        "/WEB-INF/view/cancellation/cancellation-detail.jsp").forward(request, response);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
-            request.setAttribute("errMsg", ErrorMsgConst.UNEXPECTED_ERROR);
+            request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
             request.getRequestDispatcher(
-                    "/WEB-INF/view/Error.jsp").forward(request, response);
+                    "/WEB-INF/view/error/error.jsp").forward(request, response);
 
         }
     }

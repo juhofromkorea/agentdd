@@ -10,15 +10,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/cancelcomplete")
-public class CancelCompleteController extends HttpServlet{
-     protected void doPost(HttpServletRequest request,
+public class CancelCompleteController extends HttpServlet {
+    protected void doPost(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
 
-                request.setCharacterEncoding(SystemConst.CHAR_SET); 
-            }
+        request.setCharacterEncoding(SystemConst.CHAR_SET);
+    }
 
-
-
-    
 }

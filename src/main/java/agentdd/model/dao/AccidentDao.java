@@ -19,9 +19,8 @@ public class AccidentDao {
      * コンストラクタ
      * DB接続を取得してフィールドに保持します。
      * @throws SQLException 
-     * @throws ClassNotFoundException 
      */
-    public AccidentDao() throws SQLException, ClassNotFoundException {
+    public AccidentDao() throws SQLException {
         this.con = ConnectionManager.getConnection();
     }
 

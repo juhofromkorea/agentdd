@@ -12,7 +12,7 @@ public class ClaimDao {
 
     private final Connection con;
 
-    public ClaimDao() throws SQLException, ClassNotFoundException {
+    public ClaimDao() throws SQLException {
         this.con = ConnectionManager.getConnection();
     }
 
