@@ -52,7 +52,7 @@
           class="card content-card accounting-card accounting-card--complete accident-card"
           aria-labelledby="accident-complete-title"
         >
-          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/mockup/top">トップへ戻る</a>
+          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
           <div class="accounting-complete-content accident-complete-content">
             <div class="accounting-complete-mark" aria-hidden="true">✓</div>

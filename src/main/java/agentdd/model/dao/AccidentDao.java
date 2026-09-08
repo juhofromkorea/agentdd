@@ -1,10 +1,12 @@
 package agentdd.model.dao;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import agentdd.model.constant.SystemConst;
 import agentdd.model.data.Accident;
 
 /**
@@ -17,12 +19,17 @@ public class AccidentDao {
 
     /**
      * コンストラクタ
-     * DB接続を取得してフィールドに保持します。
+     * SystemConstからDB接続情報を取得して接続を保持します。
      * @throws SQLException 
      * @throws ClassNotFoundException 
      */
     public AccidentDao() throws SQLException, ClassNotFoundException {
-        this.con = ConnectionManager.getConnection();
+        Class.forName(SystemConst.JDBC_DRIVER_NAME);
+        this.con = DriverManager.getConnection(
+            SystemConst.JDBC_URL, 
+            SystemConst.JDBC_USER, 
+            SystemConst.JDBC_PASSWORD
+        );
     }
 
     /**
@@ -35,7 +42,6 @@ public class AccidentDao {
     public Accident getAccident(String accidentNo) throws SQLException {
         Accident accident = null;
 
-        // 契約情報テーブルと結合して漢字氏名を取得するようSQLを修正
         String sql = "SELECT cl.*, co.name_kanji1, co.name_kanji2 " +
                     "FROM claim_tbl cl " +
                     "LEFT JOIN contractinfo_tbl co ON cl.cover_id = co.insatsu_renban " +
@@ -50,36 +56,29 @@ public class AccidentDao {
 
                     accident.setClaimNo(rs.getString("claim_no"));
                     accident.setCoverId(rs.getInt("cover_id"));
-                    accident.setAccidentFlag(rs.getInt("claim_status"));
+                    accident.setClaimStatus(rs.getInt("claim_status"));
                     
-                    accident.setPaymentAmount(rs.getInt("payment_price"));
+                    accident.setPaymentPrice(rs.getLong("payment_price"));
                     
-                    // 氏名漢字1と漢字2を結合してセット
-                    String kanji1 = rs.getString("name_kanji1");
-                    String kanji2 = rs.getString("name_kanji2");
-                    String contractorName = (kanji1 != null ? kanji1 : "") + (kanji2 != null ? kanji2 : "");
-                    accident.setContractorName(contractorName);
-
-                    // 【修正】occur -> accident に変更
-                    accident.setAccidentPlaceKana1(rs.getString("accident_location_kana1"));
-                    accident.setAccidentPlaceKana2(rs.getString("accident_location_kana2"));
-                    accident.setAccidentPlaceKanji1(rs.getString("accident_location_kanji1"));
-                    accident.setAccidentPlaceKanji2(rs.getString("accident_location_kanji2"));
+                    accident.setAccidentLocationKana1(rs.getString("accident_location_kana1"));
+                    accident.setAccidentLocationKana2(rs.getString("accident_location_kana2"));
+                    accident.setAccidentLocationKanji1(rs.getString("accident_location_kanji1"));
+                    accident.setAccidentLocationKanji2(rs.getString("accident_location_kanji2"));
                     accident.setAccidentDate(rs.getString("accident_date"));
                     
-                    accident.setOpponentStatus(rs.getString("accident_situation"));
-                    accident.setNegligenceInsured(rs.getInt("rating_blame_myself"));
-                    accident.setNegligenceOpponent(rs.getInt("rating_blame_yourself"));
+                    accident.setAccidentSituation(rs.getString("accident_situation"));
+                    accident.setRatingBlameMyself(rs.getInt("rating_blame_myself"));
+                    accident.setRatingBlameYourself(rs.getInt("rating_blame_yourself"));
                     
-                    accident.setDamageVehicle(rs.getInt("damage_car_price"));
-                    accident.setDamagePerson(rs.getInt("damage_bodily_price"));
-                    accident.setDamageObject(rs.getInt("damage_property_price"));
-                    accident.setDamageInjury(rs.getInt("damage_accident_price"));
+                    accident.setDamageCarPrice(rs.getLong("damage_car_price"));
+                    accident.setDamageBodilyPrice(rs.getLong("damage_bodily_price"));
+                    accident.setDamagePropertyPrice(rs.getLong("damage_property_price"));
+                    accident.setDamageAccidentPrice(rs.getLong("damage_accident_price"));
                     
-                    accident.setStatusVehicle(rs.getString("damage_car_state"));
-                    accident.setStatusPerson(rs.getString("damage_bodily_state"));
-                    accident.setStatusObject(rs.getString("damage_property_state"));
-                    accident.setStatusInjury(rs.getString("damage_accident_state"));
+                    accident.setDamageCarState(rs.getString("damage_car_state"));
+                    accident.setDamageBodilyState(rs.getString("damage_bodily_state"));
+                    accident.setDamagePropertyState(rs.getString("damage_property_state"));
+                    accident.setDamageAccidentState(rs.getString("damage_accident_state"));
                 }
             }
         }
@@ -129,30 +128,29 @@ public class AccidentDao {
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, accident.getClaimNo());
             stmt.setInt(2, accident.getCoverId());
-            stmt.setInt(3, accident.getAccidentFlag());
+            stmt.setInt(3, accident.getClaimStatus());
             
-            stmt.setLong(4, accident.getPaymentAmount());
+            stmt.setLong(4, accident.getPaymentPrice());
             
-            // 【修正】occur -> accident に変更
-            stmt.setString(5, accident.getAccidentPlaceKana1());
-            stmt.setString(6, accident.getAccidentPlaceKana2());
-            stmt.setString(7, accident.getAccidentPlaceKanji1());
-            stmt.setString(8, accident.getAccidentPlaceKanji2());
+            stmt.setString(5, accident.getAccidentLocationKana1());
+            stmt.setString(6, accident.getAccidentLocationKana2());
+            stmt.setString(7, accident.getAccidentLocationKanji1());
+            stmt.setString(8, accident.getAccidentLocationKanji2());
             stmt.setString(9, accident.getAccidentDate());
             
-            stmt.setString(10, accident.getOpponentStatus());
-            stmt.setInt(11, accident.getNegligenceInsured());
-            stmt.setInt(12, accident.getNegligenceOpponent());
+            stmt.setString(10, accident.getAccidentSituation());
+            stmt.setInt(11, accident.getRatingBlameMyself());
+            stmt.setInt(12, accident.getRatingBlameYourself());
             
-            stmt.setLong(13, accident.getDamageVehicle());
-            stmt.setLong(14, accident.getDamagePerson());
-            stmt.setLong(15, accident.getDamageObject());
-            stmt.setLong(16, accident.getDamageInjury());
+            stmt.setLong(13, accident.getDamageCarPrice());
+            stmt.setLong(14, accident.getDamageBodilyPrice());
+            stmt.setLong(15, accident.getDamagePropertyPrice());
+            stmt.setLong(16, accident.getDamageAccidentPrice());
             
-            stmt.setString(17, accident.getStatusVehicle());
-            stmt.setString(18, accident.getStatusPerson());
-            stmt.setString(19, accident.getStatusObject());
-            stmt.setString(20, accident.getStatusInjury());
+            stmt.setString(17, accident.getDamageCarState());
+            stmt.setString(18, accident.getDamageBodilyState());
+            stmt.setString(19, accident.getDamagePropertyState());
+            stmt.setString(20, accident.getDamageAccidentState());
 
             stmt.executeUpdate();
         }

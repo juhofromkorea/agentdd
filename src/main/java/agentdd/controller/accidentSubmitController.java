@@ -31,13 +31,12 @@ public class AccidentSubmitController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         try {
-            // 1. バリデーション：過失割合の合計が100になるかチェック
-            int myFault = (int) parseLong(request.getParameter("insuredFaultRatio"));
+            // 1. バリデーション：過失割合の合計が100になるかチェック（JSPのnameにあわせる）
+            int myFault = (int) parseLong(request.getParameter("ratingBlameMyself"));
             int yourFault = (int) parseLong(request.getParameter("ratingBlameYourself"));
             
             if (myFault + yourFault != 100) {
                 request.setAttribute("errorMessage", "過失割合の合計が100になるように入力してください。");
-                // パスを /WEB-INF/view/ に統一
                 request.getRequestDispatcher("/WEB-INF/view/accident/accident-detail.jsp").forward(request, response);
                 return;
             }
@@ -59,7 +58,7 @@ public class AccidentSubmitController extends HttpServlet {
             request.setAttribute("paymentAmount", paymentAmount);
             request.setAttribute("completeMessage", completeMessage);
 
-            // 5. 完了画面へフォワード（パスを /WEB-INF/view/ に統一）
+            // 5. 完了画面へフォワード
             request.getRequestDispatcher("/WEB-INF/view/accident/accident-complete.jsp").forward(request, response);
 
         } catch (Exception e) {
@@ -92,12 +91,13 @@ public class AccidentSubmitController extends HttpServlet {
             setProperty(accident, "accidentNo", request.getParameter("claimNo"));
             setProperty(accident, "accidentFlag", claimStatus);
             setProperty(accident, "paymentAmount", Math.toIntExact(paymentAmount));
-            setProperty(accident, "negligenceInsured", parseLong(request.getParameter("insuredFaultRatio")));
+            // JSPのname属性（ratingBlameMyself, damageCarPrice等）に合わせる
+            setProperty(accident, "negligenceInsured", parseLong(request.getParameter("ratingBlameMyself")));
             setProperty(accident, "negligenceOpponent", parseLong(request.getParameter("ratingBlameYourself")));
-            setProperty(accident, "damageVehicle", parseLong(request.getParameter("vehicleDamageAmount")));
-            setProperty(accident, "damagePerson", parseLong(request.getParameter("bodilyDamageAmount")));
-            setProperty(accident, "damageObject", parseLong(request.getParameter("propertyDamageAmount")));
-            setProperty(accident, "damageInjury", parseLong(request.getParameter("injuryDamageAmount")));
+            setProperty(accident, "damageVehicle", parseLong(request.getParameter("damageCarPrice")));
+            setProperty(accident, "damagePerson", parseLong(request.getParameter("damageBodilyPrice")));
+            setProperty(accident, "damageObject", parseLong(request.getParameter("damagePropertyPrice")));
+            setProperty(accident, "damageInjury", parseLong(request.getParameter("damageAccidentPrice")));
 
             java.lang.reflect.Method saveMethod = AccidentDao.class.getMethod("setAccident", accidentClass);
             saveMethod.invoke(accidentDao, accident);
@@ -128,13 +128,14 @@ public class AccidentSubmitController extends HttpServlet {
     }
 
     private long calculatePaymentAmount(HttpServletRequest request) {
-        long vehicleDamage = parseLong(request.getParameter("vehicleDamageAmount"));
-        long bodilyDamage = parseLong(request.getParameter("bodilyDamageAmount"));
-        long propertyDamage = parseLong(request.getParameter("propertyDamageAmount"));
-        long injuryDamage = parseLong(request.getParameter("injuryDamageAmount"));
+        // JSP側の損害項目名（damageCarPriceなど）に合わせて取得
+        long vehicleDamage = parseLong(request.getParameter("damageCarPrice"));
+        long bodilyDamage = parseLong(request.getParameter("damageBodilyPrice"));
+        long propertyDamage = parseLong(request.getParameter("damagePropertyPrice"));
+        long injuryDamage = parseLong(request.getParameter("damageAccidentPrice"));
 
         long totalDamage = vehicleDamage + bodilyDamage + propertyDamage + injuryDamage;
-        double faultRatio = parseLong(request.getParameter("insuredFaultRatio")) / 100.0;
+        double faultRatio = parseLong(request.getParameter("ratingBlameMyself")) / 100.0;
 
         return Math.round(totalDamage * faultRatio);
     }

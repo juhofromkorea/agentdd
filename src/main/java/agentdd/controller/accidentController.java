@@ -86,7 +86,14 @@ public class AccidentController extends HttpServlet {
                         request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
                         return;
                     }
+
+                    Contract contractData = contractDao.findContractByInsatsuRenban(String.valueOf(accidentData.getCoverId()));
                     request.setAttribute("accident", accidentData);
+                    request.setAttribute("contract", contractData);
+                    
+                    if (contractData != null) {
+                        request.setAttribute("nameKanji1", contractData.getNameKanji1());
+                    }
                 } 
                 // B: 証券番号が入力された場合 (新規受付)
                 else if (hasPolNo) {
@@ -104,15 +111,9 @@ public class AccidentController extends HttpServlet {
                     // 新規受付用の事故データオブジェクトを作成してセット
                     Accident newAccident = new Accident();
                     newAccident.setClaimNo(newClaimNo);
-                    
-                    // 契約情報から coverId と contractorName をセット
                     newAccident.setCoverId(Integer.parseInt(contractData.getInsatsuRenban()));
                     
-                    String kanji1 = contractData.getNameKanji1();
-                    String kanji2 = contractData.getNameKanji2();
-                    String contractorName = (kanji1 != null ? kanji1 : "") + (kanji2 != null ? kanji2 : "");
-                    newAccident.setContractorName(contractorName);
-                    
+                    request.setAttribute("nameKanji1", contractData.getNameKanji1());
                     request.setAttribute("accident", newAccident);
                     request.setAttribute("contract", contractData);
                 }

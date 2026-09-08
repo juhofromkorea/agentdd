@@ -51,15 +51,13 @@
           aria-labelledby="accident-detail-title"
         >
           <h1 class="sr-only" id="accident-detail-title">個人契約の事故受付入力</h1>
-          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/mockup/top">トップへ戻る</a>
+          <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
-          <!-- ★修正: action先を /accident/submit に統一 -->
           <form class="accounting-workspace" action="${pageContext.request.contextPath}/accident/submit" method="post">
             
-            <!-- ★追加: 完了画面の表示で必要な基本情報をhiddenで保持 -->
             <input type="hidden" name="claimNo" value="${accident.claimNo}" />
             <input type="hidden" name="polNo" value="${accident.polNo}" />
-            <input type="hidden" name="contractorName" value="${accident.contractorName}" />
+            <input type="hidden" name="contractorName" value="${contract.nameKanji1}" />
 
             <input
               class="accounting-controller"
@@ -94,7 +92,7 @@
                 <dl class="accident-record-summary">
                   <div><dt>事故受付番号</dt><dd>${accident.claimNo}</dd></div>
                   <div><dt>証券番号</dt><dd>${accident.polNo}</dd></div>
-                  <div><dt>契約者氏名</dt><dd>${accident.contractorName}</dd></div>
+                  <div><dt>契約者名</dt><dd>${contract.nameKanji1}</dd></div>
                 </dl>
 
                 <fieldset class="accident-form-section">
@@ -211,7 +209,6 @@
                         <label class="accident-field">
                           <span>車両損害額</span>
                           <span class="accident-affixed-control">
-                            <!-- ★修正: name="vehicleDamageAmount" に統一 -->
                             <input class="accident-input" type="text" name="damageCarPrice" value="${accident.damageCarPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：250000" />
                             <span class="accident-affix">円</span>
                           </span>
@@ -228,7 +225,6 @@
                         <label class="accident-field">
                           <span>対人損害額</span>
                           <span class="accident-affixed-control">
-                            <!-- ★修正: name="bodilyDamageAmount" に統一 -->
                             <input class="accident-input" type="text" name="damageBodilyPrice" value="${accident.damageBodilyPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：100000" />
                             <span class="accident-affix">円</span>
                           </span>
@@ -245,7 +241,6 @@
                         <label class="accident-field">
                           <span>対物損害額</span>
                           <span class="accident-affixed-control">
-                            <!-- ★修正: name="propertyDamageAmount" に統一 -->
                             <input class="accident-input" type="text" name="damagePropertyPrice" value="${accident.damagePropertyPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：50000" />
                             <span class="accident-affix">円</span>
                           </span>
@@ -275,13 +270,13 @@
                   </div>
                 </fieldset>
 
-                <!-- ★修正: buttonに name="action" と value を付与 -->
                 <div class="accident-panel-actions">
                   <button class="button button--primary" type="submit" name="action" value="updateStatus">状況更新</button>
                   <button class="button button--primary" type="submit" name="action" value="completeReceipt">事故受付完了</button>
                 </div>
               </section>
 
+<%-- 契約情報パネルの項目は未実装のためコメントアウト
               <section class="accounting-panel accident-panel--contract">
                 <h2 class="accounting-section-title">契約情報</h2>
                 <dl class="accounting-data-list">
@@ -307,7 +302,9 @@
                   <button class="button button--primary" type="submit" name="action" value="completeReceipt">事故受付完了</button>
                 </div>
               </section>
+--%>
 
+<%-- 補償情報パネルの項目は未実装のためコメントアウト
               <section class="accounting-panel accident-panel--coverage">
                 <div class="accounting-coverage-header">
                   <h2 class="accounting-section-title">自動車保険試算結果</h2>
@@ -334,6 +331,7 @@
                   <button class="button button--primary" type="submit" name="action" value="completeReceipt">事故受付完了</button>
                 </div>
               </section>
+--%>
             </div>
           </form>
         </section>
