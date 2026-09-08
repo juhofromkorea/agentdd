@@ -64,6 +64,11 @@ public class EstimateStatusController extends HttpServlet {
         contract.setTelephoneNo(normalize(request.getParameter("telephoneNo"), contract.getTelephoneNo()));
         contract.setMobilephoneNo(normalize(request.getParameter("mobilephoneNo"), contract.getMobilephoneNo()));
         contract.setFaxNo(normalize(request.getParameter("faxNo"), contract.getFaxNo()));
+
+        // 初期値設定
+        contract.setStatusFlg(1);
+        contract.setCancelFlg(false);
+        contract.setPolNo(null);
     }
 
     private void updateClaimFromRequest(HttpServletRequest request, Claim claim) {

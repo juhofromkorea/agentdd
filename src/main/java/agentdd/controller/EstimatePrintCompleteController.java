@@ -66,14 +66,15 @@ public class EstimatePrintCompleteController extends HttpServlet{
             session.removeAttribute("contract");
             session.removeAttribute("claim");
             session.removeAttribute("calculated");
-            
+
             // 5. 完了画面に発行した連番だけを渡して遷移
             request.setAttribute("serialNum", serialNum);
+            request.setAttribute("contract", contract);
             request.getRequestDispatcher("/WEB-INF/view/estimate/application-print-complete.jsp").forward(request, response);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
-            request.getRequestDispatcher("/WEB-INF/view/error/Error.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/view/error/error.jsp").forward(request, response);
         }
     }
 }

@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.RequestDispatcher;
 import agentdd.model.data.Contract;
 import agentdd.model.data.Claim;
 import agentdd.model.util.InsuranceCalc;
@@ -15,6 +16,17 @@ import agentdd.model.dao.RatesDao;
 
 @WebServlet("/estimatecalc")
 public class EstimateCalcController extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        RequestDispatcher rd = request.getRequestDispatcher(
+                "/WEB-INF/view/estimate/estimate.jsp");
+        rd.forward(request, response);
+
+    }
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
@@ -23,8 +35,6 @@ public class EstimateCalcController extends HttpServlet {
         Claim claim = new Claim();
 
         // 1. そのまま文字列として受け取る項目
-
-        contract.setPolNo(request.getParameter("polNo"));
         contract.setNameKana1(request.getParameter("nameKana1"));
         contract.setNameKana2(request.getParameter("nameKana2"));
         contract.setNameKanji1(request.getParameter("nameKanji1"));
@@ -35,12 +45,15 @@ public class EstimateCalcController extends HttpServlet {
         contract.setAddressKanji2(request.getParameter("addressKanji2"));
         contract.setInceptionTime(request.getParameter("inceptionTime"));
         contract.setConclusionTime(request.getParameter("conclusionTime"));
-
-        contract.setStatusFlg(parseInt(request.getParameter("statusFlg"), 0));
         contract.setPaymentMethod(parseInt(request.getParameter("paymentMethod"), 0));
         contract.setInstallment(parseInt(request.getParameter("installment"), 1));
         contract.setInsuredKbn(parseInt(request.getParameter("insuredKbn"), 0));
         contract.setGender(parseInt(request.getParameter("gender"), 0));
+
+        // 初期値設定
+        contract.setStatusFlg(1);
+        contract.setCancelFlg(false);
+        contract.setPolNo(null);
 
         // 3. 記号（/ や -）を消し去ってからセットする項目（日付・郵便番号・電話番号）
         String rawInception = request.getParameter("inceptionDate");
@@ -102,7 +115,7 @@ public class EstimateCalcController extends HttpServlet {
     
         } catch (Exception e) {
             e.printStackTrace();
-            request.getRequestDispatcher("/WEB-INF/view/error/Error.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/view/error/error.jsp").forward(request, response);
         }       
     }
 
