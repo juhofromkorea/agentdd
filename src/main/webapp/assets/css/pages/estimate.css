@@ -253,6 +253,13 @@
   opacity: 0.85;
 }
 
+.estimate-control--readonly {
+  display: flex;
+  align-items: center;
+  color: var(--color-muted);
+  background: color-mix(in srgb, var(--color-border) 32%, var(--color-input-bg));
+}
+
 .estimate-control-with-suffix {
   position: relative;
   display: block;
