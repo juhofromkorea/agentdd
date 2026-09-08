@@ -55,7 +55,7 @@ public class InquiryController extends HttpServlet {
                         "該当する契約情報がありません。");
 
                 request.getRequestDispatcher(
-                        "/WEB-INF/view/inquiry.jsp").forward(request, response);
+                        "/WEB-INF/view/inquiry/inquiry.jsp").forward(request, response);
 
                 return;
             }

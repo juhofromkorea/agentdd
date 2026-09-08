@@ -63,8 +63,8 @@
 
             <form
               class="accounting-start-form"
-              action="${pageContext.request.contextPath}/inquiry-detail"
-              method="get"
+              action="${pageContext.request.contextPath}/inquiry"
+              method="post"
             >
               <label class="accounting-start-field">
                 <span>証券番号</span>
