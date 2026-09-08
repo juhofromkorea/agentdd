@@ -3,12 +3,13 @@ package agentdd.model.data;
 public class Claim {
     private Integer coverId;
     private String insatsuRenban;
-    private Integer premiumAmount;
-    private Integer premiumInstallment;
+    // DB項目定義書の金額18桁に対応するため、Long型で保持する。
+    private Long premiumAmount;
+    private Long premiumInstallment;
     private String maker;
     private String carName;
     private String licenseNo;
-    private Integer vehiclePrice;
+    private Long vehiclePrice;
     private Integer vehicleRates;
     private Integer bodilyRates;
     private Integer propertyDamageRates;
@@ -32,19 +33,19 @@ public class Claim {
         this.insatsuRenban = insatsuRenban;
     }
 
-    public Integer getPremiumAmount() {
+    public Long getPremiumAmount() {
         return premiumAmount;
     }
 
-    public void setPremiumAmount(Integer premiumAmount) {
+    public void setPremiumAmount(Long premiumAmount) {
         this.premiumAmount = premiumAmount;
     }
 
-    public Integer getPremiumInstallment() {
+    public Long getPremiumInstallment() {
         return premiumInstallment;
     }
 
-    public void setPremiumInstallment(Integer premiumInstallment) {
+    public void setPremiumInstallment(Long premiumInstallment) {
         this.premiumInstallment = premiumInstallment;
     }
 
@@ -72,11 +73,11 @@ public class Claim {
         this.licenseNo = licenseNo;
     }
 
-    public Integer getVehiclePrice() {
+    public Long getVehiclePrice() {
         return vehiclePrice;
     }
 
-    public void setVehiclePrice(Integer vehiclePrice) {
+    public void setVehiclePrice(Long vehiclePrice) {
         this.vehiclePrice = vehiclePrice;
     }
 

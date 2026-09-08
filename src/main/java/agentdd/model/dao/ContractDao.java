@@ -40,7 +40,7 @@ public class ContractDao {
         + "       ON CONTRACTINFO_TBL.gender = M_GENDER_TBL.code "
         + "WHERE CONTRACTINFO_TBL.insatsuRenban = ?";
 
-        try{
+        try {
             stmt = con.prepareStatement(sql);
             stmt.setString(1,insatsuRenban);
             res = stmt.executeQuery();
@@ -75,16 +75,16 @@ public class ContractDao {
                 cnt.setFaxNo(res.getString("faxNo"));
 
                 // --- マスタテーブルから取得した「名称（文字列）」をセット ---
-            cnt.setPaymentStr(res.getString("payment_name"));
-            cnt.setStatusStr(res.getString("status_name"));
-            cnt.setInsuredStr(res.getString("insured_name"));
-            cnt.setGenderStr(res.getString("gender_name"));
+                cnt.setPaymentStr(res.getString("payment_name"));
+                cnt.setStatusStr(res.getString("status_name"));
+                cnt.setInsuredStr(res.getString("insured_name"));
+                cnt.setGenderStr(res.getString("gender_name"));
             }
-        }finally{
-            if(res!=null){
+        } finally {
+            if (res!=null) {
                 res.close();
             }
-            if(stmt !=null){
+            if (stmt !=null) {
                 stmt.close();
             }
         }
@@ -200,7 +200,7 @@ public class ContractDao {
 
                 cnt.setInsatsuRenban(res.getString("insatsuRenban"));
                 cnt.setPolNo(res.getString("polNo"));
-                //cnt.setStatusFlg(res.getInt("statusFlg"));
+                cnt.setStatusFlg(res.getInt("statusFlg"));
                 cnt.setCancelFlg(res.getBoolean("cancel_flg"));
                 cnt.setInceptionDate(res.getString("inceptionDate"));
                 cnt.setInceptionTime(res.getString("inceptionTime"));
@@ -224,17 +224,16 @@ public class ContractDao {
                 cnt.setMobilephoneNo(res.getString("mobilephoneNo"));
                 cnt.setFaxNo(res.getString("faxNo"));
 
-            cnt.setPaymentStr(res.getString("payment_name"));
-            cnt.setStatusStr(res.getString("status_name"));
-            cnt.setInsuredStr(res.getString("insured_name"));
-            cnt.setGenderStr(res.getString("gender_name"));
-
+                cnt.setPaymentStr(res.getString("payment_name"));
+                cnt.setStatusStr(res.getString("status_name"));
+                cnt.setInsuredStr(res.getString("insured_name"));
+                cnt.setGenderStr(res.getString("gender_name"));
             }
-        }finally{
-            if(res!=null){
+        } finally {
+            if (res!=null) {
                 res.close();
             }
-            if(stmt !=null){
+            if (stmt !=null) {
                 stmt.close();
             }
         }
@@ -254,35 +253,33 @@ public class ContractDao {
         }
         // 初期値：8桁（英字1桁 + 数字7桁）
         return "A0000001"; 
-
-
     }
-    /*計上ステータース更新用メソッド */
 
+    /*計上ステータース更新用メソッド */
     public boolean updateKeijoStatus(String insatsurenban) throws SQLException {
 
-    PreparedStatement stmt = null;
-    String sql = "UPDATE CONTRACTINFO_TBL SET status_flg = ? WHERE insatsurenban = ?";
+        PreparedStatement stmt = null;
+        String sql = "UPDATE CONTRACTINFO_TBL SET status_flg = ? WHERE insatsurenban = ?";
 
-    try {
-        stmt = con.prepareStatement(sql);
-        stmt.setInt(1, 0);
-        stmt.setString(2, insatsurenban);
+        try {
+            stmt = con.prepareStatement(sql);
+            stmt.setInt(1, 0);
+            stmt.setString(2, insatsurenban);
 
-        int updatedRows = stmt.executeUpdate();
+            int updatedRows = stmt.executeUpdate();
 
-        return updatedRows > 0;
+            return updatedRows > 0;
 
-    } finally {
-        if (stmt != null) {
-            stmt.close();
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
         }
     }
-}
 
-/** 
- * 印刷連番発行メソッド (8桁: A0000001〜)
-  */
+    /** 
+     * 印刷連番発行メソッド (8桁: A0000001〜)
+     */
     public String generateNextInsatsurenban() throws SQLException {
         String currentMax = getEstimate(); // 例: "A0000001"
         String prefix = currentMax.substring(0, 1); 
@@ -293,104 +290,101 @@ public class ContractDao {
         return String.format("%s%07d", prefix, number);
     }
 
+    /*解約用フラグ変更用メソッド */
 
+    public boolean updateCancelFlag(String insatsurenban) throws SQLException {
 
-/*解約用フラグ変更用メソッド */
-
-public boolean updateCancelFlag(String insatsurenban) throws SQLException {
-
-    PreparedStatement stmt = null;
-    
-    // cancel_flg を解約状態（1）に更新するSQL
-    String sql = "UPDATE CONTRACTINFO_TBL SET cancel_flg = ? WHERE insatsurenban = ?";
-
-    try {
-        stmt = con.prepareStatement(sql);
+        PreparedStatement stmt = null;
         
-        // 1番目の ? に解約を表すフラグ値をセット
-        stmt.setInt(1, 1); 
-        
-        // 2番目の ? に対象の印刷連番をセット
-        stmt.setString(2, insatsurenban);
+        // cancel_flg を解約状態（1）に更新するSQL
+        String sql = "UPDATE CONTRACTINFO_TBL SET cancel_flg = ? WHERE insatsurenban = ?";
 
-        // SQLを実行し、更新された行数を取得する
-        int updatedRows = stmt.executeUpdate();
+        try {
+            stmt = con.prepareStatement(sql);
+            
+            // 1番目の ? に解約を表すフラグ値をセット
+            stmt.setInt(1, 1); 
+            
+            // 2番目の ? に対象の印刷連番をセット
+            stmt.setString(2, insatsurenban);
 
-        // 1件以上更新されていれば成功(true)を返す
-        return updatedRows > 0;
+            // SQLを実行し、更新された行数を取得する
+            int updatedRows = stmt.executeUpdate();
 
-    } finally {
-        if (stmt != null) {
-            stmt.close();
+            // 1件以上更新されていれば成功(true)を返す
+            return updatedRows > 0;
+
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
         }
     }
-}
 
-/*新規試算登録用メソッド */
+    // 新規試算登録用メソッド
+    public boolean insertContract(Contract cnt) throws SQLException {
 
-public boolean insertContract(Contract cnt) throws SQLException {
+        PreparedStatement stmt = null;
 
-    PreparedStatement stmt = null;
+        String sql = "INSERT INTO CONTRACTINFO_TBL ("
+                + "  insatsuRenban, status_flg, cancel_flg, inceptionDate, inceptionTime, "
+                + "  conclusionDate, conclusionTime, paymentMethod, installment, insuredKbn, "
+                + "  nameKana1, nameKana2, nameKanji1, nameKanji2, postcode, "
+                + "  addressKana1, addressKana2, addressKanji1, addressKanji2, birthday, "
+                + "  gender, telephoneNo, mobilephoneNo, faxNo"
+                + ") VALUES ("
+                + "  ?, ?, ?, ?, ?, "
+                + "  ?, ?, ?, ?, ?, "
+                + "  ?, ?, ?, ?, ?, "
+                + "  ?, ?, ?, ?, ?, "
+                + "  ?, ?, ?, ?"
+                + ")";
 
-    String sql = "INSERT INTO CONTRACTINFO_TBL ("
-            + "  insatsuRenban, status_flg, cancel_flg, inceptionDate, inceptionTime, "
-            + "  conclusionDate, conclusionTime, paymentMethod, installment, insuredKbn, "
-            + "  nameKana1, nameKana2, nameKanji1, nameKanji2, postcode, "
-            + "  addressKana1, addressKana2, addressKanji1, addressKanji2, birthday, "
-            + "  gender, telephoneNo, mobilephoneNo, faxNo"
-            + ") VALUES ("
-            + "  ?, ?, ?, ?, ?, "
-            + "  ?, ?, ?, ?, ?, "
-            + "  ?, ?, ?, ?, ?, "
-            + "  ?, ?, ?, ?, ?, "
-            + "  ?, ?, ?, ?"
-            + ")";
+        try {
+            stmt = con.prepareStatement(sql);
 
-    try {
-        stmt = con.prepareStatement(sql);
+            stmt.setString(1, cnt.getInsatsuRenban());
+            stmt.setInt(2, cnt.getStatusFlg());
+            stmt.setBoolean(3, cnt.isCancelFlg()); 
+            stmt.setString(4, cnt.getInceptionDate());
+            stmt.setString(5, cnt.getInceptionTime());
 
-        stmt.setString(1, cnt.getInsatsuRenban());
-        stmt.setInt(2, cnt.getStatusFlg());
-        stmt.setBoolean(3, cnt.isCancelFlg()); 
-        stmt.setString(4, cnt.getInceptionDate());
-        stmt.setString(5, cnt.getInceptionTime());
+            stmt.setString(6, cnt.getConclusionDate());
+            stmt.setString(7, cnt.getConclusionTime());
+            stmt.setInt(8, cnt.getPaymentMethod());
+            stmt.setInt(9, cnt.getInstallment());
+            stmt.setInt(10, cnt.getInsuredKbn());
 
-        stmt.setString(6, cnt.getConclusionDate());
-        stmt.setString(7, cnt.getConclusionTime());
-        stmt.setInt(8, cnt.getPaymentMethod());
-        stmt.setInt(9, cnt.getInstallment());
-        stmt.setInt(10, cnt.getInsuredKbn());
+            stmt.setString(11, cnt.getNameKana1());
+            stmt.setString(12, cnt.getNameKana2());
+            stmt.setString(13, cnt.getNameKanji1());
+            stmt.setString(14, cnt.getNameKanji2());
+            stmt.setString(15, cnt.getPostcode());
 
-        stmt.setString(11, cnt.getNameKana1());
-        stmt.setString(12, cnt.getNameKana2());
-        stmt.setString(13, cnt.getNameKanji1());
-        stmt.setString(14, cnt.getNameKanji2());
-        stmt.setString(15, cnt.getPostcode());
+            stmt.setString(16, cnt.getAddressKana1());
+            stmt.setString(17, cnt.getAddressKana2());
+            stmt.setString(18, cnt.getAddressKanji1());
+            stmt.setString(19, cnt.getAddressKanji2());
+            stmt.setString(20, cnt.getBirthday());
 
-        stmt.setString(16, cnt.getAddressKana1());
-        stmt.setString(17, cnt.getAddressKana2());
-        stmt.setString(18, cnt.getAddressKanji1());
-        stmt.setString(19, cnt.getAddressKanji2());
-        stmt.setString(20, cnt.getBirthday());
+            // 性別の数値フラグ（※DTOのメソッド名に合わせて調整してください）
+            stmt.setInt(21, cnt.getGender()); 
+            stmt.setString(22, cnt.getTelephoneNo());
+            stmt.setString(23, cnt.getMobilephoneNo());
+            stmt.setString(24, cnt.getFaxNo());
 
-        // 性別の数値フラグ（※DTOのメソッド名に合わせて調整してください）
-        stmt.setInt(21, cnt.getGender()); 
-        stmt.setString(22, cnt.getTelephoneNo());
-        stmt.setString(23, cnt.getMobilephoneNo());
-        stmt.setString(24, cnt.getFaxNo());
+            int insertedRows = stmt.executeUpdate();
+            return insertedRows > 0;
 
-        int insertedRows = stmt.executeUpdate();
-        return insertedRows > 0;
-
-    } finally {
-        //  2. stmt のクローズ処理
-        if (stmt != null) {
-            stmt.close();
+        } finally {
+            //  2. stmt のクローズ処理
+            if (stmt != null) {
+                stmt.close();
+            }
         }
     }
-}
 
-/** 証券番号の一番大きい値を取得する */
+    /** 証券番号の一番大きい値を取得する */
     public String getMaxPolNo() throws SQLException {
         String sql = "SELECT polNo FROM CONTRACTINFO_TBL WHERE polNo IS NOT NULL ORDER BY polNo DESC LIMIT 1";
 
@@ -414,6 +408,5 @@ public boolean insertContract(Contract cnt) throws SQLException {
         // %s (アルファベット) + %09d (9桁のゼロ埋め数値) => 全計10桁
         return String.format("%s%09d", prefix, number);
     }
-    }
 
-
+}
