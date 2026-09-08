@@ -1,7 +1,7 @@
 package agentdd.model.data;
 
-import java.text.NumberFormat;
-import java.util.Locale;
+//import java.text.NumberFormat;
+//import java.util.Locale;
 
 public class Contract {
 

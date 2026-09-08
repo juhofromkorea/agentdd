@@ -33,6 +33,14 @@ public final class ConnectionManager {
     public static Connection getConnection()
             throws SQLException {
 
+                try {
+            // ★超重要：MySQL 8系に対応したドライバクラスを明示的に読み込ませる！
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            // ドライバのjarファイル自体が見つからない場合の絶望的エラー
+            throw new SQLException("MySQL JDBC Driverが見つかりません。", e);
+        }
+
         return DriverManager.getConnection(
                 SystemConst.JDBC_URL,
                 SystemConst.JDBC_USER,
