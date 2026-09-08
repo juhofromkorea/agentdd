@@ -28,6 +28,44 @@ public class Contract {
     private String mobilephoneNo;
     private String faxNo;
 
+    /** マスタテーブル用メンバ変数 */
+    private String paymentStr;
+    private String statusStr;
+    private String insuredStr;
+    private String genderStr;
+
+    public String getPaymentStr() {
+        return paymentStr;
+    }
+
+    public void setPaymentStr(String paymentStr) {
+        this.paymentStr = paymentStr;
+    }
+
+    public String getStatusStr() {
+        return statusStr;
+    }
+
+    public void setStatusStr(String statusStr) {
+        this.statusStr = statusStr;
+    }
+
+    public String getInsuredStr() {
+        return insuredStr;
+    }
+
+    public void setInsuredStr(String insuredStr) {
+        this.insuredStr = insuredStr;
+    }
+
+    public String getGenderStr() {
+        return genderStr;
+    }
+
+    public void setGenderStr(String genderStr) {
+        this.genderStr = genderStr;
+    }
+
     public String getInsatsuRenban() {
         return insatsuRenban;
     }
