@@ -79,7 +79,7 @@
             </a>
             <a
               class="button button--primary top-menu__button"
-              href="${pageContext.request.contextPath}/cancellation"
+              href="${pageContext.request.contextPath}/cancel"
             >
               解約
             </a>

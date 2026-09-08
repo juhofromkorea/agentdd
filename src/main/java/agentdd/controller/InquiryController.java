@@ -7,6 +7,9 @@ import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.constant.SystemConst;
 import agentdd.model.data.Claim;
 import agentdd.model.data.Contract;
+import agentdd.model.dao.ClaimDao;
+import agentdd.model.dao.ContractDao;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -26,10 +29,9 @@ public class InquiryController extends HttpServlet {
         // 照会検索画面から証券番号を取得
         String polNo = request.getParameter("polNo");
 
-        ContractDao contractDao = new ContractDao();
-        ClaimDao claimDao = new ClaimDao();
-
         try {
+            ContractDao contractDao = new ContractDao();
+            ClaimDao claimDao = new ClaimDao();
 
             // 契約情報を取得
             Contract contract = contractDao.getContract(polNo);
@@ -58,7 +60,7 @@ public class InquiryController extends HttpServlet {
                         "該当する補償情報がありません。");
 
                 request.getRequestDispatcher(
-                        "/WEB-INF/view/inquiry.jsp").forward(request, response);
+                        "/WEB-INF/view/inquiry/inquiry.jsp").forward(request, response);
 
                 return;
             }
@@ -71,19 +73,19 @@ public class InquiryController extends HttpServlet {
 
                 // 法人
                 request.getRequestDispatcher(
-                        "/WEB-INF/view/inquiry-detail-corporate.jsp").forward(request, response);
+                        "/WEB-INF/view/inquiry/inquiry-detail-corporate.jsp").forward(request, response);
 
             } else {
 
                 // 個人
                 request.getRequestDispatcher(
-                        "/WEB-INF/view/inquiry-detail.jsp").forward(request, response);
+                        "/WEB-INF/view/inquiry/inquiry-detail.jsp").forward(request, response);
             }
 
         } catch (SQLException e) {
-            request.setAttribute("errMsg", ErrorMsgConst.UNEXPECTED_ERROR);
+            request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
             request.getRequestDispatcher(
-                    "/WEB-INF/view/Error.jsp").forward(request, response);
+                    "/WEB-INF/view/error/error.jsp").forward(request, response);
 
         }
     }
