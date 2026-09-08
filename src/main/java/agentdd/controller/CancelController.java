@@ -7,6 +7,9 @@ import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.constant.SystemConst;
 import agentdd.model.data.Claim;
 import agentdd.model.data.Contract;
+import agentdd.model.dao.ClaimDao;
+import agentdd.model.dao.ContractDao;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,9 +17,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-
 @WebServlet("/cancel")
-public class CancelController extends HttpServlet{
+public class CancelController extends HttpServlet {
 
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response)
@@ -26,16 +28,14 @@ public class CancelController extends HttpServlet{
 
         // ①‐1解約画面から証券番号を取得
         String polNo = request.getParameter("polNo");
-        //①-2セッションスコープに証券番号を格納
+        // ①-2セッションスコープに証券番号を格納
         HttpSession session = request.getSession();
         session.setAttribute("polNo", polNo);
 
-        // ② DAOを生成
-        ContractDao contractDao = new ContractDao();
-        ClaimDao claimDao = new ClaimDao();
-
         try {
-
+            // ② DAOを生成
+            ContractDao contractDao = new ContractDao();
+            ClaimDao claimDao = new ClaimDao();
             // ③ 証券番号に紐づく契約情報を取得
             Contract contract = contractDao.getContract(polNo);
 
@@ -43,13 +43,11 @@ public class CancelController extends HttpServlet{
             if (contract == null) {
 
                 request.setAttribute(
-                    "errorMessage",
-                    "該当する契約情報がありません。"
-                );
+                        "errorMessage",
+                        "該当する契約情報がありません。");
 
-                 request.getRequestDispatcher(
-                    "/WEB-INF/view/cancellatation.jsp"
-                ).forward(request, response);
+                request.getRequestDispatcher(
+                        "/WEB-INF/view/cancellatation.jsp").forward(request, response);
 
                 return;
 
@@ -57,22 +55,18 @@ public class CancelController extends HttpServlet{
 
             // ⑤ 証券番号に紐づく補償情報を取得
             Claim claim = claimDao.getClaim(polNo);
-            
 
             // ⑥ 補償情報が存在しない場合
             if (claim == null) {
 
                 request.setAttribute(
-                    "errorMessage",
-                    "該当する補償情報がありません。"
-                );
-                 request.getRequestDispatcher(
-                    "/WEB-INF/view/cancellatation.jsp"
-                ).forward(request, response);
+                        "errorMessage",
+                        "該当する補償情報がありません。");
+                request.getRequestDispatcher(
+                        "/WEB-INF/view/cancellatation.jsp").forward(request, response);
 
                 return;
 
-                
             }
 
             // ⑦ 契約情報・補償情報をリクエストスコープに格納
@@ -84,25 +78,21 @@ public class CancelController extends HttpServlet{
 
                 // 法人
                 request.getRequestDispatcher(
-                    "/WEB-INF/view/cancellation-detail-corporate.jsp"
-                ).forward(request, response);
+                        "/WEB-INF/view/cancellation-detail-corporate.jsp").forward(request, response);
 
             } else {
 
                 // 個人
                 request.getRequestDispatcher(
-                    "/WEB-INF/view/cancellation-detail.jsp"
-                ).forward(request, response);
+                        "/WEB-INF/view/cancellation-detail.jsp").forward(request, response);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
             request.setAttribute("errMsg", ErrorMsgConst.UNEXPECTED_ERROR);
             request.getRequestDispatcher(
-                    "/WEB-INF/view/Error.jsp"
-                ).forward(request, response);
+                    "/WEB-INF/view/Error.jsp").forward(request, response);
 
-            
         }
     }
 }
