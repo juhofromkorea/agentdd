@@ -1,46 +1,66 @@
 package agentdd.model.data;
 
 public class Accident {
-    private String accidentNo;
-    private int claim;
+    // --- 既存のフィールド ---
+    private String claimNo; 
+    private int coverId;
     private int accidentFlag;
-    private int paymentAmount;
-    private String occurPlaceKana1;
-    private String occurPlaceKana2;
-    private String occurPlaceKanji1;
-    private String occurPlaceKanji2;
-    private String occurDate;
+
+    private Contract contract;
+    
+    private String accidentLocationKana1;
+    private String accidentLocationKana2;
+    private String accidentLocationKanji1;
+    private String accidentLocationKanji2;
+    private String accidentSituation;
+    
+    private int paymentAmount; 
+    
+    // 【統一】occur -> accident に変更
+    private String accidentPlaceKana1;
+    private String accidentPlaceKana2;
+    private String accidentPlaceKanji1;
+    private String accidentPlaceKanji2;
+    private String accidentDate;
+    
     private String opponentStatus;
     private int negligenceInsured;
     private int negligenceOpponent;
+
     private int damageVehicle;
     private int damagePerson;
     private int damageObject;
     private int damageInjury;
+    
     private String statusVehicle;
     private String statusPerson;
     private String statusObject;
     private String statusInjury;
+
+    private String contractorName;
+
+    // --- 画面引き継ぎ用（DB保存対象外） ---
+    private String polNo; // 証券番号
 
     // --- コンストラクタ ---
     public Accident() {
     }
 
     // --- Getters and Setters ---
-    public String getAccidentNo() {
-        return accidentNo;
+    public String getClaimNo() {
+        return claimNo;
     }
 
-    public void setAccidentNo(String accidentNo) {
-        this.accidentNo = accidentNo;
+    public void setClaimNo(String claimNo) {
+        this.claimNo = claimNo;
     }
 
-    public int getClaim() {
-        return claim;
+    public int getCoverId() {
+        return coverId;
     }
 
-    public void setClaim(int claim) {
-        this.claim = claim;
+    public void setCoverId(int coverId) {
+        this.coverId = coverId;
     }
 
     public int getAccidentFlag() {
@@ -59,44 +79,44 @@ public class Accident {
         this.paymentAmount = paymentAmount;
     }
 
-    public String getOccurPlaceKana1() {
-        return occurPlaceKana1;
+    public String getAccidentPlaceKana1() {
+        return accidentPlaceKana1;
     }
 
-    public void setOccurPlaceKana1(String occurPlaceKana1) {
-        this.occurPlaceKana1 = occurPlaceKana1;
+    public void setAccidentPlaceKana1(String accidentPlaceKana1) {
+        this.accidentPlaceKana1 = accidentPlaceKana1;
     }
 
-    public String getOccurPlaceKana2() {
-        return occurPlaceKana2;
+    public String getAccidentPlaceKana2() {
+        return accidentPlaceKana2;
     }
 
-    public void setOccurPlaceKana2(String occurPlaceKana2) {
-        this.occurPlaceKana2 = occurPlaceKana2;
+    public void setAccidentPlaceKana2(String accidentPlaceKana2) {
+        this.accidentPlaceKana2 = accidentPlaceKana2;
     }
 
-    public String getOccurPlaceKanji1() {
-        return occurPlaceKanji1;
+    public String getAccidentPlaceKanji1() {
+        return accidentPlaceKanji1;
     }
 
-    public void setOccurPlaceKanji1(String occurPlaceKanji1) {
-        this.occurPlaceKanji1 = occurPlaceKanji1;
+    public void setAccidentPlaceKanji1(String accidentPlaceKanji1) {
+        this.accidentPlaceKanji1 = accidentPlaceKanji1;
     }
 
-    public String getOccurPlaceKanji2() {
-        return occurPlaceKanji2;
+    public String getAccidentPlaceKanji2() {
+        return accidentPlaceKanji2;
     }
 
-    public void setOccurPlaceKanji2(String occurPlaceKanji2) {
-        this.occurPlaceKanji2 = occurPlaceKanji2;
+    public void setAccidentPlaceKanji2(String accidentPlaceKanji2) {
+        this.accidentPlaceKanji2 = accidentPlaceKanji2;
     }
 
-    public String getOccurDate() {
-        return occurDate;
+    public String getAccidentDate() {
+        return accidentDate;
     }
 
-    public void setOccurDate(String occurDate) {
-        this.occurDate = occurDate;
+    public void setAccidentDate(String accidentDate) {
+        this.accidentDate = accidentDate;
     }
 
     public String getOpponentStatus() {
@@ -187,21 +207,67 @@ public class Accident {
         this.statusInjury = statusInjury;
     }
 
+    public String getPolNo() {
+        return polNo;
+    }
 
-    private String claimNo;
-private String polNo;
+    public void setPolNo(String polNo) {
+        this.polNo = polNo;
+    }
 
-public String getClaimNo() {
-    return claimNo;
-}
-public void setClaimNo(String claimNo) {
-    this.claimNo = claimNo;
-}
+    public String getContractorName() {
+        return contractorName;
+    }
 
-public String getPolNo() {
-    return polNo;
-}
-public void setPolNo(String polNo) {
-    this.polNo = polNo;
-}
+    public void setContractorName(String contractorName) {
+        this.contractorName = contractorName;
+    }
+
+    public Contract getContract() {
+        return contract;
+    }
+
+    public void setContract(Contract contract) {
+        this.contract = contract;
+    }
+    public String getAccidentLocationKana1() {
+        return accidentLocationKana1;
+    }
+
+    public void setAccidentLocationKana1(String accidentLocationKana1) {
+        this.accidentLocationKana1 = accidentLocationKana1;
+    }
+
+    public String getAccidentLocationKana2() {
+        return accidentLocationKana2;
+    }
+
+    public void setAccidentLocationKana2(String accidentLocationKana2) {
+        this.accidentLocationKana2 = accidentLocationKana2;
+    }
+
+    public String getAccidentLocationKanji1() {
+        return accidentLocationKanji1;
+    }
+
+    public void setAccidentLocationKanji1(String accidentLocationKanji1) {
+        this.accidentLocationKanji1 = accidentLocationKanji1;
+    }
+
+    public String getAccidentLocationKanji2() {
+        return accidentLocationKanji2;
+    }
+
+    public void setAccidentLocationKanji2(String accidentLocationKanji2) {
+        this.accidentLocationKanji2 = accidentLocationKanji2;
+    }
+
+    public String getAccidentSituation() {
+        return accidentSituation;
+    }
+
+    public void setAccidentSituation(String accidentSituation) {
+        this.accidentSituation = accidentSituation;
+    }
+    
 }

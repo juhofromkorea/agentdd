@@ -103,7 +103,15 @@ public class AccidentController extends HttpServlet {
                     
                     // 新規受付用の事故データオブジェクトを作成してセット
                     Accident newAccident = new Accident();
-                    newAccident.setAccidentNo(newClaimNo);
+                    newAccident.setClaimNo(newClaimNo);
+                    
+                    // 契約情報から coverId と contractorName をセット
+                    newAccident.setCoverId(Integer.parseInt(contractData.getInsatsuRenban()));
+                    
+                    String kanji1 = contractData.getNameKanji1();
+                    String kanji2 = contractData.getNameKanji2();
+                    String contractorName = (kanji1 != null ? kanji1 : "") + (kanji2 != null ? kanji2 : "");
+                    newAccident.setContractorName(contractorName);
                     
                     request.setAttribute("accident", newAccident);
                     request.setAttribute("contract", contractData);

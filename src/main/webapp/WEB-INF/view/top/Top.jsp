@@ -91,7 +91,7 @@
                 解約
               </button>
             </form>
-            <form action="${pageContext.request.contextPath}/mockup/accident" method="get">
+            <form action="${pageContext.request.contextPath}/accident/" method="get">
               <button
                 class="button button--primary top-menu__button"
                 type="submit"

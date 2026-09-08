@@ -3,7 +3,6 @@ package agentdd.controller;
 import java.io.IOException;
 import java.util.Map;
 
-import agentdd.model.constant.ErrorMsgConst;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -42,7 +41,7 @@ public class MockupPreviewController extends HttpServlet {
             //Map.entry("accident-complete", "/WEB-INF/jsp/accident/accident-complete.jsp"),
             //Map.entry("accident-complete-corporate", "/WEB-INF/jsp/accident/accident-complete-corporate.jsp"),
             //Map.entry("accident-update-complete", "/WEB-INF/jsp/accident/accident-update-complete.jsp"),
-            //Map.entry("accident-update-complete-corporate", "/WEB-INF/jsp/accident/accident-update-complete-corporate.jsp"),
+            Map.entry("accident-update-complete-corporate", "/WEB-INF/jsp/accident/accident-update-complete-corporate.jsp"),
             Map.entry("error-system", "/WEB-INF/jsp/error/error-system.jsp"),
             Map.entry("error-unexpected", "/WEB-INF/jsp/error/error-unexpected.jsp")
     );
@@ -71,26 +70,6 @@ public class MockupPreviewController extends HttpServlet {
         if (view == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
-        }
-
-        if ("error-system".equals(screen)) {
-            request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
-            request.setAttribute("errorBackUrl", "/top");
-            request.setAttribute("errorBackLabel", "TOPへ戻る");
-        } else if ("error-unexpected".equals(screen)) {
-            request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
-            request.setAttribute("errorBackUrl", "/top");
-            request.setAttribute("errorBackLabel", "TOPへ戻る");
-        }
-
-        if ("error-system".equals(screen)) {
-            request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
-            request.setAttribute("errorBackUrl", "/top");
-            request.setAttribute("errorBackLabel", "TOPへ戻る");
-        } else if ("error-unexpected".equals(screen)) {
-            request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
-            request.setAttribute("errorBackUrl", "/top");
-            request.setAttribute("errorBackLabel", "TOPへ戻る");
         }
 
         request.getRequestDispatcher(view).forward(request, response);

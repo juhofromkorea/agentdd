@@ -169,11 +169,10 @@
                     <label class="accident-field">
                       <span>被保険者の過失割合</span>
                       <span class="accident-affixed-control">
-                        <!-- ★修正: name="insuredFaultRatio" に統一 -->
                         <input
                           class="accident-input"
                           type="text"
-                          name="insuredFaultRatio"
+                          name="ratingBlameMyself"
                           value="${accident.ratingBlameMyself}"
                           inputmode="numeric"
                           maxlength="3"
@@ -213,7 +212,7 @@
                           <span>車両損害額</span>
                           <span class="accident-affixed-control">
                             <!-- ★修正: name="vehicleDamageAmount" に統一 -->
-                            <input class="accident-input" type="text" name="vehicleDamageAmount" value="${accident.damageCarPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：250000" />
+                            <input class="accident-input" type="text" name="damageCarPrice" value="${accident.damageCarPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：250000" />
                             <span class="accident-affix">円</span>
                           </span>
                         </label>
@@ -230,7 +229,7 @@
                           <span>対人損害額</span>
                           <span class="accident-affixed-control">
                             <!-- ★修正: name="bodilyDamageAmount" に統一 -->
-                            <input class="accident-input" type="text" name="bodilyDamageAmount" value="${accident.damageBodilyPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：100000" />
+                            <input class="accident-input" type="text" name="damageBodilyPrice" value="${accident.damageBodilyPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：100000" />
                             <span class="accident-affix">円</span>
                           </span>
                         </label>
@@ -247,7 +246,7 @@
                           <span>対物損害額</span>
                           <span class="accident-affixed-control">
                             <!-- ★修正: name="propertyDamageAmount" に統一 -->
-                            <input class="accident-input" type="text" name="propertyDamageAmount" value="${accident.damagePropertyPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：50000" />
+                            <input class="accident-input" type="text" name="damagePropertyPrice" value="${accident.damagePropertyPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：50000" />
                             <span class="accident-affix">円</span>
                           </span>
                         </label>
@@ -263,8 +262,7 @@
                         <label class="accident-field">
                           <span>傷害損害額</span>
                           <span class="accident-affixed-control">
-                            <!-- ★修正: name="injuryDamageAmount" に統一 -->
-                            <input class="accident-input" type="text" name="injuryDamageAmount" value="${accident.damageAccidentPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：30000" />
+                            <input class="accident-input" type="text" name="damageAccidentPrice" value="${accident.damageAccidentPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：30000" />
                             <span class="accident-affix">円</span>
                           </span>
                         </label>

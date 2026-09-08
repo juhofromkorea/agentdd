@@ -39,4 +39,6 @@ public final class ConnectionManager {
                 SystemConst.JDBC_PASSWORD
         );
     }
+    // 修正例（URLの末尾に追加）
+String url = "jdbc:mysql://localhost:3306/データベース名?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=JST";
 }
