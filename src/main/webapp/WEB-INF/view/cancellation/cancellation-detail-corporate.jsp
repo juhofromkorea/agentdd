@@ -164,7 +164,6 @@
                     <dt>払込回数</dt>
                     <dd>${contract.installment}</dd>
                   </div>
-                 
                 </dl>
 
                 <div class="accounting-actions">

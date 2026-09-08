@@ -58,7 +58,7 @@ public class CancelController extends HttpServlet {
                         "該当する契約情報がありません。");
 
                 request.getRequestDispatcher(
-                        "/WEB-INF/view/cancellation/cancellatation.jsp").forward(request, response);
+                        "/WEB-INF/view/cancellation/cancellation.jsp").forward(request, response);
 
                 return;
 
@@ -74,7 +74,7 @@ public class CancelController extends HttpServlet {
                         "error",
                         "該当する補償情報がありません。");
                 request.getRequestDispatcher(
-                        "/WEB-INF/view/cancellation/cancellatation.jsp").forward(request, response);
+                        "/WEB-INF/view/cancellation/cancellation.jsp").forward(request, response);
 
                 return;
 
