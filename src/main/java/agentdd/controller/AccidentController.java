@@ -90,7 +90,7 @@ public class AccidentController extends HttpServlet {
                 } 
                 // B: 証券番号が入力された場合 (新規受付)
                 else if (hasPolNo) {
-                    Contract contractData = contractDao.findContractByPolNo(polNo);
+                    Contract contractData = contractDao.getContract(polNo);
                     
                     if (contractData == null) {
                         request.setAttribute("errorMessage", "該当する証券番号（契約情報）が見つかりませんでした。");

@@ -12,8 +12,8 @@ public class ClaimDao {
 
     private final Connection con;
 
-    public ClaimDao(Connection con) {
-        this.con = con;
+    public ClaimDao() throws SQLException, ClassNotFoundException {
+        this.con = ConnectionManager.getConnection();
     }
 
     public Claim getClaimForAccount(String insatsuRenban) throws SQLException {
@@ -84,12 +84,12 @@ public class ClaimDao {
 
         claim.setCoverId(res.getObject("cover_id", Integer.class));
         claim.setInsatsuRenban(res.getString("insatsu_renban"));
-        claim.setPremiumAmount(res.getObject("premium_amount", Long.class));
-        claim.setPremiumInstallment(res.getObject("premium_installment", Long.class));
+        claim.setPremiumAmount(res.getInt("premium_amount"));
+        claim.setPremiumInstallment(res.getInt("premium_installment"));
         claim.setMaker(res.getString("maker"));
         claim.setCarName(res.getString("car_name"));
         claim.setLicenseNo(res.getString("license_no"));
-        claim.setVehiclePrice(res.getObject("vehicle_price", Long.class));
+        claim.setVehiclePrice(res.getInt("vehicle_price"));
         claim.setVehicleRates(res.getObject("vehicle_rates", Integer.class));
         claim.setBodilyRates(res.getObject("bodily_rates", Integer.class));
         claim.setPropertyDamageRates(res.getObject("property_damage_rates", Integer.class));

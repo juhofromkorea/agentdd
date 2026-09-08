@@ -13,7 +13,7 @@ public class VehicleDao {
         String sql = "SELECT * FROM M_CARS_TBL WHERE maker = ? AND name = ?";
 
         try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            PreparedStatement pstmt = con.prepareStatement(sql)) {
 
             pstmt.setString(1, claim.getMaker());
             pstmt.setString(2, claim.getCarName());

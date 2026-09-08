@@ -13,7 +13,7 @@ public class RatesDao {
         String sql = "SELECT RATES FROM M_RATES_TBL WHERE ID = ?";
 
         try (Connection con = ConnectionManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            PreparedStatement pstmt = con.prepareStatement(sql)) {
             
             pstmt.setInt(1, id); // ? に年齢条件や免許証のIDをセット
 
