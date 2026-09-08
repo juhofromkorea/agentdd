@@ -18,17 +18,15 @@ public class VehicleDao {
             pstmt.setString(1, claim.getMaker());
             pstmt.setString(2, claim.getCarName());
 
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                claim.setVehiclePrice(rs.getInt("vehicle_price")*10);
+                ResultSet rs = pstmt.executeQuery();
+                claim.setVehiclePrice(rs.getInt("vehicle_price") * 10);
                 claim.setVehicleRates(rs.getInt("vehicle_rates"));
                 claim.setBodilyRates(rs.getInt("bodily_rates"));
                 claim.setPropertyDamageRates(rs.getInt("property_damage_rates"));
                 claim.setAccidentRates(rs.getInt("accident_rates"));
             }
             return claim;
-        }
+        
     }
     
 }
