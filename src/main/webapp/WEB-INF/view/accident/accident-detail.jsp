@@ -53,7 +53,14 @@
           <h1 class="sr-only" id="accident-detail-title">個人契約の事故受付入力</h1>
           <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
-          <form class="accounting-workspace" action="${pageContext.request.contextPath}/accident-complete" method="get">
+          <!-- ★修正: action先を /accident/submit に統一 -->
+          <form class="accounting-workspace" action="${pageContext.request.contextPath}/accident/submit" method="post">
+            
+            <!-- ★追加: 完了画面の表示で必要な基本情報をhiddenで保持 -->
+            <input type="hidden" name="claimNo" value="${accident.claimNo}" />
+            <input type="hidden" name="polNo" value="${accident.polNo}" />
+            <input type="hidden" name="contractorName" value="${accident.contractorName}" />
+
             <input
               class="accounting-controller"
               type="radio"
@@ -85,9 +92,9 @@
                 <h2 class="accounting-section-title">事故情報</h2>
 
                 <dl class="accident-record-summary">
-                  <div><dt>事故受付番号</dt><dd>C0000001</dd></div>
-                  <div><dt>証券番号</dt><dd>B00000001</dd></div>
-                  <div><dt>契約者氏名</dt><dd>東海 太郎</dd></div>
+                  <div><dt>事故受付番号</dt><dd>${accident.claimNo}</dd></div>
+                  <div><dt>証券番号</dt><dd>${accident.polNo}</dd></div>
+                  <div><dt>契約者氏名</dt><dd>${accident.contractorName}</dd></div>
                 </dl>
 
                 <fieldset class="accident-form-section">
@@ -99,6 +106,7 @@
                         class="accident-input"
                         type="text"
                         name="accidentDate"
+                        value="${accident.accidentDate}"
                         inputmode="numeric"
                         maxlength="8"
                         pattern="[0-9]{8}"
@@ -111,6 +119,7 @@
                         class="accident-input"
                         type="text"
                         name="accidentLocationKanji1"
+                        value="${accident.accidentLocationKanji1}"
                         maxlength="48"
                         placeholder="例：東京都多摩市"
                       />
@@ -121,6 +130,7 @@
                         class="accident-input"
                         type="text"
                         name="accidentLocationKana1"
+                        value="${accident.accidentLocationKana1}"
                         maxlength="48"
                         placeholder="例：トウキョウトタマシ"
                       />
@@ -131,6 +141,7 @@
                         class="accident-input"
                         type="text"
                         name="accidentLocationKanji2"
+                        value="${accident.accidentLocationKanji2}"
                         maxlength="48"
                         placeholder="例：1-1-1 サンプル交差点付近"
                       />
@@ -141,6 +152,7 @@
                         class="accident-input"
                         type="text"
                         name="accidentLocationKana2"
+                        value="${accident.accidentLocationKana2}"
                         maxlength="48"
                         placeholder="例：1-1-1 サンプルコウサテンフキン"
                       />
@@ -152,7 +164,7 @@
                         name="accidentSituation"
                         maxlength="100"
                         placeholder="例：相手車両の状況や負傷者の有無を入力"
-                      ></textarea>
+                      >${accident.accidentSituation}</textarea>
                     </label>
                     <label class="accident-field">
                       <span>被保険者の過失割合</span>
@@ -161,6 +173,7 @@
                           class="accident-input"
                           type="text"
                           name="ratingBlameMyself"
+                          value="${accident.ratingBlameMyself}"
                           inputmode="numeric"
                           maxlength="3"
                           pattern="([0-9]|[1-9][0-9]|100)"
@@ -176,6 +189,7 @@
                           class="accident-input"
                           type="text"
                           name="ratingBlameYourself"
+                          value="${accident.ratingBlameYourself}"
                           inputmode="numeric"
                           maxlength="3"
                           pattern="([0-9]|[1-9][0-9]|100)"
@@ -197,13 +211,14 @@
                         <label class="accident-field">
                           <span>車両損害額</span>
                           <span class="accident-affixed-control">
-                            <input class="accident-input" type="text" name="damageCarPrice" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：250000" />
+                            <!-- ★修正: name="vehicleDamageAmount" に統一 -->
+                            <input class="accident-input" type="text" name="damageCarPrice" value="${accident.damageCarPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：250000" />
                             <span class="accident-affix">円</span>
                           </span>
                         </label>
                         <label class="accident-field">
                           <span>車両損害状況</span>
-                          <textarea class="accident-textarea" name="damageCarState" maxlength="48" placeholder="例：右前方バンパーにへこみ"></textarea>
+                          <textarea class="accident-textarea" name="damageCarState" maxlength="48" placeholder="例：右前方バンパーにへこみ">${accident.damageCarState}</textarea>
                         </label>
                       </div>
                     </details>
@@ -213,13 +228,14 @@
                         <label class="accident-field">
                           <span>対人損害額</span>
                           <span class="accident-affixed-control">
-                            <input class="accident-input" type="text" name="damageBodilyPrice" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：100000" />
+                            <!-- ★修正: name="bodilyDamageAmount" に統一 -->
+                            <input class="accident-input" type="text" name="damageBodilyPrice" value="${accident.damageBodilyPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：100000" />
                             <span class="accident-affix">円</span>
                           </span>
                         </label>
                         <label class="accident-field">
                           <span>対人損害状況</span>
-                          <textarea class="accident-textarea" name="damageBodilyState" maxlength="48" placeholder="例：通院状況などを入力"></textarea>
+                          <textarea class="accident-textarea" name="damageBodilyState" maxlength="48" placeholder="例：通院状況などを入力">${accident.damageBodilyState}</textarea>
                         </label>
                       </div>
                     </details>
@@ -229,13 +245,14 @@
                         <label class="accident-field">
                           <span>対物損害額</span>
                           <span class="accident-affixed-control">
-                            <input class="accident-input" type="text" name="damagePropertyPrice" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：50000" />
+                            <!-- ★修正: name="propertyDamageAmount" に統一 -->
+                            <input class="accident-input" type="text" name="damagePropertyPrice" value="${accident.damagePropertyPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：50000" />
                             <span class="accident-affix">円</span>
                           </span>
                         </label>
                         <label class="accident-field">
                           <span>対物被害状況</span>
-                          <textarea class="accident-textarea" name="damagePropertyState" maxlength="48" placeholder="例：ガードレールの破損"></textarea>
+                          <textarea class="accident-textarea" name="damagePropertyState" maxlength="48" placeholder="例：ガードレールの破損">${accident.damagePropertyState}</textarea>
                         </label>
                       </div>
                     </details>
@@ -245,19 +262,20 @@
                         <label class="accident-field">
                           <span>傷害損害額</span>
                           <span class="accident-affixed-control">
-                            <input class="accident-input" type="text" name="damageAccidentPrice" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：30000" />
+                            <input class="accident-input" type="text" name="damageAccidentPrice" value="${accident.damageAccidentPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：30000" />
                             <span class="accident-affix">円</span>
                           </span>
                         </label>
                         <label class="accident-field">
                           <span>傷害損害状況</span>
-                          <textarea class="accident-textarea" name="damageAccidentState" maxlength="48" placeholder="例：搭乗者の負傷状況"></textarea>
+                          <textarea class="accident-textarea" name="damageAccidentState" maxlength="48" placeholder="例：搭乗者の負傷状況">${accident.damageAccidentState}</textarea>
                         </label>
                       </div>
                     </details>
                   </div>
                 </fieldset>
 
+                <!-- ★修正: buttonに name="action" と value を付与 -->
                 <div class="accident-panel-actions">
                   <button class="button button--primary" type="submit" formaction="${pageContext.request.contextPath}/accident-update-complete">状況更新</button>
                   <button class="button button--primary" type="submit">事故受付完了</button>
@@ -267,22 +285,22 @@
               <section class="accounting-panel accident-panel--contract">
                 <h2 class="accounting-section-title">契約情報</h2>
                 <dl class="accounting-data-list">
-                  <div class="accounting-data-row"><dt>保険期間</dt><dd>令和8年01月01日 午後6時 ～ 令和9年01月01日 午後6時</dd></div>
-                  <div class="accounting-data-row"><dt>証券番号</dt><dd>B00000001</dd></div>
-                  <div class="accounting-data-row"><dt>印刷連番</dt><dd>A000001</dd></div>
-                  <div class="accounting-data-row"><dt>被保険者区分</dt><dd>個人</dd></div>
-                  <div class="accounting-data-row"><dt>払込方法</dt><dd>クレジットカード</dd></div>
-                  <div class="accounting-data-row"><dt>払込回数</dt><dd>1回</dd></div>
-                  <div class="accounting-data-row"><dt>氏名（漢字）</dt><dd>東海 太郎</dd></div>
-                  <div class="accounting-data-row"><dt>氏名（カナ）</dt><dd>トウカイ タロウ</dd></div>
-                  <div class="accounting-data-row"><dt>性別</dt><dd>男</dd></div>
-                  <div class="accounting-data-row"><dt>生年月日</dt><dd>平成12年01月01日</dd></div>
-                  <div class="accounting-data-row"><dt>住所（漢字）</dt><dd>東京都多摩市 1-1-1</dd></div>
-                  <div class="accounting-data-row"><dt>住所（カナ）</dt><dd>トウキョウトタマシ 1-1-1</dd></div>
-                  <div class="accounting-data-row"><dt>郵便番号</dt><dd>111-1111</dd></div>
-                  <div class="accounting-data-row"><dt>電話番号</dt><dd>03-1234-1234</dd></div>
-                  <div class="accounting-data-row"><dt>携帯電話番号</dt><dd>090-1234-1234</dd></div>
-                  <div class="accounting-data-row"><dt>FAX番号</dt><dd>03-1234-5678</dd></div>
+                  <div class="accounting-data-row"><dt>保険期間</dt><dd>${accident.insurancePeriod}</dd></div>
+                  <div class="accounting-data-row"><dt>証券番号</dt><dd>${accident.polNo}</dd></div>
+                  <div class="accounting-data-row"><dt>印刷連番</dt><dd>${accident.printSeq}</dd></div>
+                  <div class="accounting-data-row"><dt>被保険者区分</dt><dd>${accident.insuredType}</dd></div>
+                  <div class="accounting-data-row"><dt>払込方法</dt><dd>${accident.paymentMethod}</dd></div>
+                  <div class="accounting-data-row"><dt>払込回数</dt><dd>${accident.paymentCount}</dd></div>
+                  <div class="accounting-data-row"><dt>氏名（漢字）</dt><dd>${accident.nameKanji}</dd></div>
+                  <div class="accounting-data-row"><dt>氏名（カナ）</dt><dd>${accident.nameKana}</dd></div>
+                  <div class="accounting-data-row"><dt>性別</dt><dd>${accident.gender}</dd></div>
+                  <div class="accounting-data-row"><dt>生年月日</dt><dd>${accident.birthDate}</dd></div>
+                  <div class="accounting-data-row"><dt>住所（漢字）</dt><dd>${accident.addressKanji}</dd></div>
+                  <div class="accounting-data-row"><dt>住所（カナ）</dt><dd>${accident.addressKana}</dd></div>
+                  <div class="accounting-data-row"><dt>郵便番号</dt><dd>${accident.zipCode}</dd></div>
+                  <div class="accounting-data-row"><dt>電話番号</dt><dd>${accident.tel}</dd></div>
+                  <div class="accounting-data-row"><dt>携帯電話番号</dt><dd>${accident.mobile}</dd></div>
+                  <div class="accounting-data-row"><dt>FAX番号</dt><dd>${accident.fax}</dd></div>
                 </dl>
                 <div class="accident-panel-actions">
                   <button class="button button--primary" type="submit" formaction="${pageContext.request.contextPath}/accident-update-complete">状況更新</button>
@@ -295,25 +313,25 @@
                   <h2 class="accounting-section-title">自動車保険試算結果</h2>
                   <div class="accounting-premium-summary">
                     <span>総額保険料</span>
-                    <strong>120,000円</strong>
+                    <strong>${accident.totalPremium}</strong>
                   </div>
                 </div>
                 <dl class="accounting-data-list accounting-data-list--coverage">
-                  <div class="accounting-data-row"><dt>一回分保険料</dt><dd>10,000円</dd></div>
-                  <div class="accounting-data-row"><dt>メーカー</dt><dd>TOYOTA</dd></div>
-                  <div class="accounting-data-row"><dt>車名</dt><dd>キューブ</dd></div>
-                  <div class="accounting-data-row"><dt>車のナンバー</dt><dd>品川300あ00-00</dd></div>
-                  <div class="accounting-data-row"><dt>車両保険金額</dt><dd>1,000,000円</dd></div>
-                  <div class="accounting-data-row"><dt>免許証の色</dt><dd>ゴールド</dd></div>
-                  <div class="accounting-data-row"><dt>車両料率</dt><dd>1</dd></div>
-                  <div class="accounting-data-row"><dt>対人料率</dt><dd>2</dd></div>
-                  <div class="accounting-data-row"><dt>対物料率</dt><dd>3</dd></div>
-                  <div class="accounting-data-row"><dt>傷害料率</dt><dd>4</dd></div>
-                  <div class="accounting-data-row"><dt>年齢条件</dt><dd>21歳以上</dd></div>
+                  <div class="accounting-data-row"><dt>一回分保険料</dt><dd>${accident.singlePremium}</dd></div>
+                  <div class="accounting-data-row"><dt>メーカー</dt><dd>${accident.carMaker}</dd></div>
+                  <div class="accounting-data-row"><dt>車名</dt><dd>${accident.carName}</dd></div>
+                  <div class="accounting-data-row"><dt>車のナンバー</dt><dd>${accident.carNumber}</dd></div>
+                  <div class="accounting-data-row"><dt>車両保険金額</dt><dd>${accident.carInsurancePrice}</dd></div>
+                  <div class="accounting-data-row"><dt>免許証の色</dt><dd>${accident.licenseColor}</dd></div>
+                  <div class="accounting-data-row"><dt>車両料率</dt><dd>${accident.carRate}</dd></div>
+                  <div class="accounting-data-row"><dt>対人料率</dt><dd>${accident.bodilyRate}</dd></div>
+                  <div class="accounting-data-row"><dt>対物料率</dt><dd>${accident.propertyRate}</dd></div>
+                  <div class="accounting-data-row"><dt>傷害料率</dt><dd>${accident.accidentRate}</dd></div>
+                  <div class="accounting-data-row"><dt>年齢条件</dt><dd>${accident.ageCondition}</dd></div>
                 </dl>
                 <div class="accident-panel-actions">
-                  <button class="button button--primary" type="submit" formaction="${pageContext.request.contextPath}/accident-update-complete">状況更新</button>
-                  <button class="button button--primary" type="submit">事故受付完了</button>
+                  <button class="button button--primary" type="submit" name="action" value="updateStatus">状況更新</button>
+                  <button class="button button--primary" type="submit" name="action" value="completeReceipt">事故受付完了</button>
                 </div>
               </section>
             </div>

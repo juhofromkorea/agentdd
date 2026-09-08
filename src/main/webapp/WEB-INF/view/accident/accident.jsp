@@ -57,9 +57,10 @@
               事故受付開始
             </h1>
 
+            <!-- 修正②：formのactionを本番Controllerのパス (/accident/detail) に修正 -->
             <form
               class="accounting-start-form"
-              action="${pageContext.request.contextPath}/accident-detail"
+              action="${pageContext.request.contextPath}/accident/detail"
               method="get"
             >
               <div class="accident-start-fields">
@@ -95,8 +96,10 @@
               <p class="accident-start-note" id="accident-start-note">
                 新規受付は証券番号、受付済み事故の更新は事故受付番号を入力してください。
               </p>
+              
+              <!-- 修正③：Controllerから返されたエラーメッセージを表示できるように変更 -->
               <p class="accounting-error-space" id="accident-start-message">
-                ※入力内容に誤りがある場合、ここにメッセージを表示します。
+                ${errorMessage}
               </p>
 
               <button class="button button--primary accounting-submit" type="submit">
