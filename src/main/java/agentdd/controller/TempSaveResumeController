@@ -1,0 +1,79 @@
+package agentdd.controller;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import agentdd.model.dao.ConnectionManager;
+import agentdd.model.dao.TempSaveDao;
+import agentdd.model.data.Claim;
+import agentdd.model.data.Contract;
+import agentdd.model.data.TempSave;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+@WebServlet("/tempSaveResume")
+public class TempSaveResumeController extends HttpServlet {
+
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    protected void doPost(
+            HttpServletRequest req,
+            HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        // 1. リクエストパラメータから一時保存番号を取得
+        String tempSaveId = req.getParameter("tempSaveId");
+
+        // 2. セッションからログインユーザーIDを取得
+        HttpSession session = req.getSession(false);
+
+        if (session == null) {
+            throw new ServletException(
+                    "ログインユーザー情報を取得できません。");
+        }
+
+        String userId = (String) session.getAttribute("userId");
+
+        if (userId == null) {
+            throw new ServletException(
+                    "ログインユーザーIDを取得できません。");
+        }
+
+        try (Connection con = ConnectionManager.getConnection()) {
+
+            TempSaveDao tempSaveDao = new TempSaveDao(con);
+
+            // 3. 一時保存情報を取得
+            TempSave tempSave =
+                    tempSaveDao.select(saveNo, userId);
+
+            if (tempSave == null) {
+                throw new ServletException(
+                        "一時保存情報を取得できません。");
+            }
+
+            // 一時保存情報から契約情報・補償情報を取得
+            Contract contract = tempSave.getContract();
+            Claim claim = tempSave.getClaim();
+
+            // 4. リクエストスコープに設定
+            req.setAttribute("contract", contract);
+            req.setAttribute("claim", claim);
+
+            // 5. 新規試算画面JSPへforward
+            req.getRequestDispatcher(
+                    "/WEB-INF/view/NewEstimatePage.jsp")
+                    .forward(req, resp);
+
+        } catch (SQLException e) {
+            throw new ServletException(
+                    "一時保存情報の取得に失敗しました。", e);
+        }
+    }
+}
