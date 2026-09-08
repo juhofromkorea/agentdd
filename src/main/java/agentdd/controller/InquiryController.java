@@ -3,14 +3,20 @@ package agentdd.controller;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.constant.SystemConst;
 import agentdd.model.data.Claim;
 import agentdd.model.data.Contract;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-public class InquiryController {
+@WebServlet("/inquiry")
+
+public class InquiryController extends HttpServlet {
+
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
@@ -26,13 +32,37 @@ public class InquiryController {
         try {
 
             // 契約情報を取得
-            Contract contract =
-                contractDao.getContractForInquiry(polNo);
+            Contract contract = contractDao.getContract(polNo);
+
+            // 契約情報が存在しない場合
+            if (contract == null) {
+
+                request.setAttribute(
+                        "errorMessage",
+                        "該当する契約情報がありません。");
+
+                request.getRequestDispatcher(
+                        "/WEB-INF/view/inquiry.jsp").forward(request, response);
+
+                return;
+            }
 
             // Claim情報を取得
-            Claim claim =
-                claimDao.getClaim(polNo);
-                 // JSPへ渡す
+            Claim claim = claimDao.getClaim(polNo);
+
+            // 補償情報が存在しない場合
+            if (claim == null) {
+
+                request.setAttribute(
+                        "errorMessage",
+                        "該当する補償情報がありません。");
+
+                request.getRequestDispatcher(
+                        "/WEB-INF/view/inquiry.jsp").forward(request, response);
+
+                return;
+            }
+            // JSPへ渡す
             request.setAttribute("contract", contract);
             request.setAttribute("claim", claim);
 
@@ -41,19 +71,20 @@ public class InquiryController {
 
                 // 法人
                 request.getRequestDispatcher(
-                    "/WEB-INF/view/inquiry-detail-corporate.jsp"
-                ).forward(request, response);
+                        "/WEB-INF/view/inquiry-detail-corporate.jsp").forward(request, response);
 
             } else {
 
                 // 個人
                 request.getRequestDispatcher(
-                    "/WEB-INF/view/inquiry-detail.jsp"
-                ).forward(request, response);
+                        "/WEB-INF/view/inquiry-detail.jsp").forward(request, response);
             }
 
         } catch (SQLException e) {
-            throw new ServletException(e);
+            request.setAttribute("errMsg", ErrorMsgConst.UNEXPECTED_ERROR);
+            request.getRequestDispatcher(
+                    "/WEB-INF/view/Error.jsp").forward(request, response);
+
         }
     }
 }
