@@ -90,80 +90,81 @@
                 <dl class="accounting-data-list">
                   <div class="accounting-data-row">
                     <dt>印刷連番</dt>
-                    <dd>A000001</dd>
+                    <dd>${contract.insatsuRenban}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>証券番号</dt>
-                    <dd>B00000001</dd>
+                    <dd>${contract.polNo}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>被保険者区分</dt>
-                    <dd>法人</dd>
+                    <dd>${contract.insuredKbn}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>会社名（漢字）</dt>
-                    <dd>多摩株式会社</dd>
+                    <dd>${contract.nameKanji1}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>会社名（カナ）</dt>
-                    <dd>タマカブシキガイシャ</dd>
+                    <dd>${contract.nameKanji2}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>郵便番号</dt>
-                    <dd>111-1111</dd>
+                    <dd>${contract.postcode}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>住所1（漢字）</dt>
-                    <dd>東京都多摩市</dd>
+                    <dd>${contract.addressKanji1}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>住所2（漢字）</dt>
-                    <dd>1-1-1</dd>
+                    <dd>${contract.addressKanji2}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>住所1（カタカナ）</dt>
-                    <dd>トウキョウトタマシ</dd>
+                    <dd>${contract.addressKana1}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>住所2（カタカナ）</dt>
-                    <dd>1-1-1</dd>
+                    <dd>${contract.addressKana2}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>電話番号</dt>
-                    <dd>03-1234-1234</dd>
+                    <dd>${contract.telephoneNo}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>携帯電話番号</dt>
-                    <dd>090-1234-1234</dd>
+                    <dd>${contract.mobilephoneNo}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>FAX番号</dt>
-                    <dd>090-1234-1234</dd>
+                    <dd>${contract.faxNo}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>保険期間開始日</dt>
-                    <dd>令和8年01月01日</dd>
+                    <dd>${contract.inceptionDate}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>保険期間開始時刻</dt>
-                    <dd>午後6時</dd>
+                    <dd>${contract.inceptionTime}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>保険期間満期日</dt>
-                    <dd>令和9年01月01日</dd>
+                    <dd>${contract.conclusionDate}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>保険期間満期時刻</dt>
-                    <dd>午後6時</dd>
+                    <dd>${contract.conclusionTime}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>払込方法</dt>
-                    <dd>クレジットカード</dd>
+                    <dd>${contract.paymentMethod}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>払込回数</dt>
-                    <dd>1</dd>
+                    <dd>${contract.installment}</dd>
                   </div>
+                 
                 </dl>
 
                 <div class="accounting-actions">
@@ -179,54 +180,54 @@
                   <h2 class="accounting-section-title">自動車保険試算結果</h2>
                   <div class="accounting-premium-summary">
                     <span>保険料</span>
-                    <strong>120,000円</strong>
+                    <strong>${claim.premiumAmount}円</strong>
                   </div>
                 </div>
 
                 <dl class="accounting-data-list accounting-data-list--coverage">
                   <div class="accounting-data-row">
                     <dt>メーカー</dt>
-                    <dd>TOYOTA</dd>
+                    <dd>${claim.maker}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>車名</dt>
-                    <dd>キューブ</dd>
+                    <dd>${claim.carName}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>車のナンバー</dt>
-                    <dd>品川300あ00-00</dd>
+                    <dd>${claim.licenseNo}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>車両保険金額</dt>
-                    <dd>1,000,000円</dd>
+                    <dd>${claim.vehiclePrice}円</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>免許証の色</dt>
-                    <dd>ゴールド</dd>
+                    <dd>${claim.licenseColor}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>車両料率</dt>
-                    <dd>1</dd>
+                    <dd>${claim.vehicleRates}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>対人料率</dt>
-                    <dd>2</dd>
+                    <dd>${claim.bodilyRates}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>対物料率</dt>
-                    <dd>3</dd>
+                    <dd>${claim.propertyDamageRates}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>傷害料率</dt>
-                    <dd>4</dd>
+                    <dd>${claim.accidentRates}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>年齢条件</dt>
-                    <dd>21歳以上</dd>
+                    <dd>${claim.ageLimit}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>一回分保険料</dt>
-                    <dd>10,000円</dd>
+                    <dd>${claim.premiumInstallment}円</dd>
                   </div>
                 </dl>
 
