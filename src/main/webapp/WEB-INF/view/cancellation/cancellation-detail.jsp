@@ -197,54 +197,54 @@
                   <h2 class="accounting-section-title">自動車保険試算結果</h2>
                   <div class="accounting-premium-summary">
                     <span>保険料</span>
-                    <strong>${contract.premiumAmount}円</strong>
+                    <strong>${claim.premiumAmount}円</strong>
                   </div>
                 </div>
 
                 <dl class="accounting-data-list accounting-data-list--coverage">
                   <div class="accounting-data-row">
                     <dt>メーカー</dt>
-                    <dd>${contract.maker}</dd>
+                    <dd>${claim.maker}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>車名</dt>
-                    <dd>${contract.carName}</dd>
+                    <dd>${claim.carName}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>車のナンバー</dt>
-                    <dd>${contract.licenseNo}</dd>
+                    <dd>${claim.licenseNo}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>車両保険金額</dt>
-                    <dd>${contract.vehiclePrice}円</dd>
+                    <dd>${claim.vehiclePrice}円</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>免許証の色</dt>
-                    <dd>ゴールド</dd>
+                    <dd>${claim.licenseColor}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>車両料率</dt>
-                    <dd>1</dd>
+                    <dd>${claim.vehicleRates}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>対人料率</dt>
-                    <dd>2</dd>
+                    <dd>${claim.bodilyRates}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>対物料率</dt>
-                    <dd>3</dd>
+                    <dd>${claim.propertyDamageRates}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>傷害料率</dt>
-                    <dd>4</dd>
+                    <dd>${claim.accidentRates}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>年齢条件</dt>
-                    <dd>21歳以上</dd>
+                    <dd>${claim.ageLimit}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>一回分保険料</dt>
-                    <dd>10,000円</dd>
+                    <dd>${claim.premiumInstallment}円</dd>
                   </div>
                 </dl>
 
