@@ -35,7 +35,7 @@ public class EstimatePrintCompleteController extends HttpServlet{
             session.setAttribute("calculated", printClaim.getPremiumAmount() > 0);
         }
 
-        request.getRequestDispatcher("/WEB-INF/jsp/estimate/estimate.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(request, response);
         
         }
 
@@ -69,11 +69,11 @@ public class EstimatePrintCompleteController extends HttpServlet{
             
             // 5. 完了画面に発行した連番だけを渡して遷移
             request.setAttribute("serialNum", serialNum);
-            request.getRequestDispatcher("/WEB-INF/jsp/estimate/application-print-complete.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/view/estimate/application-print-complete.jsp").forward(request, response);
             
         } catch (Exception e) {
             e.printStackTrace();
-            request.getRequestDispatcher("/WEB-INF/error/Error.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/view/error/Error.jsp").forward(request, response);
         }
     }
 }

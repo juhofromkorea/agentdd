@@ -104,11 +104,11 @@ public class EstimateCalcController extends HttpServlet {
             session.setAttribute("claim", claim);
             session.setAttribute("calculated", true);
             
-            request.getRequestDispatcher("/WEB-INF/jsp/estimate/estimate.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(request, response);
     
         } catch (Exception e) {
             e.printStackTrace();
-            request.getRequestDispatcher("/WEB-INF/jsp/error/error-system.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/view/error/Error.jsp").forward(request, response);
         }       
     }
 

@@ -39,7 +39,7 @@ public class EstimateStatusController extends HttpServlet {
         session.setAttribute("printClaim", claim);
         
         // 3. 申込書印刷確認画面へフォワード
-        request.getRequestDispatcher("/WEB-INF/jsp/estimate/application-print.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/view/estimate/application-print.jsp").forward(request, response);
     }
 
     private void updateContractFromRequest(HttpServletRequest request, Contract contract) {

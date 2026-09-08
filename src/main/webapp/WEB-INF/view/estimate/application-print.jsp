@@ -18,6 +18,27 @@
       if (localStorage.getItem("appTheme") === "dark") {
           document.documentElement.classList.add("dark-mode");
       }
+      // 2. ページ読み込み完了後にトグルスイッチの同期とイベントを設定
+    document.addEventListener("DOMContentLoaded", function() {
+        const toggle = document.getElementById("theme-toggle");
+        if (!toggle) return;
+
+        // 保存されている設定に合わせてスイッチのチェック状態を同期
+        if (localStorage.getItem("appTheme") === "dark") {
+            toggle.checked = true;
+        }
+
+        // スイッチが切り替わったときに保存とクラスの付け外しを行う
+        toggle.addEventListener("change", function() {
+            if (toggle.checked) {
+                document.documentElement.classList.add("dark-mode");
+                localStorage.setItem("appTheme", "dark");
+            } else {
+                document.documentElement.classList.remove("dark-mode");
+                localStorage.setItem("appTheme", "light");
+            }
+        });
+    });
     </script>
   </head>
   <body>
@@ -71,7 +92,7 @@
               </div>
               <div>
                 <dt>総額保険料</dt>
-                <dd><fmt:formatNumber value="${claim.totalPremium}" />円</dd>
+                <dd><fmt:formatNumber value="${claim.premiumAmount}" />円</dd>
               </div>
               <div>
                 <dt>契約者</dt>
@@ -97,10 +118,6 @@
             </dl>
 
             <div class="print-actions">
-              <a
-                class="button button--secondary print-button-link"
-                href="${pageContext.request.contextPath}/estimatestatus?mode=back"
-              >戻る</a>
               <form
                 action="${pageContext.request.contextPath}/estimateprint"
                 method="post"

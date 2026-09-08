@@ -11,7 +11,36 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/layout.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/components.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/application-print.css" />
+    <script>
+    // 1. ページが描画される瞬間にテーマを適用（画面のちらつきを防止）
+    if (localStorage.getItem("appTheme") === "dark") {
+        document.documentElement.classList.add("dark-mode");
+    }
+
+    // 2. ページ読み込み完了後にトグルスイッチの同期とイベントを設定
+    document.addEventListener("DOMContentLoaded", function() {
+        const toggle = document.getElementById("theme-toggle");
+        if (!toggle) return;
+
+        // 保存されている設定に合わせてスイッチのチェック状態を同期
+        if (localStorage.getItem("appTheme") === "dark") {
+            toggle.checked = true;
+        }
+
+        // スイッチが切り替わったときに保存とクラスの付け外しを行う
+        toggle.addEventListener("change", function() {
+            if (toggle.checked) {
+                document.documentElement.classList.add("dark-mode");
+                localStorage.setItem("appTheme", "dark");
+            } else {
+                document.documentElement.classList.remove("dark-mode");
+                localStorage.setItem("appTheme", "light");
+            }
+        });
+    });
+    </script>
   </head>
+
   <body>
     <input
       class="theme-controller"
@@ -50,7 +79,7 @@
 
       <main class="app-main print-main">
         <section class="card print-card" aria-labelledby="print-complete-title">
-          <a class="print-breadcrumb" href="${pageContext.request.contextPath}/mockup/top">トップへ戻る</a>
+          <a class="print-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
           <div class="print-content print-content--complete">
             <h1 class="print-title" id="print-complete-title">
@@ -60,11 +89,13 @@
             <dl class="print-summary print-summary--compact">
               <div>
                 <dt>印刷連番</dt>
-                <dd>A0000000000</dd>
+                <!-- ★発行された連番を表示 -->
+                <dd>${serialNum}</dd>
               </div>
               <div>
                 <dt>契約者名</dt>
-                <dd>東京 太郎様</dd>
+                <!-- ★個人なら「姓 名 様」、法人なら「会社名 様」が表示される -->
+                <dd><c:out value="${contract.nameKanji1} ${contract.nameKanji2}" />様</dd>
               </div>
             </dl>
           </div>
@@ -73,3 +104,4 @@
     </div>
   </body>
 </html>
+
