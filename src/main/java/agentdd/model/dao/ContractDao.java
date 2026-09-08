@@ -150,16 +150,16 @@ public class ContractDao {
                 cnt.setFaxNo(res.getString("faxNo"));
 
                 // --- マスタテーブルから取得した「名称（文字列）」をセット ---
-            cnt.setPaymentStr(res.getString("payment_name"));
-            cnt.setStatusStr(res.getString("status_name"));
-            cnt.setInsuredStr(res.getString("insured_name"));
-            cnt.setGenderStr(res.getString("gender_name"));
+                cnt.setPaymentStr(res.getString("payment_name"));
+                cnt.setStatusStr(res.getString("status_name"));
+                cnt.setInsuredStr(res.getString("insured_name"));
+                cnt.setGenderStr(res.getString("gender_name"));
             }
-        }finally{
-            if(res!=null){
+        } finally {
+            if (res!=null) {
                 res.close();
             }
-            if(stmt !=null){
+            if (stmt !=null) {
                 stmt.close();
             }
         }
@@ -167,7 +167,7 @@ public class ContractDao {
     }
 
 
-/**契約情報一覧＜解約・事故受付＞ */
+    /**契約情報一覧＜解約・事故受付＞ */
     public Contract getContract(String polNo) throws SQLException{
 
         ResultSet res = null ;//SQLの結果を入れる
