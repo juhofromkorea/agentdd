@@ -90,97 +90,97 @@
                 <dl class="accounting-data-list">
                   <div class="accounting-data-row">
                     <dt>印刷連番</dt>
-                    <dd>A000001</dd>
+                    <dd>${contract.insatsuRenban}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>証券番号</dt>
-                    <dd>B00000001</dd>
+                    <dd>${contract.polNo}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>被保険者区分</dt>
-                    <dd>個人</dd>
+                    <dd>${contract.insuredKbn}</dd>
                   </div>
 
                   <div class="accounting-data-row">
                     <dt>姓（漢字）</dt>
-                    <dd>東海</dd>
+                    <dd>${contract.nameKanji1}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>名（漢字）</dt>
-                    <dd>太郎</dd>
+                    <dd>${contract.nameKanji2}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>姓（カナ）</dt>
-                    <dd>トウカイ</dd>
+                    <dd>${contract.nameKana1}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>名（カナ）</dt>
-                    <dd>タロウ</dd>
+                    <dd>${contract.nameKana2}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>性別</dt>
-                    <dd>男</dd>
+                    <dd>${contract.gender}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>生年月日</dt>
-                    <dd>2000年01月01日</dd>
+                    <dd>${contract.birthday}</dd>
                   </div>
 
                   <div class="accounting-data-row">
                     <dt>郵便番号</dt>
-                    <dd>111-1111</dd>
+                    <dd>${contract.postcode}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>住所1（漢字）</dt>
-                    <dd>東京都多摩市</dd>
+                    <dd>${contract.addressKanji1}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>住所2（漢字）</dt>
-                    <dd>1-1-1</dd>
+                    <dd>${contract.addressKanji2}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>住所1（カタカナ）</dt>
-                    <dd>トウキョウトタマシ</dd>
+                    <dd>${contract.addressKana1}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>住所2（カタカナ）</dt>
-                    <dd>1-1-1</dd>
+                    <dd>${contract.addressKana2}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>電話番号</dt>
-                    <dd>03-1234-1234</dd>
+                    <dd>${contract.telephoneNo}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>携帯電話番号</dt>
-                    <dd>090-1234-1234</dd>
+                    <dd>${contract.mobilephoneNo}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>FAX番号</dt>
-                    <dd>090-1234-1234</dd>
+                    <dd>${contract.faxNo}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>保険期間開始日</dt>
-                    <dd>令和8年01月01日</dd>
+                    <dd>${contract.inceptionDate}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>保険期間開始時刻</dt>
-                    <dd>午後6時</dd>
+                    <dd>${contract.inceptionTime}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>保険期間満期日</dt>
-                    <dd>令和9年01月01日</dd>
+                    <dd>${contract.conclusionDate}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>保険期間満期時刻</dt>
-                    <dd>午後6時</dd>
+                    <dd>${contract.conclusionTime}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>払込方法</dt>
-                    <dd>クレジットカード</dd>
+                    <dd>${contract.paymentMethod}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>払込回数</dt>
-                    <dd>1</dd>
+                    <dd>${contract.installment}</dd>
                   </div>
                 </dl>
 
@@ -197,26 +197,26 @@
                   <h2 class="accounting-section-title">自動車保険試算結果</h2>
                   <div class="accounting-premium-summary">
                     <span>保険料</span>
-                    <strong>10,000円</strong>
+                    <strong>${contract.premiumAmount}円</strong>
                   </div>
                 </div>
 
                 <dl class="accounting-data-list accounting-data-list--coverage">
                   <div class="accounting-data-row">
                     <dt>メーカー</dt>
-                    <dd>TOYOTA</dd>
+                    <dd>${contract.maker}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>車名</dt>
-                    <dd>キューブ</dd>
+                    <dd>${contract.carName}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>車のナンバー</dt>
-                    <dd>品川300あ00-00</dd>
+                    <dd>${contract.licenseNo}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>車両保険金額</dt>
-                    <dd>1,000,000円</dd>
+                    <dd>${contract.vehiclePrice}円</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>免許証の色</dt>

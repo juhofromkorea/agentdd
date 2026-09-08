@@ -63,8 +63,8 @@
 
             <form
               class="accounting-start-form"
-              action="${pageContext.request.contextPath}/mockup/cancellation-detail"
-              method="get"
+              action="./cancel"
+              method="post"
             >
               <label class="accounting-start-field">
                 <span>証券番号</span>
@@ -78,6 +78,7 @@
                   pattern="[A-Za-z0-9]{1,10}"
                   aria-describedby="cancellation-start-message"
                   required
+                  value="${sessionScope.constract.polNo }"
                 />
               </label>
 

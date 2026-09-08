@@ -3,14 +3,20 @@ package agentdd.controller;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.constant.SystemConst;
 import agentdd.model.data.Claim;
 import agentdd.model.data.Contract;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
-public class cancel {
+
+@WebServlet("/cancel")
+public class CancelController extends HttpServlet{
 
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response)
@@ -18,8 +24,11 @@ public class cancel {
 
         request.setCharacterEncoding(SystemConst.CHAR_SET);
 
-        // ① 照会検索画面から証券番号を取得
+        // ①‐1解約画面から証券番号を取得
         String polNo = request.getParameter("polNo");
+        //①-2セッションスコープに証券番号を格納
+        HttpSession session = request.getSession();
+        session.setAttribute("polNo", polNo);
 
         // ② DAOを生成
         ContractDao contractDao = new ContractDao();
@@ -38,32 +47,35 @@ public class cancel {
                     "該当する契約情報がありません。"
                 );
 
-                request.getRequestDispatcher(
-                    "/WEB-INF/view/contract-search.jsp"
+                 request.getRequestDispatcher(
+                    "/WEB-INF/view/cancellatation.jsp"
                 ).forward(request, response);
 
                 return;
+
             }
 
-            // ⑤ 証券番号に紐づく事故情報を取得
+            // ⑤ 証券番号に紐づく補償情報を取得
             Claim claim = claimDao.getClaim(polNo);
+            
 
-            // ⑥ 事故情報が存在しない場合
+            // ⑥ 補償情報が存在しない場合
             if (claim == null) {
 
                 request.setAttribute(
                     "errorMessage",
-                    "該当する事故情報がありません。"
+                    "該当する補償情報がありません。"
                 );
-
-                request.getRequestDispatcher(
-                    "/WEB-INF/view/contract-search.jsp"
+                 request.getRequestDispatcher(
+                    "/WEB-INF/view/cancellatation.jsp"
                 ).forward(request, response);
 
                 return;
+
+                
             }
 
-            // ⑦ 契約情報・事故情報をリクエストスコープに格納
+            // ⑦ 契約情報・補償情報をリクエストスコープに格納
             request.setAttribute("contract", contract);
             request.setAttribute("claim", claim);
 
@@ -84,8 +96,13 @@ public class cancel {
             }
 
         } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("errMsg", ErrorMsgConst.UNEXPECTED_ERROR);
+            request.getRequestDispatcher(
+                    "/WEB-INF/view/Error.jsp"
+                ).forward(request, response);
 
-            throw new ServletException(e);
+            
         }
     }
 }
