@@ -29,9 +29,11 @@ public class ContractDao {
         return selectContract(SELECT_CONTRACT + "WHERE c.insatsu_renban = ?", insatsuRenban);
     }
 
+    /*
     public Contract getContractForInquiry(String polNo) throws SQLException {
         return selectContract(SELECT_CONTRACT + "WHERE c.pol_no = ?", polNo);
     }
+    */
 
     public Contract getContract(String polNo) throws SQLException {
         return selectContract(SELECT_CONTRACT + "WHERE c.pol_no = ?", polNo);
