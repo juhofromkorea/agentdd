@@ -87,6 +87,13 @@ public class AccidentController extends HttpServlet {
                         return;
                     }
 
+                    // すでに完了（ステータスが9）している場合は accident.jsp に戻す
+                    if (accidentData.getClaimStatus() == 9) {
+                        request.setAttribute("errorMessage", "この事故受付は完了しています。");
+                        request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
+                        return;
+                    }
+
                     Contract contractData = contractDao.findContractByInsatsuRenban(String.valueOf(accidentData.getCoverId()));
                     request.setAttribute("accident", accidentData);
                     request.setAttribute("contract", contractData);

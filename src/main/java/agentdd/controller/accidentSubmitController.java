@@ -37,6 +37,7 @@ public class AccidentSubmitController extends HttpServlet {
             int yourFault = (int) parseLong(request.getParameter("ratingBlameYourself"));
             
             if (myFault + yourFault != 100) {
+                // エラー時は元の入力値を保持できるようにオブジェクトに詰めてスコープに戻す
                 request.setAttribute("errorMessage", "過失割合の合計が100になるように入力してください。");
                 request.getRequestDispatcher("/WEB-INF/view/accident/accident-detail.jsp").forward(request, response);
                 return;
@@ -50,11 +51,16 @@ public class AccidentSubmitController extends HttpServlet {
             int claimStatus = "completeReceipt".equals(action) ? 9 : 1; // 1:受付中, 9:完了済み
             String completeMessage = claimStatus == 9 ? "事故受付が完了しました" : "事故状況を更新しました";
 
-            // --- ★ ここで直接 Accident オブジェクトを作って DAO を呼ぶ！ ---
+            // --- Accident オブジェクトの生成と値のセット ---
             Accident accident = new Accident();
-            accident.setClaimNo(request.getParameter("claimNo"));
-            accident.setCoverId((int) parseLong(request.getParameter("coverId"))); 
-            accident.setCoverId(00000001);
+            String claimNo = request.getParameter("claimNo");
+            accident.setClaimNo(claimNo);
+
+            accident.setCoverId(1);
+
+            // 画面から送られてきた coverId をセット（隠しフィールド等で保持している前提）
+            // accident.setCoverId((int) parseLong(request.getParameter("coverId")));
+            
             accident.setClaimStatus(claimStatus);
             accident.setPaymentPrice(paymentAmount);
 
@@ -82,18 +88,25 @@ public class AccidentSubmitController extends HttpServlet {
             accident.setDamagePropertyState(request.getParameter("damagePropertyState"));
             accident.setDamageAccidentState(request.getParameter("damageAccidentState"));
 
-            // DAOのメソッドを直接実行（新規ならINSERT、既存ならUPDATE）
-            accidentDao.setAccident(accident);
+            // 4. コントローラー側でデータの存在をチェックし、INSERTかUPDATEを振り分ける
+            Accident existingAccident = accidentDao.getAccident(claimNo);
+            if (existingAccident == null) {
+                // 存在しない場合は新規登録
+                accidentDao.insertAccident(accident);
+            } else {
+                // 存在する場合は更新
+                accidentDao.updateAccident(accident);
+            }
             // -----------------------------------------------------------
 
-            // 4. 完了画面表示用データのセット
-            request.setAttribute("claimNo", request.getParameter("claimNo"));
+            // 5. 完了画面表示用データのセット
+            request.setAttribute("claimNo", claimNo);
             request.setAttribute("polNo", request.getParameter("polNo"));
             request.setAttribute("contractorName", request.getParameter("contractorName"));
             request.setAttribute("paymentAmount", paymentAmount);
             request.setAttribute("completeMessage", completeMessage);
 
-            // 5. 完了画面へフォワード
+            // 6. 完了画面へフォワード
             request.getRequestDispatcher("/WEB-INF/view/accident/accident-complete.jsp").forward(request, response);
 
         } catch (Exception e) {
@@ -103,7 +116,9 @@ public class AccidentSubmitController extends HttpServlet {
         }
     }
 
-
+    /**
+     * 各種損害額の合計と、自身の過失割合に基づいて支払金額（保険金額）を計算します。
+     */
     private long calculatePaymentAmount(HttpServletRequest request) {
         long vehicleDamage = parseLong(request.getParameter("damageCarPrice"));
         long bodilyDamage = parseLong(request.getParameter("damageBodilyPrice"));
@@ -116,6 +131,9 @@ public class AccidentSubmitController extends HttpServlet {
         return Math.round(totalDamage * faultRatio);
     }
 
+    /**
+     * 文字列を安全に long 型の数値へ変換します。
+     */
     private long parseLong(String val) {
         if (val == null || val.trim().isEmpty()) return 0L;
         try { 

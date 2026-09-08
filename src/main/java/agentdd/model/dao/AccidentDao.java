@@ -11,7 +11,7 @@ import agentdd.model.data.Accident;
 
 /**
  * 事故受付テーブルDAOクラス
- * 事故受付テーブル（claim_tbl）への検索・登録などのDB操作を担当します。
+ * 事故受付テーブル（claim_tbl）への検索・登録・更新などのDB操作を担当します。
  */
 public class AccidentDao {
 
@@ -57,7 +57,6 @@ public class AccidentDao {
                     accident.setClaimNo(rs.getString("claim_no"));
                     accident.setCoverId(rs.getInt("cover_id"));
                     accident.setClaimStatus(rs.getInt("claim_status"));
-                    
                     accident.setPaymentPrice(rs.getLong("payment_price"));
                     
                     accident.setAccidentLocationKana1(rs.getString("accident_location_kana1"));
@@ -112,116 +111,106 @@ public class AccidentDao {
     }
 
     /**
-     * 事故受付情報の登録または更新
-     * 既に同じ事故受付番号が存在する場合はUPDATE、存在しない場合はINSERTを実行します。
-     * @param accident 登録/更新対象の事故受付データ
+     * 事故受付情報の新規登録（INSERT）を実行します。
+     * @param accident 登録対象の事故受付データ
      * @throws SQLException
      */
-    public void setAccident(Accident accident) throws SQLException {
-        // 1. 既に同じ claim_no のデータがDBに存在するかチェック
-        boolean exists = false;
-        String checkSql = "SELECT COUNT(*) FROM claim_tbl WHERE claim_no = ?";
-        try (PreparedStatement stmt = con.prepareStatement(checkSql)) {
+    public void insertAccident(Accident accident) throws SQLException {
+        String insertSql = "INSERT INTO claim_tbl ("
+                + " claim_no, cover_id, claim_status, payment_price, "
+                + " accident_location_kana1, accident_location_kana2, accident_location_kanji1, accident_location_kanji2, "
+                + " accident_date, accident_situation, rating_blame_myself, rating_blame_yourself, "
+                + " damage_car_price, damage_bodily_price, damage_property_price, damage_accident_price, "
+                + " damage_car_state, damage_bodily_state, damage_property_state, damage_accident_state"
+                + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement stmt = con.prepareStatement(insertSql)) {
             stmt.setString(1, accident.getClaimNo());
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next() && rs.getInt(1) > 0) {
-                    exists = true;
-                }
-            }
+            stmt.setInt(2, accident.getCoverId());
+            stmt.setInt(3, accident.getClaimStatus());
+            stmt.setLong(4, accident.getPaymentPrice());
+            
+            stmt.setString(5, accident.getAccidentLocationKana1());
+            stmt.setString(6, accident.getAccidentLocationKana2());
+            stmt.setString(7, accident.getAccidentLocationKanji1());
+            stmt.setString(8, accident.getAccidentLocationKanji2());
+            stmt.setString(9, accident.getAccidentDate());
+            
+            stmt.setString(10, accident.getAccidentSituation());
+            stmt.setInt(11, accident.getRatingBlameMyself());
+            stmt.setInt(12, accident.getRatingBlameYourself());
+            
+            stmt.setLong(13, accident.getDamageCarPrice());
+            stmt.setLong(14, accident.getDamageBodilyPrice());
+            stmt.setLong(15, accident.getDamagePropertyPrice());
+            stmt.setLong(16, accident.getDamageAccidentPrice());
+            
+            stmt.setString(17, accident.getDamageCarState());
+            stmt.setString(18, accident.getDamageBodilyState());
+            stmt.setString(19, accident.getDamagePropertyState());
+            stmt.setString(20, accident.getDamageAccidentState());
+
+            stmt.executeUpdate();
         }
+    }
 
-        if (exists) {
-            // 2. 存在する場合は UPDATE（既存データの更新）
-            String updateSql = "UPDATE claim_tbl SET " +
-                    "cover_id = ?, " +
-                    "claim_status = ?, " +
-                    "payment_price = ?, " +
-                    "accident_location_kana1 = ?, " +
-                    "accident_location_kana2 = ?, " +
-                    "accident_location_kanji1 = ?, " +
-                    "accident_location_kanji2 = ?, " +
-                    "accident_date = ?, " +
-                    "accident_situation = ?, " +
-                    "rating_blame_myself = ?, " +
-                    "rating_blame_yourself = ?, " +
-                    "damage_car_price = ?, " +
-                    "damage_bodily_price = ?, " +
-                    "damage_property_price = ?, " +
-                    "damage_accident_price = ?, " +
-                    "damage_car_state = ?, " +
-                    "damage_bodily_state = ?, " +
-                    "damage_property_state = ?, " +
-                    "damage_accident_state = ? " +
-                    "WHERE claim_no = ?";
+    /**
+     * 事故受付情報の更新（UPDATE）を実行します。
+     * @param accident 更新対象の事故受付データ
+     * @throws SQLException
+     */
+    public void updateAccident(Accident accident) throws SQLException {
+        String updateSql = "UPDATE claim_tbl SET " +
+                "cover_id = ?, " +
+                "claim_status = ?, " +
+                "payment_price = ?, " +
+                "accident_location_kana1 = ?, " +
+                "accident_location_kana2 = ?, " +
+                "accident_location_kanji1 = ?, " +
+                "accident_location_kanji2 = ?, " +
+                "accident_date = ?, " +
+                "accident_situation = ?, " +
+                "rating_blame_myself = ?, " +
+                "rating_blame_yourself = ?, " +
+                "damage_car_price = ?, " +
+                "damage_bodily_price = ?, " +
+                "damage_property_price = ?, " +
+                "damage_accident_price = ?, " +
+                "damage_car_state = ?, " +
+                "damage_bodily_state = ?, " +
+                "damage_property_state = ?, " +
+                "damage_accident_state = ? " +
+                "WHERE claim_no = ?";
 
-            try (PreparedStatement stmt = con.prepareStatement(updateSql)) {
-                stmt.setInt(1, accident.getCoverId());
-                stmt.setInt(2, accident.getClaimStatus());
-                stmt.setLong(3, accident.getPaymentPrice());
-                
-                stmt.setString(4, accident.getAccidentLocationKana1());
-                stmt.setString(5, accident.getAccidentLocationKana2());
-                stmt.setString(6, accident.getAccidentLocationKanji1());
-                stmt.setString(7, accident.getAccidentLocationKanji2());
-                stmt.setString(8, accident.getAccidentDate());
-                
-                stmt.setString(9, accident.getAccidentSituation());
-                stmt.setInt(10, accident.getRatingBlameMyself());
-                stmt.setInt(11, accident.getRatingBlameYourself());
-                
-                stmt.setLong(12, accident.getDamageCarPrice());
-                stmt.setLong(13, accident.getDamageBodilyPrice());
-                stmt.setLong(14, accident.getDamagePropertyPrice());
-                stmt.setLong(15, accident.getDamageAccidentPrice());
-                
-                stmt.setString(16, accident.getDamageCarState());
-                stmt.setString(17, accident.getDamageBodilyState());
-                stmt.setString(18, accident.getDamagePropertyState());
-                stmt.setString(19, accident.getDamageAccidentState());
-                
-                // WHERE句の条件
-                stmt.setString(20, accident.getClaimNo());
+        try (PreparedStatement stmt = con.prepareStatement(updateSql)) {
+            stmt.setInt(1, accident.getCoverId());
+            stmt.setInt(2, accident.getClaimStatus());
+            stmt.setLong(3, accident.getPaymentPrice());
+            
+            stmt.setString(4, accident.getAccidentLocationKana1());
+            stmt.setString(5, accident.getAccidentLocationKana2());
+            stmt.setString(6, accident.getAccidentLocationKanji1());
+            stmt.setString(7, accident.getAccidentLocationKanji2());
+            stmt.setString(8, accident.getAccidentDate());
+            
+            stmt.setString(9, accident.getAccidentSituation());
+            stmt.setInt(10, accident.getRatingBlameMyself());
+            stmt.setInt(11, accident.getRatingBlameYourself());
+            
+            stmt.setLong(12, accident.getDamageCarPrice());
+            stmt.setLong(13, accident.getDamageBodilyPrice());
+            stmt.setLong(14, accident.getDamagePropertyPrice());
+            stmt.setLong(15, accident.getDamageAccidentPrice());
+            
+            stmt.setString(16, accident.getDamageCarState());
+            stmt.setString(17, accident.getDamageBodilyState());
+            stmt.setString(18, accident.getDamagePropertyState());
+            stmt.setString(19, accident.getDamageAccidentState());
+            
+            // WHERE句の条件
+            stmt.setString(20, accident.getClaimNo());
 
-                stmt.executeUpdate();
-            }
-        } else {
-            // 3. 存在しない場合は INSERT（新規登録）
-            String insertSql = "INSERT INTO claim_tbl ("
-                    + " claim_no, cover_id, claim_status, payment_price, "
-                    + " accident_location_kana1, accident_location_kana2, accident_location_kanji1, accident_location_kanji2, "
-                    + " accident_date, accident_situation, rating_blame_myself, rating_blame_yourself, "
-                    + " damage_car_price, damage_bodily_price, damage_property_price, damage_accident_price, "
-                    + " damage_car_state, damage_bodily_state, damage_property_state, damage_accident_state"
-                    + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            try (PreparedStatement stmt = con.prepareStatement(insertSql)) {
-                stmt.setString(1, accident.getClaimNo());
-                stmt.setInt(2, accident.getCoverId());
-                stmt.setInt(3, accident.getClaimStatus());
-                stmt.setLong(4, accident.getPaymentPrice());
-                
-                stmt.setString(5, accident.getAccidentLocationKana1());
-                stmt.setString(6, accident.getAccidentLocationKana2());
-                stmt.setString(7, accident.getAccidentLocationKanji1());
-                stmt.setString(8, accident.getAccidentLocationKanji2());
-                stmt.setString(9, accident.getAccidentDate());
-                
-                stmt.setString(10, accident.getAccidentSituation());
-                stmt.setInt(11, accident.getRatingBlameMyself());
-                stmt.setInt(12, accident.getRatingBlameYourself());
-                
-                stmt.setLong(13, accident.getDamageCarPrice());
-                stmt.setLong(14, accident.getDamageBodilyPrice());
-                stmt.setLong(15, accident.getDamagePropertyPrice());
-                stmt.setLong(16, accident.getDamageAccidentPrice());
-                
-                stmt.setString(17, accident.getDamageCarState());
-                stmt.setString(18, accident.getDamageBodilyState());
-                stmt.setString(19, accident.getDamagePropertyState());
-                stmt.setString(20, accident.getDamageAccidentState());
-
-                stmt.executeUpdate();
-            }
+            stmt.executeUpdate();
         }
     }
 }
