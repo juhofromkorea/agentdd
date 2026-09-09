@@ -3,7 +3,7 @@ package agentdd.controller;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-
+import agentdd.model.dao.ConnectionManager;
 import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.constant.SystemConst;
 import agentdd.model.dao.ContractDao;
@@ -39,47 +39,61 @@ public class AccountingController extends HttpServlet {
 
         // ① 計上画面から印刷連番を取得
         String insatsuRenban = request.getParameter("insatsuRenban");
+        Contract contract = new Contract();
+        Claim claim = new Claim();
 
         // セッションスコープに印刷連番を保存
         HttpSession session = request.getSession();
         session.setAttribute("insatsuRenban", insatsuRenban);
 
-        try {
-            ContractDao contractDao = new ContractDao();
-            ClaimDao claimDao = new ClaimDao();
-            // ③ 印刷連番に紐づく契約情報を取得し、状態フラグをセッションスコープに格納する
-            Contract contract = contractDao.getContractForAccount(insatsuRenban);
+        try (Connection con = ConnectionManager.getConnection()) {
+            con.setAutoCommit(false);
 
-            // ④ 契約情報が存在しない場合
-            if (contract == null) {
+            try {
+                ContractDao contractDao = new ContractDao(con);
+                ClaimDao claimDao = new ClaimDao(con);
+                // ③ 印刷連番に紐づく契約情報を取得し、状態フラグをセッションスコープに格納する
+                contract = contractDao.getContractForAccount(insatsuRenban);
 
-                request.setAttribute(
-                        "error",
-                        "該当する契約情報がありません。");
+                // ④ 契約情報が存在しない場合
+                if (contract == null) {
 
-                request.getRequestDispatcher(
-                        "/WEB-INF/view/error/error.jsp").forward(request, response);
+                    request.setAttribute(
+                            "error",
+                            "該当する契約情報がありません。");
 
-                return;
-            }
+                    request.getRequestDispatcher(
+                            "/WEB-INF/view/error/error.jsp").forward(request, response);
 
-            // 状態フラグをセッションスコープに保存
-            session.setAttribute("status_Flg", contract.getStatusFlg());
+                    return;
+                }
 
-            // ⑤ 印刷連番に紐づく補償情報を取得
-            Claim claim = claimDao.getClaimForAccount(insatsuRenban);
+                // 状態フラグをセッションスコープに保存
+                session.setAttribute("status_Flg", contract.getStatusFlg());
 
-            // ⑥ 補償情報が存在しない場合
-            if (claim == null) {
+                // ⑤ 印刷連番に紐づく補償情報を取得
+                claim = claimDao.getClaimForAccount(insatsuRenban);
 
-                request.setAttribute(
-                        "error",
-                        "該当する補償情報がありません。");
+                // ⑥ 補償情報が存在しない場合
+                if (claim == null) {
 
-                request.getRequestDispatcher(
-                        "/WEB-INF/view/error/error.jsp").forward(request, response);
+                    request.setAttribute(
+                            "error",
+                            "該当する補償情報がありません。");
 
-                return;
+                    request.getRequestDispatcher(
+                            "/WEB-INF/view/error/error.jsp").forward(request, response);
+
+                    return;
+                }
+                con.commit();
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    con.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
             }
 
             // ⑦ 契約情報・補償情報をリクエストスコープに格納
@@ -101,11 +115,10 @@ public class AccountingController extends HttpServlet {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            getServletContext().log("DB更新に失敗しました。", e);
             request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
             request.getRequestDispatcher(
                     "/WEB-INF/view/error/error.jsp").forward(request, response);
-
         }
     }
 }

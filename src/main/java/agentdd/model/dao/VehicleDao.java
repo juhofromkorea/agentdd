@@ -12,12 +12,17 @@ import agentdd.model.data.Claim;
 
 public class VehicleDao {
 
+    private final Connection con;
+
+    public VehicleDao(Connection con) {
+        this.con = java.util.Objects.requireNonNull(con);
+    }
+
     public List<Map<String, String>> findAll() throws SQLException {
         String sql = "SELECT maker, name FROM M_CARS_TBL ORDER BY maker, name";
         List<Map<String, String>> vehicles = new ArrayList<>();
 
-        try (Connection con = ConnectionManager.getConnection();
-                PreparedStatement pstmt = con.prepareStatement(sql);
+        try (PreparedStatement pstmt = con.prepareStatement(sql);
                 ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 Map<String, String> vehicle = new HashMap<>();
@@ -35,8 +40,7 @@ public class VehicleDao {
         
         String sql = "SELECT * FROM M_CARS_TBL WHERE maker = ? AND name = ?";
 
-        try (Connection con = ConnectionManager.getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = con.prepareStatement(sql)) {
 
             pstmt.setString(1, claim.getMaker());
             pstmt.setString(2, claim.getCarName());

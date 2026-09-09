@@ -8,6 +8,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import agentdd.model.constant.ErrorMsgConst;
+import agentdd.model.dao.ConnectionManager;
 import agentdd.model.dao.AccidentDao;
 import agentdd.model.dao.ClaimDao;
 import agentdd.model.dao.ContractDao;
@@ -28,13 +32,22 @@ public class AccidentSubmitController extends HttpServlet {
      */
     @Override
     public void init() throws ServletException {
-        try {
-            accidentDao = new AccidentDao();
-            contractDao = new ContractDao();
-            claimDao = new ClaimDao();
-        } catch (Exception e) {
-            throw new ServletException("DAOの初期化に失敗しました", e);
-        }
+        try (Connection con = ConnectionManager.getConnection()) {
+            con.setAutoCommit(false);
+            try {
+                accidentDao = new AccidentDao(con);
+                contractDao = new ContractDao(con);
+                claimDao = new ClaimDao(con);
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    con.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
+            }
+            con.commit();
+        } 
     }
 
     /**

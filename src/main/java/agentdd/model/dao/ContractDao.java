@@ -12,8 +12,7 @@ public class ContractDao {
 
     private final Connection con;
 
-    private static final String SELECT_CONTRACT =
-            "SELECT c.*, p.name AS payment_name, s.name AS status_name, "
+    private static final String SELECT_CONTRACT = "SELECT c.*, p.name AS payment_name, s.name AS status_name, "
             + "i.name AS insured_name, g.name AS gender_name "
             + "FROM CONTRACTINFO_TBL c "
             + "LEFT JOIN M_PAYMENT_METHOD_TBL p ON c.payment_method = p.id "
@@ -21,8 +20,8 @@ public class ContractDao {
             + "LEFT JOIN M_INSURED_TBL i ON c.insured_kbn = i.id "
             + "LEFT JOIN M_GENDER_TBL g ON c.gender = g.id ";
 
-    public ContractDao() throws SQLException {
-        this.con = ConnectionManager.getConnection();
+    public ContractDao(Connection con) {
+        this.con = java.util.Objects.requireNonNull(con);
     }
 
     public Contract getContractForAccount(String insatsuRenban) throws SQLException {
@@ -30,10 +29,10 @@ public class ContractDao {
     }
 
     /*
-    public Contract getContractForInquiry(String polNo) throws SQLException {
-        return selectContract(SELECT_CONTRACT + "WHERE c.pol_no = ?", polNo);
-    }
-    */
+     * public Contract getContractForInquiry(String polNo) throws SQLException {
+     * return selectContract(SELECT_CONTRACT + "WHERE c.pol_no = ?", polNo);
+     * }
+     */
 
     public Contract getContract(String polNo) throws SQLException {
         return selectContract(SELECT_CONTRACT + "WHERE c.pol_no = ?", polNo);
@@ -61,50 +60,25 @@ public class ContractDao {
     }
 
     public void setAccount(String insatsuRenban) throws SQLException {
-        boolean ownTransaction = con.getAutoCommit();
-        if (ownTransaction) {
-            con.setAutoCommit(false);
-        }
-        SQLException failure = null;
-        try {
-            String polNo = generateNextPolNo();
-            String sql = "UPDATE CONTRACTINFO_TBL "
-                    + "SET status_flg = 0, pol_no = ? "
-                    + "WHERE insatsu_renban = ? AND status_flg = 1 "
-                    + "AND cancel_flg = b'0' AND pol_no IS NULL";
-            try (PreparedStatement stmt = con.prepareStatement(sql)) {
-                stmt.setString(1, polNo);
-                stmt.setString(2, insatsuRenban);
-                if (stmt.executeUpdate() != 1) {
-                    throw new SQLException("計上対象が存在しないか、計上可能な状態ではありません。");
-                }
-            }
-            if (ownTransaction) {
-                con.commit();
-            }
-        } catch (SQLException e) {
-            failure = e;
-            if (ownTransaction) {
-                try {
-                    con.rollback();
-                } catch (SQLException rollbackError) {
-                    e.addSuppressed(rollbackError);
-                    // ロールバック失敗時は自動コミットに戻さず、呼び出し元で接続を閉じる。
-                    ownTransaction = false;
-                }
-            }
-            throw e;
-        } finally {
-            if (ownTransaction) {
-                try {
-                    con.setAutoCommit(true);
-                } catch (SQLException resetError) {
-                    if (failure != null) {
-                        failure.addSuppressed(resetError);
-                    } else {
-                        throw resetError;
-                    }
-                }
+        // 呼び出し元でトランザクションを開始していることを確認
+        requireTransaction();
+
+        String polNo = generateNextPolNo();
+
+        String sql = "UPDATE CONTRACTINFO_TBL "
+                + "SET status_flg = 0, pol_no = ? "
+                + "WHERE insatsu_renban = ? "
+                + "AND status_flg = 1 "
+                + "AND cancel_flg = b'0' "
+                + "AND pol_no IS NULL";
+
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, polNo);
+            stmt.setString(2, insatsuRenban);
+
+            if (stmt.executeUpdate() != 1) {
+                throw new SQLException(
+                        "計上対象が存在しないか、計上可能な状態ではありません。");
             }
         }
     }
@@ -120,7 +94,7 @@ public class ContractDao {
                 + "WHERE pol_no = ? "
                 + "AND status_flg = 0 "
                 + "AND cancel_flg = b'0'";
-        
+
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, polNo);
 
@@ -136,7 +110,7 @@ public class ContractDao {
      * 状態0・解約trueに変更する。
      */
     public void setCancel(String insatsuRenban) throws SQLException {
-        
+
         String sql = "UPDATE CONTRACTINFO_TBL "
                 + "SET status_flg = 0, cancel_flg = b'1' "
                 + "WHERE insatsu_renban = ? "
@@ -314,31 +288,9 @@ public class ContractDao {
     /**
      * 印刷連番をもとに契約情報を取得する
      */
-    public Contract findContractByInsatsuRenban(String insatsuRenban) throws SQLException {
-        Contract contract = null;
-        String sql = "SELECT * FROM contractinfo_tbl WHERE insatsu_renban = ?";
+    public Contract findContractByInsatsuRenban(String insatsuRenban)
+            throws SQLException {
 
-        try (Connection conn = getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, insatsuRenban);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    contract = new Contract();
-                    contract.setInsatsuRenban(rs.getString("insatsu_renban"));
-                    contract.setPolNo(rs.getString("pol_no"));
-                    contract.setStatusFlg((Integer) rs.getObject("status_flg"));
-                    contract.setCancelFlg(rs.getBoolean("cancel_flg"));
-                    contract.setNameKanji1(rs.getString("name_kanji1"));
-                    contract.setNameKanji2(rs.getString("name_kanji2"));
-                    contract.setPostcode(rs.getString("postcode"));
-                    contract.setAddressKanji1(rs.getString("address_kanji1"));
-                    contract.setAddressKanji2(rs.getString("address_kanji2"));
-                    contract.setTelephoneNo(rs.getString("telephone_no"));
-                }
-            }
-        }
-        return contract;
+        return getContractForAccount(insatsuRenban);
     }
 }

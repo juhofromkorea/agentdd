@@ -7,6 +7,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import agentdd.model.constant.ErrorMsgConst;
+import agentdd.model.dao.ConnectionManager;
 import agentdd.model.data.Contract;
 import agentdd.model.data.Claim;
 import agentdd.model.util.PrintSerialNumberCalc;
@@ -15,7 +20,7 @@ import agentdd.model.dao.ClaimDao;
 import agentdd.model.dao.VehicleDao;
 
 @WebServlet("/estimateprint")
-public class EstimatePrintCompleteController extends HttpServlet{
+public class EstimatePrintCompleteController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -36,34 +41,61 @@ public class EstimatePrintCompleteController extends HttpServlet{
             session.setAttribute("calculated", printClaim.getPremiumAmount() > 0);
         }
 
-        try {
-            request.setAttribute("vehicles", new VehicleDao().findAll());
-            request.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(request, response);
-        } catch (Exception e) {
-            throw new ServletException("車両マスタ一覧の取得に失敗しました。", e);
-        }
-        
-        }
+        try (Connection con = ConnectionManager.getConnection()) {
+            con.setAutoCommit(false);
+            try {
+                request.setAttribute("vehicles", new VehicleDao(con).findAll());
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+                con.commit();
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    con.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
+            }
+            request.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(request, response);
+        } catch (SQLException e) {
+            getServletContext().log("車両テーブル取得に失敗しました。", e);
+            request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
+            request.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
+                    .forward(request, response);
+        }
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         // 1. セッションから大事なデータを取り出す
         HttpSession session = request.getSession();
         Contract contract = (Contract) session.getAttribute("printContract");
         Claim claim = (Claim) session.getAttribute("printClaim");
-        
-        try {
-            // 2. 印刷連番を新規発行して箱にセット
-            PrintSerialNumberCalc serialCalc = new PrintSerialNumberCalc();
-            String serialNum = serialCalc.numbercalc();
-            contract.setInsatsuRenban(serialNum);
-            claim.setInsatsuRenban(serialNum);
-            
-            // 3. DBへ確定情報を保存 (Dao)
-            ContractDao contractDao = new ContractDao();
-            ClaimDao claimDao = new ClaimDao();
-            contractDao.setEstimate(contract);
-            claimDao.setEstimate(claim);
-            
+        String serialNum = null;
+
+        try (Connection con = ConnectionManager.getConnection()) {
+            con.setAutoCommit(false);
+
+            try {
+                ContractDao contractDao = new ContractDao(con);
+                ClaimDao claimDao = new ClaimDao(con);
+                
+                PrintSerialNumberCalc serialCalc = new PrintSerialNumberCalc();
+                serialNum = serialCalc.numbercalc(contractDao);
+                contract.setInsatsuRenban(serialNum);
+                claim.setInsatsuRenban(serialNum);
+
+                contractDao.setEstimate(contract);
+                claimDao.setEstimate(claim);
+                con.commit();
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    con.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
+            }
+
             // 4. お片付け（セッションから不要になったデータを消す）
             session.removeAttribute("printContract");
             session.removeAttribute("printClaim");
@@ -76,10 +108,11 @@ public class EstimatePrintCompleteController extends HttpServlet{
             // 5. 完了画面に発行した連番だけを渡して遷移
             request.setAttribute("serialNum", serialNum);
             request.setAttribute("contract", contract);
-            request.getRequestDispatcher("/WEB-INF/view/estimate/application-print-complete.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/view/estimate/application-print-complete.jsp").forward(request,
+                    response);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            getServletContext().log("DB更新に失敗しました。", e);
             request.getRequestDispatcher("/WEB-INF/view/error/error.jsp").forward(request, response);
         }
     }

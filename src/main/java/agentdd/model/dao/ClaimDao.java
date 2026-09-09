@@ -12,8 +12,8 @@ public class ClaimDao {
 
     private final Connection con;
 
-    public ClaimDao() throws SQLException {
-        this.con = ConnectionManager.getConnection();
+    public ClaimDao(Connection con) {
+        this.con = java.util.Objects.requireNonNull(con);
     }
 
     public Claim getClaimForAccount(String insatsuRenban) throws SQLException {

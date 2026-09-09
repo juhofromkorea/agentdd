@@ -22,8 +22,8 @@ public class AccidentDao {
      * DB接続を取得してフィールドに保持します。
      * @throws SQLException 
      */
-    public AccidentDao() throws SQLException {
-        this.con = ConnectionManager.getConnection();
+    public AccidentDao(Connection con) {
+        this.con = java.util.Objects.requireNonNull(con);
     }
 
     /**

@@ -7,13 +7,19 @@ import java.sql.SQLException;
 
 
 public class RatesDao {
+
+    private final Connection con;
+
+    public RatesDao(Connection con) {
+        this.con = java.util.Objects.requireNonNull(con);
+    }
+
     public double getRate(int id) throws SQLException {
         double rate = 1.0; // デフォルトの倍率
         // SQL: IDをキーにして料率マスタから倍率を取得
         String sql = "SELECT RATES FROM M_RATES_TBL WHERE ID = ?";
 
-        try (Connection con = ConnectionManager.getConnection();
-            PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = con.prepareStatement(sql)) {
             
             pstmt.setInt(1, id); // ? に年齢条件や免許証のIDをセット
 

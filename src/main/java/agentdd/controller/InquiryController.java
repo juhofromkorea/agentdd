@@ -2,7 +2,9 @@ package agentdd.controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Connection;
 
+import agentdd.model.dao.ConnectionManager;
 import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.constant.SystemConst;
 import agentdd.model.data.Claim;
@@ -39,42 +41,59 @@ public class InquiryController extends HttpServlet {
 
         // 照会検索画面から証券番号を取得
         String polNo = request.getParameter("polNo");
+        Contract contract = null;
+        Claim claim = null;
+        ContractDao contractDao = null;
+        ClaimDao claimDao = null;
 
-        try {
-            ContractDao contractDao = new ContractDao();
-            ClaimDao claimDao = new ClaimDao();
+        try (Connection con = ConnectionManager.getConnection()) {
+            con.setAutoCommit(false);
 
-            // 契約情報を取得
-            Contract contract = contractDao.getContract(polNo);
+            try {
+                contractDao = new ContractDao(con);
+                claimDao = new ClaimDao(con);
 
-            // 契約情報が存在しない場合
-            if (contract == null) {
+                // 契約情報を取得
+                contract = contractDao.getContract(polNo);
 
-                request.setAttribute(
-                        "errorMessage",
-                        "該当する契約情報がありません。");
+                // 契約情報が存在しない場合
+                if (contract == null) {
 
-                request.getRequestDispatcher(
-                        "/WEB-INF/view/inquiry/inquiry.jsp").forward(request, response);
+                    request.setAttribute(
+                            "errorMessage",
+                            "該当する契約情報がありません。");
 
-                return;
+                    request.getRequestDispatcher(
+                            "/WEB-INF/view/inquiry/inquiry.jsp").forward(request, response);
+
+                    return;
+                }
+
+                // Claim情報を取得
+                claim = claimDao.getClaim(polNo);
+
+                // 補償情報が存在しない場合
+                if (claim == null) {
+
+                    request.setAttribute(
+                            "errorMessage",
+                            "該当する補償情報がありません。");
+
+                    request.getRequestDispatcher(
+                            "/WEB-INF/view/inquiry/inquiry.jsp").forward(request, response);
+
+                    return;
+                }
+                con.commit();
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    con.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
             }
 
-            // Claim情報を取得
-            Claim claim = claimDao.getClaim(polNo);
-
-            // 補償情報が存在しない場合
-            if (claim == null) {
-
-                request.setAttribute(
-                        "errorMessage",
-                        "該当する補償情報がありません。");
-
-                request.getRequestDispatcher(
-                        "/WEB-INF/view/inquiry/inquiry.jsp").forward(request, response);
-
-                return;
-            }
             // JSPへ渡す
             request.setAttribute("contract", contract);
             request.setAttribute("claim", claim);
@@ -94,10 +113,10 @@ public class InquiryController extends HttpServlet {
             }
 
         } catch (SQLException e) {
+            getServletContext().log("DB更新に失敗しました。", e);
             request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
             request.getRequestDispatcher(
                     "/WEB-INF/view/error/error.jsp").forward(request, response);
-
         }
     }
 }

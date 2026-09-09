@@ -1,5 +1,8 @@
 package agentdd.controller;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import agentdd.model.dao.ConnectionManager;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,21 +24,32 @@ public class EstimateCalcController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            request.setAttribute("vehicles", new VehicleDao().findAll());
+        try (Connection con = ConnectionManager.getConnection()) {
+            con.setAutoCommit(false);
+            try {
+                request.setAttribute("vehicles", new VehicleDao(con).findAll());
+                con.commit();
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    con.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
+            }
         } catch (Exception e) {
-            throw new ServletException("車両マスタ一覧の取得に失敗しました。", e);
+            getServletContext().log("DB更新に失敗しました。", e);
+            RequestDispatcher rd = request.getRequestDispatcher(
+                    "/WEB-INF/view/estimate/estimate.jsp");
+            rd.forward(request, response);
         }
-        RequestDispatcher rd = request.getRequestDispatcher(
-            "/WEB-INF/view/estimate/estimate.jsp");
-        rd.forward(request, response);
 
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        
+
         Contract contract = new Contract();
         Claim claim = new Claim();
 
@@ -62,70 +76,89 @@ public class EstimateCalcController extends HttpServlet {
 
         // 3. 記号（/ や -）を消し去ってからセットする項目（日付・郵便番号・電話番号）
         String rawInception = request.getParameter("inceptionDate");
-        if (rawInception != null) contract.setInceptionDate(rawInception.replace("/", "").replace("-", ""));
+        if (rawInception != null)
+            contract.setInceptionDate(rawInception.replace("/", "").replace("-", ""));
 
         String rawConclusion = request.getParameter("conclusionDate");
-        if (rawConclusion != null) contract.setConclusionDate(rawConclusion.replace("/", "").replace("-", ""));
+        if (rawConclusion != null)
+            contract.setConclusionDate(rawConclusion.replace("/", "").replace("-", ""));
 
         String rawBirthday = request.getParameter("birthday");
-        if (rawBirthday != null) contract.setBirthday(rawBirthday.replace("/", "").replace("-", ""));
+        if (rawBirthday != null)
+            contract.setBirthday(rawBirthday.replace("/", "").replace("-", ""));
 
         String rawPost = request.getParameter("postcode");
-        if (rawPost != null) contract.setPostcode(rawPost.replace("-", ""));
+        if (rawPost != null)
+            contract.setPostcode(rawPost.replace("-", ""));
 
         String rawTel = request.getParameter("telephoneNo");
-        if (rawTel != null) contract.setTelephoneNo(rawTel.replace("-", ""));
+        if (rawTel != null)
+            contract.setTelephoneNo(rawTel.replace("-", ""));
 
         String rawMobile = request.getParameter("mobilephoneNo");
-        if (rawMobile != null) contract.setMobilephoneNo(rawMobile.replace("-", ""));
+        if (rawMobile != null)
+            contract.setMobilephoneNo(rawMobile.replace("-", ""));
 
         String rawFax = request.getParameter("faxNo");
-        if (rawFax != null) contract.setFaxNo(rawFax.replace("-", ""));
-
+        if (rawFax != null)
+            contract.setFaxNo(rawFax.replace("-", ""));
 
         claim.setMaker(request.getParameter("maker"));
-        claim.setCarName(request.getParameter("carName")); 
+        claim.setCarName(request.getParameter("carName"));
         claim.setLicenseNo(request.getParameter("licenseNo"));
         claim.setLicenseColor(parseInt(request.getParameter("licenseColor"), 0)); // parseIntを使う！
         claim.setAgeLimit(parseInt(request.getParameter("ageLimit"), 0));
 
-        try {
-            // 2. マスタ情報の取得 (メーカーと車名をキーにする)
-            VehicleDao vehicleDao = new VehicleDao();
-            vehicleDao.getVehicle(claim);
-    
-            RatesDao rateDao = new RatesDao();
-    
-            // 3. マスタの料率IDを RatesDao で実際の数字に変換
-            // ※ RateDao が double などの数値を返す前提のコードです
-            double vRate = rateDao.getRate((int) claim.getVehicleRates());
-            double bRate = rateDao.getRate((int) claim.getBodilyRates());
-            double pRate = rateDao.getRate((int) claim.getPropertyDamageRates());
-            double aRate = rateDao.getRate((int) claim.getAccidentRates());
+        VehicleDao vehicleDao = null;
+        try (Connection con = ConnectionManager.getConnection()) {
+            con.setAutoCommit(false);
 
-            // 5. 保険料のガチ計算
-            InsuranceCalc calc = new InsuranceCalc();
-            int totalPremium = calc.insurancecalc(contract, claim, vRate, bRate, pRate, aRate);
+            try {
+                // 2. マスタ情報の取得 (メーカーと車名をキーにする)
+                vehicleDao = new VehicleDao(con);
+                vehicleDao.getVehicle(claim);
 
-            // 6. 計算結果をメインの箱にセットして画面へ返す
-            claim.setPremiumAmount(totalPremium);
-            claim.setPremiumInstallment(totalPremium/contract.getInstallment());
+                RatesDao rateDao = new RatesDao(con);
 
-            HttpSession session = request.getSession();
-            session.setAttribute("contract", contract);
-            session.setAttribute("claim", claim);
-            session.setAttribute("calculated", true);
+                // 3. マスタの料率IDを RatesDao で実際の数字に変換
+                // ※ RateDao が double などの数値を返す前提のコードです
+                double vRate = rateDao.getRate((int) claim.getVehicleRates());
+                double bRate = rateDao.getRate((int) claim.getBodilyRates());
+                double pRate = rateDao.getRate((int) claim.getPropertyDamageRates());
+                double aRate = rateDao.getRate((int) claim.getAccidentRates());
+
+                // 5. 保険料のガチ計算
+                InsuranceCalc calc = new InsuranceCalc();
+                int totalPremium = calc.insurancecalc(contract, claim, vRate, bRate, pRate, aRate);
+
+                // 6. 計算結果をメインの箱にセットして画面へ返す
+                claim.setPremiumAmount(totalPremium);
+                claim.setPremiumInstallment(totalPremium / contract.getInstallment());
+
+                HttpSession session = request.getSession();
+                session.setAttribute("contract", contract);
+                session.setAttribute("claim", claim);
+                session.setAttribute("calculated", true);
+                con.commit();
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    con.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
+            }
 
             request.setAttribute("vehicles", vehicleDao.findAll());
             request.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(request, response);
-    
+
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
             request.setAttribute("errorBackUrl", "/estimate");
             request.setAttribute("errorBackLabel", "試算画面へ戻る");
             request.getRequestDispatcher("/WEB-INF/view/error/Error.jsp").forward(request, response);
-        }       
+        }
     }
 
     private int parseInt(String value, int defaultValue) {

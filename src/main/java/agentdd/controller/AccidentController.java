@@ -8,6 +8,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import agentdd.model.constant.ErrorMsgConst;
+import agentdd.model.dao.ConnectionManager;
 import agentdd.model.dao.AccidentDao;
 import agentdd.model.dao.ClaimDao;
 import agentdd.model.dao.ContractDao;
@@ -24,12 +28,21 @@ public class AccidentController extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        try {
-            accidentDao = new AccidentDao();
-            contractDao = new ContractDao();
-            claimDao = new ClaimDao();
-        } catch (Exception e) {
-            throw new ServletException("DAOの初期化に失敗しました", e);
+        try (Connection con = ConnectionManager.getConnection()) {
+            con.setAutoCommit(false);
+            try {
+                accidentDao = new AccidentDao(con);
+                contractDao = new ContractDao(con);
+                claimDao = new ClaimDao(con);
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    con.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
+            }
+            con.commit();
         }
     }
 
@@ -48,7 +61,7 @@ public class AccidentController extends HttpServlet {
     private void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        
+
         String pathInfo = request.getPathInfo();
 
         try {
@@ -61,9 +74,9 @@ public class AccidentController extends HttpServlet {
 
             // 2. 事故受付開始画面からの遷移
             if ("/detail".equals(pathInfo)) {
-                String polNo = request.getParameter("polNo");    
-                String claimNo = request.getParameter("claimNo"); 
-                
+                String polNo = request.getParameter("polNo");
+                String claimNo = request.getParameter("claimNo");
+
                 boolean hasPolNo = polNo != null && !polNo.trim().isEmpty();
                 boolean hasClaimNo = claimNo != null && !claimNo.trim().isEmpty();
 
@@ -84,7 +97,7 @@ public class AccidentController extends HttpServlet {
                 // A: 事故受付番号が入力された場合 (既存データの更新・再開)
                 if (hasClaimNo) {
                     Accident accidentData = accidentDao.getAccident(claimNo);
-                    
+
                     if (accidentData == null) {
                         request.setAttribute("errorMessage", "該当する事故受付番号が見つかりませんでした。");
                         request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
@@ -101,7 +114,7 @@ public class AccidentController extends HttpServlet {
                     // 事故データに紐づく証券番号から契約情報および補償情報を取得
                     Claim claimData = null;
                     Contract contractData = null;
-                    
+
                     String polNoFromAccident = accidentData.getPolNo();
                     if (polNoFromAccident != null && !polNoFromAccident.trim().isEmpty()) {
                         contractData = contractDao.getContract(polNoFromAccident);
@@ -111,27 +124,27 @@ public class AccidentController extends HttpServlet {
                     request.setAttribute("accident", accidentData);
                     request.setAttribute("contract", contractData);
                     request.setAttribute("claim", claimData);
-                    
+
                     if (contractData != null) {
                         request.setAttribute("nameKanji1", contractData.getNameKanji1());
                     }
-                } 
+                }
                 // B: 証券番号が入力された場合 (新規受付)
                 else if (hasPolNo) {
                     Contract contractData = contractDao.getContract(polNo);
-                    
+
                     if (contractData == null) {
                         request.setAttribute("errorMessage", "該当する証券番号（契約情報）が見つかりませんでした。");
                         request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
                         return;
                     }
-                    
+
                     // 証券番号に紐づく補償情報を取得
                     Claim claimData = claimDao.getClaim(polNo);
-                    
+
                     // 新規事故受付番号の発行
                     String newClaimNo = accidentDao.generateNextClaimNo();
-                    
+
                     // 新規受付用の事故データオブジェクトを作成してセット
                     Accident newAccident = new Accident();
                     newAccident.setClaimNo(newClaimNo);
@@ -140,8 +153,8 @@ public class AccidentController extends HttpServlet {
                     if (claimData != null) {
                         newAccident.setCoverId(claimData.getCoverId());
                     }
-                    
-                    //request.setAttribute("nameKanji1", contractData.getNameKanji1());
+
+                    // request.setAttribute("nameKanji1", contractData.getNameKanji1());
                     request.setAttribute("accident", newAccident);
                     request.setAttribute("contract", contractData);
                     request.setAttribute("claim", claimData);

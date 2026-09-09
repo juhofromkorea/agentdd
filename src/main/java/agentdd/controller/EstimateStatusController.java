@@ -1,6 +1,9 @@
 package agentdd.controller;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import agentdd.model.dao.ConnectionManager;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -16,7 +19,8 @@ import agentdd.model.constant.ErrorMsgConst;
 
 @WebServlet("/estimatestatus")
 public class EstimateStatusController extends HttpServlet {
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
         HttpSession session = request.getSession();
 
@@ -31,10 +35,22 @@ public class EstimateStatusController extends HttpServlet {
 
         updateContractFromRequest(request, contract);
         updateClaimFromRequest(request, claim);
-        try {
-            calculateClaimIfReady(contract, claim);
-            session.setAttribute("contract", contract);
-            session.setAttribute("claim", claim);
+        try (Connection con = ConnectionManager.getConnection()) {
+            con.setAutoCommit(false);
+
+            try {
+                calculateClaimIfReady(contract, claim, con);
+                session.setAttribute("contract", contract);
+                session.setAttribute("claim", claim);
+                con.commit();
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    con.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
+            }
 
             // 2. 確認画面と完了画面にデータを持ち越すため、セッションに保存する！
             session.setAttribute("printContract", contract);
@@ -42,12 +58,11 @@ public class EstimateStatusController extends HttpServlet {
 
             // 3. 申込書印刷確認画面へフォワード
             request.getRequestDispatcher("/WEB-INF/view/estimate/application-print.jsp").forward(request, response);
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
-            request.setAttribute("errorBackUrl", "/estimate");
-            request.setAttribute("errorBackLabel", "試算画面へ戻る");
-            request.getRequestDispatcher("/WEB-INF/view/error/Error.jsp").forward(request, response);
+        } catch (SQLException e) {
+            getServletContext().log("DB更新に失敗しました。", e);
+            request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
+            request.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
+                    .forward(request, response);
         }
     }
 
@@ -94,13 +109,13 @@ public class EstimateStatusController extends HttpServlet {
         claim.setAgeLimit(parseInt(request.getParameter("ageLimit"), claim.getAgeLimit()));
     }
 
-    private void calculateClaimIfReady(Contract contract, Claim claim) throws ServletException {
+    private void calculateClaimIfReady(Contract contract, Claim claim, Connection con) throws ServletException {
         if (isBlank(claim.getMaker()) || isBlank(claim.getCarName())) {
             return;
         }
         try {
-            new VehicleDao().getVehicle(claim);
-            RatesDao ratesDao = new RatesDao();
+            new VehicleDao(con).getVehicle(claim);
+            RatesDao ratesDao = new RatesDao(con);
             double vehicleRate = ratesDao.getRate(claim.getVehicleRates());
             double bodilyRate = ratesDao.getRate(claim.getBodilyRates());
             double propertyDamageRate = ratesDao.getRate(claim.getPropertyDamageRates());

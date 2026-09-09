@@ -33,31 +33,45 @@ public class AccountingSubmitController extends HttpServlet {
 
         // 前画面から格納された印刷連番をセッションスコープから取得する
         HttpSession session = request.getSession(false);
-        
+        Contract contract = new Contract();
+        ContractDao contractDao;
+        String insatsuRenban = null;
+
         // セッション期限切れチェック
         if (session == null) {
             request.setAttribute("error", "セッションの有効期限が切れました。最初からやり直してください。");
             request.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
-                .forward(request, response);
+                    .forward(request, response);
             return;
         }
 
-        try {
-            String insatsuRenban = (String) session.getAttribute("insatsuRenban");
-            ContractDao contractDao = new ContractDao();
-            Contract contract = contractDao.getContractForAccount(insatsuRenban);
-            
-            // 状態フラグと証券番号を更新する(新規)
-            if (Integer.valueOf(1).equals(contract.getStatusFlg())) {
-                contractDao.updateKeijoStatus(insatsuRenban);
-            } else if (Integer.valueOf(9).equals(contract.getStatusFlg())) {
-                // 状態フラグと解約フラグを更新する(このメソッドは後で追加します)
-                contractDao.setCancel(insatsuRenban);
-            } else {
-                request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
-                request.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
-                    .forward(request, response);
-                return;
+        try (Connection con = ConnectionManager.getConnection()) {
+            con.setAutoCommit(false);
+            try {
+                insatsuRenban = (String) session.getAttribute("insatsuRenban");
+                contractDao = new ContractDao(con);
+                contract = contractDao.getContractForAccount(insatsuRenban);
+
+                // 状態フラグと証券番号を更新する(新規)
+                if (Integer.valueOf(1).equals(contract.getStatusFlg())) {
+                    contractDao.updateKeijoStatus(insatsuRenban);
+                } else if (Integer.valueOf(9).equals(contract.getStatusFlg())) {
+                    // 状態フラグと解約フラグを更新する(このメソッドは後で追加します)
+                    contractDao.setCancel(insatsuRenban);
+                } else {
+                    request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
+                    request.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
+                            .forward(request, response);
+                    return;
+                }
+                con.commit();
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    con.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
             }
 
             Contract updateContract = contractDao.getContractForAccount(insatsuRenban);
@@ -69,7 +83,7 @@ public class AccountingSubmitController extends HttpServlet {
             e.printStackTrace();
             request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
             request.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
-                .forward(request, response);
+                    .forward(request, response);
         }
 
     }
