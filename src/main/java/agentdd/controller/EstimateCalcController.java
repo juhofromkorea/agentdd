@@ -21,9 +21,8 @@ public class EstimateCalcController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         RequestDispatcher rd = request.getRequestDispatcher(
-                "/WEB-INF/view/estimate/estimate.jsp");
+            "/WEB-INF/view/estimate/estimate.jsp");
         rd.forward(request, response);
 
     }

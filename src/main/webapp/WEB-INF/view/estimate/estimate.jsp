@@ -667,9 +667,8 @@
         });
       }
 
-      const makerSelect = document.getElementById("makerSelect");
-
       // 重複のないメーカーの一覧を作成して、メーカープルダウンにセット
+      const makerSelect = document.getElementById("makerSelect");
       const uniqueMakers = [...new Set(carDatabase.map(car => car.maker))];
       uniqueMakers.forEach(maker => {
         const option = document.createElement("option");
