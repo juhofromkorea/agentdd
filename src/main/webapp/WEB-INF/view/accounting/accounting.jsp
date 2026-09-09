@@ -62,7 +62,7 @@
 
             <form
               class="accounting-start-form"
-              action="${pageContext.request.contextPath}/accounting-detail"
+              action="${pageContext.request.contextPath}/account"
               method="get"
             >
               <label class="accounting-start-field">

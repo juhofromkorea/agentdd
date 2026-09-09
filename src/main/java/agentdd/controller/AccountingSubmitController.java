@@ -8,6 +8,7 @@ import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.dao.ConnectionManager;
 import agentdd.model.dao.ContractDao;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,12 +31,12 @@ public class AccountingSubmitController extends HttpServlet{
             //セッション期限切れチェック
             if(session == null){
             request.setAttribute("errMsg", "セッションの有効期限が切れました。最初からやり直してください。");
-            request.getRequestDispatcher("/WEB-INF/view/Error.jsp");
+            request.getRequestDispatcher("/WEB-INF/view/error/error.jsp");
             }
     
-            try(Connection con = ConnectionManager.getConnection()){
+            try {
 
-                ContractDao contractDao = new ContractDao(con);
+                ContractDao contractDao = new ContractDao();
 
                 //証券番号を発行する
                 String polNo =contractDao.generateNextPolNo();
@@ -46,10 +47,10 @@ public class AccountingSubmitController extends HttpServlet{
                 
         
                 //状態フラグと証券番号を更新する(新規)
-                if(status_Flg != null && status_Flg ==1){
-                    contractDao.updateKeijoStatus(insatsuRenban,polNo);
+                if(status_Flg != null && status_Flg == 1){
+                    contractDao.updateKeijoStatus(insatsuRenban);
                 
-                }else if(status_Flg != null && status_Flg ==9){
+                } else if (status_Flg != null && status_Flg == 9){
 
                     //状態フラグと解約フラグを更新する(このメソッドは後で追加します)
                     contractDao.setCancel(insatsuRenban);
@@ -59,13 +60,13 @@ public class AccountingSubmitController extends HttpServlet{
                 request.setAttribute("polNo", polNo);
 
                 //計上完了画面へ
-                request.getRequestDispatcher("/WEB-INF/view/accounting-complete.jsp")
+                request.getRequestDispatcher("/WEB-INF/view/accounting/accounting-complete.jsp")
                 .forward(request, response);
 
             } catch (SQLException e) {
                 e.printStackTrace();
                 request.setAttribute("errMsg", ErrorMsgConst.UNEXPECTED_ERROR);
-                request.getRequestDispatcher("/WEB-INF/view/Error.jsp");
+                request.getRequestDispatcher("/WEB-INF/view/error/error.jsp");
             }
 
         }

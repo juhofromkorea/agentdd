@@ -169,7 +169,7 @@
                 <div class="accounting-actions">
                   <a
                     class="button button--primary accounting-button-link cancellation-print-button"
-                    href="${pageContext.request.contextPath}/cancellation-complete-corporate"
+                    href="${pageContext.request.contextPath}/cancel/complete"
                   >解約申込書印刷</a>
                 </div>
               </section>
@@ -233,7 +233,7 @@
                 <div class="accounting-actions">
                   <a
                     class="button button--primary accounting-button-link cancellation-print-button"
-                    href="${pageContext.request.contextPath}/cancellation-complete-corporate"
+                    href="${pageContext.request.contextPath}/cancel/complete"
                   >解約申込書印刷</a>
                 </div>
               </section>

@@ -67,7 +67,7 @@
             </a>
             <a
               class="button button--primary top-menu__button"
-              href="${pageContext.request.contextPath}/accounting"
+              href="${pageContext.request.contextPath}/account"
             >
               計上
             </a>

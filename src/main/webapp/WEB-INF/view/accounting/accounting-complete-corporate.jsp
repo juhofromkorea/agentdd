@@ -64,15 +64,15 @@
             <dl class="accounting-complete-summary">
               <div>
                 <dt>印刷連番</dt>
-                <dd>A000002</dd>
+                <dd>${contract.insatsuRenban}</dd>
               </div>
               <div>
                 <dt>証券番号</dt>
-                <dd>B00000002</dd>
+                <dd>${contract.polNo}</dd>
               </div>
               <div>
                 <dt>契約者名</dt>
-                <dd>多摩株式会社</dd>
+                <dd>${contract.nameKanji1}${contract.nameKanji2}</dd>
               </div>
             </dl>
           </div>

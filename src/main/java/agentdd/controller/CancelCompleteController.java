@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-@WebServlet("/cancelcomplete")
+@WebServlet("/cancel/complete")
 public class CancelCompleteController extends HttpServlet {
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response)
