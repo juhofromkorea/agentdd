@@ -109,9 +109,46 @@ public class ContractDao {
         }
     }
 
+    /**
+     * 解約申込
+     * 証券番号をキーに、状態0・解約falseから状態9に変更する。
+     */
+    public void requestCancel(String polNo) throws SQLException {
+
+        String sql = "UPDATE CONTRACTINFO_TBL "
+                + "SET status_flg = 9 "
+                + "WHERE pol_no = ? "
+                + "AND status_flg = 0 "
+                + "AND cancel_flg = b'0'";
+        
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, polNo);
+
+            if (stmt.executeUpdate() != 1) {
+                throw new SQLException("解約申込対象が存在しないか、申込可能な状態ではありません。");
+            }
+        }
+    }
+
+    /**
+     * 解約計上
+     * 印刷連番をキーに、状態9・解約falseから
+     * 状態0・解約trueに変更する。
+     */
     public void setCancel(String insatsuRenban) throws SQLException {
-        if (updateCancellation("pol_no", polNo) != 1) {
-            throw new SQLException("解約対象が存在しないか、解約可能な状態ではありません。");
+        
+        String sql = "UPDATE CONTRACTINFO_TBL "
+                + "SET status_flg = 0, cancel_flg b'1' "
+                + "WHERE insatsu_renban = ? "
+                + "AND status_flg = 9 "
+                + "AND cancel_flg = b'0'";
+
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, insatsuRenban);
+
+            if (stmt.executeUpdate() != 1) {
+                throw new SQLException("解約計上対象が存在しないか、計上可能な状態ではありません。");
+            }
         }
     }
 

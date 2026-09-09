@@ -27,16 +27,24 @@ public class CancelCompleteController extends HttpServlet {
         HttpSession session = request.getSession();
         String polNo = (String) session.getAttribute("polNo");
 
-        
         try {
-            // コントラクトオブジェクトの生成
-            Contract contract = new Contract();
-
             // DAOを生成
-            ContractDao contractDao = new ContractDao();
+            ContractDao dao = new ContractDao();
+            // コントラクトオブジェクトの生成
+            Contract contract = dao.getContract(polNo);
+            if (contract == null) {
+                request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
+                request.getRequestDispatcher(
+                        "/WEB-INF/view/error/error.jsp").forward(request, response);
+            }
 
             // 証券番号に紐づいた状態フラグを変更する
-            contractDao.setCancel(contract.getPolNo());
+            if (contract.getStatusFlg() == 0 && contract.isCancelFlg() == false) {
+                dao.requestCancel(polNo);
+            }
+
+            Contract updatedContract = dao.getContract(polNo);
+            request.setAttribute("contract", updatedContract);
 
             // 被保険者区分によってJSPを出し分け
             if (Integer.valueOf(2).equals(contract.getInsuredKbn())) {

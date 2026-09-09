@@ -43,19 +43,21 @@ public class AccountingSubmitController extends HttpServlet {
         }
 
         try {
-            Contract contract = (Contract) session.getAttribute("contract");
-            String insatsuRenban = contract.getInsatsuRenban();
-            Integer statusFlg = contract.getStatusFlg();
+            String insatsuRenban = (String) session.getAttribute("insatsuRenban");
             ContractDao contractDao = new ContractDao();
-
+            Contract contract = contractDao.getContractForAccount(insatsuRenban);
+            
             // 状態フラグと証券番号を更新する(新規)
-            if (statusFlg != null && statusFlg == 1) {
+            if (Integer.valueOf(1).equals(contract.getStatusFlg())) {
                 contractDao.updateKeijoStatus(insatsuRenban);
-                
-            } else if (statusFlg != null && statusFlg == 9) {
-
+            } else if (Integer.valueOf(9).equals(contract.getStatusFlg())) {
                 // 状態フラグと解約フラグを更新する(このメソッドは後で追加します)
-                contractDao.setCancel(i);
+                contractDao.setCancel(insatsuRenban);
+            } else {
+                request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
+                request.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
+                    .forward(request, response);
+                return;
             }
 
             Contract updateContract = contractDao.getContractForAccount(insatsuRenban);

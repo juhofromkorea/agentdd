@@ -181,10 +181,10 @@
                 </dl>
 
                 <div class="accounting-actions">
-                  <a
-                    class="button button--primary accounting-button-link"
-                    href="${pageContext.request.contextPath}/accountComplete"
-                  >代理店計上</a>
+                  <form action="${pageContext.request.contextPath}/accountComplete" method="post">
+                    <input type="hidden" name="insatsuRenban" value="${contract.insatsuRenban}" />
+                    <button class="button button--primary" type="submit">代理店計上</button>
+                  </form>
                 </div>
               </section>
 
@@ -245,10 +245,10 @@
                 </dl>
 
                 <div class="accounting-actions accounting-actions--split">
-                  <a
-                    class="button button--primary accounting-button-link"
-                    href="${pageContext.request.contextPath}/accountComplete"
-                  >代理店計上</a>
+                  <form action="${pageContext.request.contextPath}/accountComplete" method="post">
+                    <input type="hidden" name="insatsuRenban" value="${contract.insatsuRenban}" />
+                    <button class="button button--primary" type="submit">代理店計上</button>
+                  </form>
                 </div>
               </section>
             </div>
