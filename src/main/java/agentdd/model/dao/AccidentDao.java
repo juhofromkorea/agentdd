@@ -1,12 +1,10 @@
 package agentdd.model.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import agentdd.model.constant.SystemConst;
 import agentdd.model.data.Accident;
 
 /**
@@ -15,11 +13,11 @@ import agentdd.model.data.Accident;
  */
 public class AccidentDao {
 
-    private Connection con;
+    private final Connection con;
 
     /**
      * コンストラクタ
-     * DB接続を取得してフィールドに保持します。
+     * 呼び出し元のDB接続を保持します。接続の終了・トランザクションは呼び出し元が管理します。
      * @throws SQLException 
      */
     public AccidentDao(Connection con) {
@@ -118,23 +116,48 @@ public class AccidentDao {
      * @throws SQLException
      */
     public String generateNextClaimNo() throws SQLException {
-        String newClaimNo = "C0000001";
-        String sql = "SELECT MAX(claim_no) FROM claim_tbl";
-        try (PreparedStatement stmt = con.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery()) {
-            if (rs.next() && rs.getString(1) != null) {
-                String maxNo = rs.getString(1);
-                if (maxNo.startsWith("C")) {
-                    try {
-                        int num = Integer.parseInt(maxNo.substring(1)) + 1;
-                        newClaimNo = String.format("C%07d", num);
-                    } catch (NumberFormatException e) {
-                        // パース失敗時のフォールバック
-                    }
-                }
+        requireTransaction();
+        long previous;
+        String selectSql = "SELECT last_value FROM agentdd_sequence "
+                + "WHERE sequence_name = 'claim_no' FOR UPDATE";
+        try (PreparedStatement stmt = con.prepareStatement(selectSql);
+                ResultSet rs = stmt.executeQuery()) {
+            if (!rs.next()) {
+                throw new SQLException("事故受付番号の採番テーブルが初期化されていません。");
+            }
+            previous = rs.getLong("last_value");
+        }
+        if (previous < 0 || previous >= 9_999_999L) {
+            throw new SQLException("事故受付番号の採番可能範囲を超えています。");
+        }
+        long next = previous + 1;
+        try (PreparedStatement stmt = con.prepareStatement(
+                "UPDATE agentdd_sequence SET last_value = ? WHERE sequence_name = 'claim_no'")) {
+            stmt.setLong(1, next);
+            if (stmt.executeUpdate() != 1) {
+                throw new SQLException("事故受付番号の採番に失敗しました。");
             }
         }
-        return newClaimNo;
+        return String.format(java.util.Locale.ROOT, "C%07d", next);
+    }
+
+    /** 保存時に事故行をロックし、その後に最新の関連情報を取得する。 */
+    public Accident getAccidentForUpdate(String claimNo) throws SQLException {
+        requireTransaction();
+        try (PreparedStatement stmt = con.prepareStatement(
+                "SELECT claim_no FROM claim_tbl WHERE claim_no = ? FOR UPDATE")) {
+            stmt.setString(1, claimNo);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (!rs.next()) return null;
+            }
+        }
+        return getAccident(claimNo);
+    }
+
+    private void requireTransaction() throws SQLException {
+        if (con.getAutoCommit()) {
+            throw new SQLException("保存処理の前にsetAutoCommit(false)を実行してください。");
+        }
     }
 
     /**
@@ -177,7 +200,9 @@ public class AccidentDao {
             stmt.setString(19, accident.getDamagePropertyState());
             stmt.setString(20, accident.getDamageAccidentState());
 
-            stmt.executeUpdate();
+            if (stmt.executeUpdate() != 1) {
+                throw new SQLException("事故情報を保存できませんでした。対象と受付状態を確認してください。");
+            }
         }
     }
 
@@ -207,7 +232,7 @@ public class AccidentDao {
                 "damage_bodily_state = ?, " +
                 "damage_property_state = ?, " +
                 "damage_accident_state = ? " +
-                "WHERE claim_no = ?";
+                "WHERE claim_no = ? AND claim_status <> 9 AND cover_id = ?";
 
         try (PreparedStatement stmt = con.prepareStatement(updateSql)) {
             stmt.setInt(1, accident.getCoverId());
@@ -236,8 +261,11 @@ public class AccidentDao {
             
             // WHERE句の条件
             stmt.setString(20, accident.getClaimNo());
+            stmt.setInt(21, accident.getCoverId());
 
-            stmt.executeUpdate();
+            if (stmt.executeUpdate() != 1) {
+                throw new SQLException("事故情報を保存できませんでした。対象と受付状態を確認してください。");
+            }
         }
     }
 }

@@ -54,7 +54,9 @@ public class AccidentController extends HttpServlet {
             // 2. 事故受付開始画面からの遷移
             if ("/detail".equals(pathInfo)) {
                 String polNo = request.getParameter("polNo");
+                polNo = polNo == null ? "" : polNo.trim();
                 String claimNo = request.getParameter("claimNo");
+                claimNo = claimNo == null ? "" : claimNo.trim();
 
                 boolean hasPolNo = polNo != null && !polNo.trim().isEmpty();
                 boolean hasClaimNo = claimNo != null && !claimNo.trim().isEmpty();
@@ -121,12 +123,10 @@ public class AccidentController extends HttpServlet {
                     // 証券番号に紐づく補償情報を取得
                     Claim claimData = claimDao.getClaim(polNo);
 
-                    // 新規事故受付番号の発行
-                    String newClaimNo = accidentDao.generateNextClaimNo();
+                    // 新規事故受付番号は保存時に採番する。
 
                     // 新規受付用の事故データオブジェクトを作成してセット
                     Accident newAccident = new Accident();
-                    newAccident.setClaimNo(newClaimNo);
                     newAccident.setPolNo(polNo);
 
                     if (claimData != null) {
@@ -139,8 +139,20 @@ public class AccidentController extends HttpServlet {
                     request.setAttribute("claim", claimData);
                 }
 
-                // 詳細画面へフォワード
-                request.getRequestDispatcher("/WEB-INF/view/accident/accident-detail.jsp").forward(request, response);
+                Contract contractData = (Contract) request.getAttribute("contract");
+                Claim claimData = (Claim) request.getAttribute("claim");
+                Accident accidentData = (Accident) request.getAttribute("accident");
+                if (contractData == null || claimData == null || claimData.getCoverId() == null
+                        || accidentData == null || accidentData.getCoverId() != claimData.getCoverId()) {
+                    request.setAttribute("errorMessage", "関連する契約・補償情報が見つかりませんでした。");
+                    request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp")
+                            .forward(request, response);
+                    return;
+                }
+                String jsp = Integer.valueOf(2).equals(contractData.getInsuredKbn())
+                        ? "/WEB-INF/view/accident/accident-detail-corporate.jsp"
+                        : "/WEB-INF/view/accident/accident-detail.jsp";
+                request.getRequestDispatcher(jsp).forward(request, response);
                 return;
             }
 

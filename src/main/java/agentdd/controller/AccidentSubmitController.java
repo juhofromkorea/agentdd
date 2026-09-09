@@ -1,124 +1,121 @@
 package agentdd.controller;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import agentdd.model.constant.ErrorMsgConst;
+import agentdd.model.dao.AccidentDao;
+import agentdd.model.dao.ClaimDao;
+import agentdd.model.dao.ConnectionManager;
+import agentdd.model.dao.ContractDao;
+import agentdd.model.data.Accident;
+import agentdd.model.data.Claim;
+import agentdd.model.data.Contract;
+import agentdd.model.exception.BusinessException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import agentdd.model.constant.ErrorMsgConst;
-import agentdd.model.dao.ConnectionManager;
-import agentdd.model.dao.AccidentDao;
-import agentdd.model.dao.ClaimDao;
-import agentdd.model.dao.ContractDao;
-import agentdd.model.data.Accident;
-
-/**
- * 事故情報の登録および更新処理を制御するコントローラーサーブレット。
- */
 @WebServlet("/accident/submit")
 public class AccidentSubmitController extends HttpServlet {
+    private static final String[] INPUT_FIELDS = {
+        "accidentDate", "accidentLocationKanji1", "accidentLocationKanji2",
+        "accidentLocationKana1", "accidentLocationKana2", "accidentSituation",
+        "ratingBlameMyself", "ratingBlameYourself", "damageCarPrice",
+        "damageBodilyPrice", "damagePropertyPrice", "damageAccidentPrice",
+        "damageCarState", "damageBodilyState", "damagePropertyState", "damageAccidentState"
+    };
 
-    /**
-     * 事故情報の登録・更新リクエスト（POST）を受け取り、バリデーションとDB保存処理を行う。
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        // リクエストパラメータの文字エンコーディングをUTF-8に指定
         request.setCharacterEncoding("UTF-8");
+        String action = request.getParameter("action");
+        if (!"updateStatus".equals(action) && !"completeReceipt".equals(action)) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "操作を選択してください。");
+            return;
+        }
+        // 入力エラー時も、数値を含む入力文字列をそのまま再表示する。
+        Map<String, String> input = new LinkedHashMap<>();
+        for (String name : INPUT_FIELDS) {
+            String value = request.getParameter(name);
+            input.put(name, value == null ? "" : value);
+        }
+        request.setAttribute("accidentInput", input);
 
         try (Connection con = ConnectionManager.getConnection()) {
-            AccidentDao accidentDao = new AccidentDao(con);
-            ContractDao contractDao = new ContractDao(con);
-            ClaimDao claimDao = new ClaimDao(con);
-            // 0. 押されたボタンの種類（action: "completeReceipt" 等）を先に取得
-            String action = request.getParameter("action");
-
-            // 1. バリデーション：過失割合のチェック
-            int myFault = (int) parseLong(request.getParameter("ratingBlameMyself"));
-            int yourFault = (int) parseLong(request.getParameter("ratingBlameYourself"));
-
-            boolean isInvalidRatio = false;
-            if ("completeReceipt".equals(action)) {
-                // 【事故受付完了時】必ず過失割合の合計が100でなければならない
-                if (myFault + yourFault != 100) {
-                    isInvalidRatio = true;
-                }
-            } else {
-                // 【状況更新時】未入力（合計0）はOKだが、入力するなら合計100にしなければならない
-                if (myFault + yourFault != 100 && (myFault + yourFault != 0)) {
-                    isInvalidRatio = true;
-                }
-            }
-
-            // 過失割合が不正な場合、エラーメッセージを設定して入力画面へ差し戻す
-            if (isInvalidRatio) {
-                request.setAttribute("accident", createAccidentFromRequest(request));
-                restoreRelatedData(request, contractDao, claimDao);
-                request.setAttribute("errorMessage", "過失割合の合計が100になるように入力してください。（未定の場合は空欄でも可能です）");
-                request.getRequestDispatcher("/WEB-INF/view/accident/accident-detail.jsp").forward(request, response);
-                return;
-            }
-
-            // 2. 保険金額（支払金額）を計算する
-            long paymentAmount = calculatePaymentAmount(request);
-
-            // 3. ステータスとメッセージの決定
-            int claimStatus = "completeReceipt".equals(action) ? 9 : 1; // 1:受付中, 9:完了済み
-            String completeMessage = claimStatus == 9 ? "事故受付が完了しました" : "事故状況を更新しました";
-
-            // --- Accident オブジェクトの生成とリクエストパラメータの値のセット ---
-            Accident accident = new Accident();
-            String claimNo = request.getParameter("claimNo");
-            accident.setClaimNo(claimNo);
-            accident.setPolNo(request.getParameter("polNo"));
-            accident.setCoverId(parseInt(request.getParameter("coverId")));
-
-            accident.setClaimStatus(claimStatus);
-            accident.setPaymentPrice(paymentAmount);
-
-            // 事故場所・日時・状況
-            accident.setAccidentLocationKana1(request.getParameter("accidentLocationKana1"));
-            accident.setAccidentLocationKana2(request.getParameter("accidentLocationKana2"));
-            accident.setAccidentLocationKanji1(request.getParameter("accidentLocationKanji1"));
-            accident.setAccidentLocationKanji2(request.getParameter("accidentLocationKanji2"));
-            accident.setAccidentDate(request.getParameter("accidentDate"));
-            accident.setAccidentSituation(request.getParameter("accidentSituation"));
-
-            // 過失割合
-            accident.setRatingBlameMyself(myFault);
-            accident.setRatingBlameYourself(yourFault);
-
-            // 各種損害額
-            accident.setDamageCarPrice(parseLong(request.getParameter("damageCarPrice")));
-            accident.setDamageBodilyPrice(parseLong(request.getParameter("damageBodilyPrice")));
-            accident.setDamagePropertyPrice(parseLong(request.getParameter("damagePropertyPrice")));
-            accident.setDamageAccidentPrice(parseLong(request.getParameter("damageAccidentPrice")));
-
-            // 各種損害の状態
-            accident.setDamageCarState(request.getParameter("damageCarState"));
-            accident.setDamageBodilyState(request.getParameter("damageBodilyState"));
-            accident.setDamagePropertyState(request.getParameter("damagePropertyState"));
-            accident.setDamageAccidentState(request.getParameter("damageAccidentState"));
-
-            // 4. 既存データの存在をチェックし、INSERTかUPDATEを自動振り分け
             con.setAutoCommit(false);
-
             try {
-                Accident existingAccident = accidentDao.getAccident(claimNo);
-                if (existingAccident == null) {
+                AccidentDao accidentDao = new AccidentDao(con);
+                ContractDao contractDao = new ContractDao(con);
+                ClaimDao claimDao = new ClaimDao(con);
+                String claimNo = trimmed(request.getParameter("claimNo"));
+                boolean isNew = claimNo.isEmpty();
+                Accident accident;
+                String polNo;
+                if (isNew) {
+                    polNo = trimmed(request.getParameter("polNo"));
+                    if (!polNo.matches("B[0-9]{9}")) {
+                        throw new BusinessException("証券番号が不正です。受付開始画面からやり直してください。");
+                    }
+                    accident = new Accident();
+                } else {
+                    if (!claimNo.matches("C[0-9]{7}")) {
+                        throw new BusinessException("事故受付番号が不正です。");
+                    }
+                    accident = accidentDao.getAccidentForUpdate(claimNo);
+                    if (accident == null) {
+                        throw new BusinessException("更新対象の事故情報が見つかりませんでした。");
+                    }
+                    if (accident.getClaimStatus() == 9) {
+                        throw new BusinessException("この事故受付は既に完了しています。");
+                    }
+                    polNo = trimmed(accident.getPolNo());
+                }
+
+                Contract contract = contractDao.getContract(polNo);
+                Claim claim = claimDao.getClaim(polNo);
+                if (contract == null || claim == null || claim.getCoverId() == null) {
+                    throw new BusinessException("関連する契約・補償情報が見つかりませんでした。");
+                }
+                if (!isNew && accident.getCoverId() != claim.getCoverId()) {
+                    throw new BusinessException("事故と補償情報の関連を確認できませんでした。");
+                }
+                accident.setPolNo(contract.getPolNo());
+                accident.setCoverId(claim.getCoverId());
+                request.setAttribute("contract", contract);
+                request.setAttribute("claim", claim);
+                request.setAttribute("accident", accident);
+
+                bindAndValidate(input, accident, "completeReceipt".equals(action));
+                accident.setClaimStatus("completeReceipt".equals(action) ? 9 : 1);
+                accident.setPaymentPrice(calculatePaymentAmount(accident));
+                if (isNew) {
+                    accident.setClaimNo(accidentDao.generateNextClaimNo());
                     accidentDao.insertAccident(accident);
                 } else {
                     accidentDao.updateAccident(accident);
                 }
                 con.commit();
-            } catch (SQLException | RuntimeException e) {
+
+                request.setAttribute("claimNo", accident.getClaimNo());
+                request.setAttribute("polNo", contract.getPolNo());
+                String name = trimmed(contract.getNameKanji1());
+                if (!Integer.valueOf(2).equals(contract.getInsuredKbn())) {
+                    name = (name + " " + trimmed(contract.getNameKanji2())).trim();
+                }
+                request.setAttribute("contractorName", name);
+                request.setAttribute("paymentAmount", accident.getPaymentPrice());
+                request.setAttribute("completeMessage", accident.getClaimStatus() == 9
+                        ? "事故受付が完了しました" : "事故状況を更新しました");
+            } catch (SQLException | BusinessException | RuntimeException e) {
                 try {
                     con.rollback();
                 } catch (SQLException rollbackError) {
@@ -126,110 +123,80 @@ public class AccidentSubmitController extends HttpServlet {
                 }
                 throw e;
             }
-
-            // 5. 完了画面の表示用に必要なデータをリクエストスコープにセット
-            request.setAttribute("claimNo", claimNo);
-            request.setAttribute("polNo", request.getParameter("polNo"));
-            request.setAttribute("contractorName", request.getParameter("contractorName"));
-            request.setAttribute("paymentAmount", paymentAmount);
-            request.setAttribute("completeMessage", completeMessage);
-
-            // 6. 完了画面へフォワード
-            request.getRequestDispatcher("/WEB-INF/view/accident/accident-complete.jsp").forward(request, response);
-
-        } catch (Exception e) {
-            // 予期せぬ例外が発生した場合はスタックトレースを出力し、エラー画面へ遷移
-            e.printStackTrace();
+        } catch (BusinessException e) {
+            Contract contract = (Contract) request.getAttribute("contract");
+            if (contract != null) {
+                request.setAttribute("errorMessage", e.getMessage());
+                String jsp = Integer.valueOf(2).equals(contract.getInsuredKbn())
+                        ? "/WEB-INF/view/accident/accident-detail-corporate.jsp"
+                        : "/WEB-INF/view/accident/accident-detail.jsp";
+                request.getRequestDispatcher(jsp).forward(request, response);
+            } else {
+                request.setAttribute("error", e.getMessage());
+                request.getRequestDispatcher("/WEB-INF/view/error/error.jsp").forward(request, response);
+            }
+            return;
+        } catch (SQLException | RuntimeException e) {
+            getServletContext().log("事故情報の保存に失敗しました。", e);
             request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
-            request.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
-                    .forward(request, response);
-        }
-    }
-
-    /**
-     * 各種損害額の合計に対し、自己の過失割合を掛け合わせた保険支払金額を計算する。
-     */
-    private long calculatePaymentAmount(HttpServletRequest request) {
-        long vehicleDamage = parseLong(request.getParameter("damageCarPrice"));
-        long bodilyDamage = parseLong(request.getParameter("damageBodilyPrice"));
-        long propertyDamage = parseLong(request.getParameter("damagePropertyPrice"));
-        long injuryDamage = parseLong(request.getParameter("damageAccidentPrice"));
-
-        long totalDamage = vehicleDamage + bodilyDamage + propertyDamage + injuryDamage;
-        double faultRatio = parseLong(request.getParameter("ratingBlameMyself")) / 100.0;
-
-        return Math.round(totalDamage * faultRatio);
-    }
-
-    /**
-     * リクエストパラメータから取得した値をもとに、Accidentオブジェクトを生成して返す。
-     * バリデーションエラー時に画面へ入力値を復元する際などに使用。
-     */
-    private Accident createAccidentFromRequest(HttpServletRequest request) {
-        Accident accident = new Accident();
-        accident.setClaimNo(request.getParameter("claimNo"));
-        accident.setPolNo(request.getParameter("polNo"));
-        accident.setCoverId(parseInt(request.getParameter("coverId")));
-        accident.setAccidentLocationKana1(request.getParameter("accidentLocationKana1"));
-        accident.setAccidentLocationKana2(request.getParameter("accidentLocationKana2"));
-        accident.setAccidentLocationKanji1(request.getParameter("accidentLocationKanji1"));
-        accident.setAccidentLocationKanji2(request.getParameter("accidentLocationKanji2"));
-        accident.setAccidentDate(request.getParameter("accidentDate"));
-        accident.setAccidentSituation(request.getParameter("accidentSituation"));
-        accident.setRatingBlameMyself((int) parseLong(request.getParameter("ratingBlameMyself")));
-        accident.setRatingBlameYourself((int) parseLong(request.getParameter("ratingBlameYourself")));
-        accident.setDamageCarPrice(parseLong(request.getParameter("damageCarPrice")));
-        accident.setDamageBodilyPrice(parseLong(request.getParameter("damageBodilyPrice")));
-        accident.setDamagePropertyPrice(parseLong(request.getParameter("damagePropertyPrice")));
-        accident.setDamageAccidentPrice(parseLong(request.getParameter("damageAccidentPrice")));
-        accident.setDamageCarState(request.getParameter("damageCarState"));
-        accident.setDamageBodilyState(request.getParameter("damageBodilyState"));
-        accident.setDamagePropertyState(request.getParameter("damagePropertyState"));
-        accident.setDamageAccidentState(request.getParameter("damageAccidentState"));
-        return accident;
-    }
-
-    /**
-     * バリデーションエラー等で入力画面に戻る際に、関連する契約・事故請求データを再取得してセットする。
-     */
-    private void restoreRelatedData(
-            HttpServletRequest request,
-            ContractDao contractDao,
-            ClaimDao claimDao) throws Exception {
-
-        String polNo = request.getParameter("polNo");
-
-        if (polNo == null || polNo.isBlank()) {
+            request.getRequestDispatcher("/WEB-INF/view/error/error.jsp").forward(request, response);
             return;
         }
-
-        request.setAttribute("contract", contractDao.getContract(polNo.trim()));
-        request.setAttribute("claim", claimDao.getClaim(polNo.trim()));
+        request.getRequestDispatcher("/WEB-INF/view/accident/accident-complete.jsp")
+                .forward(request, response);
     }
 
-    /**
-     * 文字列を安全にlong型にパースする。nullや空文字、数値フォーマットエラー時は0Lを返す。
-     */
-    private long parseLong(String val) {
-        if (val == null || val.trim().isEmpty())
-            return 0L;
-        try {
-            return Long.parseLong(val.trim());
-        } catch (NumberFormatException e) {
-            return 0L;
+    private void bindAndValidate(Map<String, String> input, Accident accident, boolean complete)
+            throws BusinessException {
+        int mine = (int) readNumber(input.get("ratingBlameMyself"), "被保険者の過失割合", 100);
+        int theirs = (int) readNumber(input.get("ratingBlameYourself"), "相手方の過失割合", 100);
+        // 現行仕様の「状況更新時は合計0または100」を維持する。
+        if ((complete && mine + theirs != 100)
+                || (!complete && mine + theirs != 0 && mine + theirs != 100)) {
+            throw new BusinessException(complete
+                    ? "事故受付完了時は過失割合の合計を100にしてください。"
+                    : "過失割合の合計を100にしてください。未定の場合は双方を空欄または0にしてください。");
         }
+        accident.setRatingBlameMyself(mine);
+        accident.setRatingBlameYourself(theirs);
+        accident.setDamageCarPrice(readNumber(input.get("damageCarPrice"), "車両損害額", 999_999_999_999_999_999L));
+        accident.setDamageBodilyPrice(readNumber(input.get("damageBodilyPrice"), "対人損害額", 999_999_999_999_999_999L));
+        accident.setDamagePropertyPrice(readNumber(input.get("damagePropertyPrice"), "対物損害額", 999_999_999_999_999_999L));
+        accident.setDamageAccidentPrice(readNumber(input.get("damageAccidentPrice"), "傷害損害額", 999_999_999_999_999_999L));
+        accident.setAccidentDate(input.get("accidentDate"));
+        accident.setAccidentLocationKanji1(input.get("accidentLocationKanji1"));
+        accident.setAccidentLocationKanji2(input.get("accidentLocationKanji2"));
+        accident.setAccidentLocationKana1(input.get("accidentLocationKana1"));
+        accident.setAccidentLocationKana2(input.get("accidentLocationKana2"));
+        accident.setAccidentSituation(input.get("accidentSituation"));
+        accident.setDamageCarState(input.get("damageCarState"));
+        accident.setDamageBodilyState(input.get("damageBodilyState"));
+        accident.setDamagePropertyState(input.get("damagePropertyState"));
+        accident.setDamageAccidentState(input.get("damageAccidentState"));
     }
 
-    /**
-     * 文字列を安全にint型にパースする。nullや空文字、数値フォーマットエラー時は0を返す。
-     */
-    private int parseInt(String val) {
-        if (val == null || val.trim().isEmpty())
-            return 0;
-        try {
-            return Integer.parseInt(val.trim());
-        } catch (NumberFormatException e) {
-            return 0;
+    private long readNumber(String raw, String label, long maximum) throws BusinessException {
+        String value = trimmed(raw);
+        if (value.isEmpty()) return 0;
+        if (!value.matches("[0-9]{1,18}")) {
+            throw new BusinessException(label + "は半角数字で入力してください。");
         }
+        long number = Long.parseLong(value);
+        if (number > maximum) {
+            throw new BusinessException(label + "は0～" + maximum + "の範囲で入力してください。");
+        }
+        return number;
+    }
+
+    private long calculatePaymentAmount(Accident accident) {
+        // 現行の式を維持し、18桁の金額をdoubleに変換しない。
+        long total = accident.getDamageCarPrice() + accident.getDamageBodilyPrice()
+                + accident.getDamagePropertyPrice() + accident.getDamageAccidentPrice();
+        return BigDecimal.valueOf(total).multiply(BigDecimal.valueOf(accident.getRatingBlameMyself()))
+                .divide(BigDecimal.valueOf(100), 0, RoundingMode.HALF_UP).longValueExact();
+    }
+
+    private String trimmed(String value) {
+        return value == null ? "" : value.trim();
     }
 }
