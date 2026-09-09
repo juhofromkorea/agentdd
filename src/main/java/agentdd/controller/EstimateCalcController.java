@@ -21,6 +21,11 @@ public class EstimateCalcController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        try {
+            request.setAttribute("vehicles", new VehicleDao().findAll());
+        } catch (Exception e) {
+            throw new ServletException("車両マスタ一覧の取得に失敗しました。", e);
+        }
         RequestDispatcher rd = request.getRequestDispatcher(
             "/WEB-INF/view/estimate/estimate.jsp");
         rd.forward(request, response);
@@ -110,7 +115,8 @@ public class EstimateCalcController extends HttpServlet {
             session.setAttribute("contract", contract);
             session.setAttribute("claim", claim);
             session.setAttribute("calculated", true);
-            
+
+            request.setAttribute("vehicles", vehicleDao.findAll());
             request.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(request, response);
     
         } catch (Exception e) {
