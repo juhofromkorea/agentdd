@@ -32,22 +32,36 @@ public class AccidentSubmitController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         try {
-            // 1. バリデーション：過失割合の合計が100になるかチェック
+            // 0. 押されたボタンの種類（action）を先に取得
+            String action = request.getParameter("action");
+
+            // 1. バリデーション：過失割合のチェック
             int myFault = (int) parseLong(request.getParameter("ratingBlameMyself"));
             int yourFault = (int) parseLong(request.getParameter("ratingBlameYourself"));
             
-            if (myFault + yourFault != 100) {
-                // エラー時は元の入力値を保持できるようにオブジェクトに詰めてスコープに戻す
-                request.setAttribute("errorMessage", "過失割合の合計が100になるように入力してください。");
+            boolean isInvalidRatio = false;
+            if ("completeReceipt".equals(action)) {
+                // 【事故受付完了時】必ず合計が100でなければならない
+                if (myFault + yourFault != 100) {
+                    isInvalidRatio = true;
+                }
+            } else {
+                // 【状況更新時】未入力（合計0）はOKだが、入力するなら合計100にしなければならない
+                if (myFault + yourFault != 100 && (myFault + yourFault != 0)) {
+                    isInvalidRatio = true;
+                }
+            }
+
+            if (isInvalidRatio) {
+                request.setAttribute("errorMessage", "過失割合の合計が100になるように入力してください。（未定の場合は空欄でも可能です）");
                 request.getRequestDispatcher("/WEB-INF/view/accident/accident-detail.jsp").forward(request, response);
                 return;
             }
 
-            // 2. 先に保険金額（支払金額）を計算する
+            // 2. 保険金額（支払金額）を計算する
             long paymentAmount = calculatePaymentAmount(request);
 
-            // 3. ボタンの action パラメータによる分岐とステータスの決定
-            String action = request.getParameter("action");
+            // 3. ステータスとメッセージの決定
             int claimStatus = "completeReceipt".equals(action) ? 9 : 1; // 1:受付中, 9:完了済み
             String completeMessage = claimStatus == 9 ? "事故受付が完了しました" : "事故状況を更新しました";
 
@@ -55,11 +69,9 @@ public class AccidentSubmitController extends HttpServlet {
             Accident accident = new Accident();
             String claimNo = request.getParameter("claimNo");
             accident.setClaimNo(claimNo);
+            accident.setPolNo(request.getParameter("polNo"));
 
             accident.setCoverId(1);
-
-            // 画面から送られてきた coverId をセット（隠しフィールド等で保持している前提）
-            // accident.setCoverId((int) parseLong(request.getParameter("coverId")));
             
             accident.setClaimStatus(claimStatus);
             accident.setPaymentPrice(paymentAmount);
@@ -88,16 +100,13 @@ public class AccidentSubmitController extends HttpServlet {
             accident.setDamagePropertyState(request.getParameter("damagePropertyState"));
             accident.setDamageAccidentState(request.getParameter("damageAccidentState"));
 
-            // 4. コントローラー側でデータの存在をチェックし、INSERTかUPDATEを振り分ける
+            // 4. データの存在をチェックし、INSERTかUPDATEを振り分ける
             Accident existingAccident = accidentDao.getAccident(claimNo);
             if (existingAccident == null) {
-                // 存在しない場合は新規登録
                 accidentDao.insertAccident(accident);
             } else {
-                // 存在する場合は更新
                 accidentDao.updateAccident(accident);
             }
-            // -----------------------------------------------------------
 
             // 5. 完了画面表示用データのセット
             request.setAttribute("claimNo", claimNo);
@@ -116,9 +125,6 @@ public class AccidentSubmitController extends HttpServlet {
         }
     }
 
-    /**
-     * 各種損害額の合計と、自身の過失割合に基づいて支払金額（保険金額）を計算します。
-     */
     private long calculatePaymentAmount(HttpServletRequest request) {
         long vehicleDamage = parseLong(request.getParameter("damageCarPrice"));
         long bodilyDamage = parseLong(request.getParameter("damageBodilyPrice"));
@@ -131,9 +137,6 @@ public class AccidentSubmitController extends HttpServlet {
         return Math.round(totalDamage * faultRatio);
     }
 
-    /**
-     * 文字列を安全に long 型の数値へ変換します。
-     */
     private long parseLong(String val) {
         if (val == null || val.trim().isEmpty()) return 0L;
         try { 

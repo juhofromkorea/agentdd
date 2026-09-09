@@ -20,21 +20,21 @@ public class AccidentDao {
     /**
      * コンストラクタ
      * SystemConstからDB接続情報を取得して接続を保持します。
-     * @throws SQLException 
-     * @throws ClassNotFoundException 
+     * @throws SQLException
+     * @throws ClassNotFoundException
      */
     public AccidentDao() throws SQLException, ClassNotFoundException {
         Class.forName(SystemConst.JDBC_DRIVER_NAME);
         this.con = DriverManager.getConnection(
-            SystemConst.JDBC_URL, 
-            SystemConst.JDBC_USER, 
+            SystemConst.JDBC_URL,
+            SystemConst.JDBC_USER,
             SystemConst.JDBC_PASSWORD
         );
     }
 
     /**
      * 事故受付番号検索（指定した番号のデータをDBから取得）
-     * 
+     *
      * @param accidentNo 事故受付番号
      * @return 検索結果の事故受付データ (該当データがない場合は null)
      * @throws SQLException
@@ -82,6 +82,37 @@ public class AccidentDao {
             }
         }
 
+        return accident;
+    }
+
+
+    /**
+     * 証券番号を指定して、既に登録されている事故受付データを取得します。
+     * 
+     * @param polNo 証券番号
+     * @return 検索結果の事故受付データ (該当データがない場合は null)
+     * @throws SQLException
+     */
+    public Accident getAccidentByPolNo(String polNo) throws SQLException {
+        Accident accident = null;
+        String sql = "SELECT cl.* FROM claim_tbl cl " +
+                    "JOIN contractinfo_tbl co ON cl.cover_id = co.insatsu_renban " +
+                    "WHERE co.pol_no = ?";
+
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, polNo);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    accident = new Accident();
+                    accident.setClaimNo(rs.getString("claim_no"));
+                    accident.setPolNo(rs.getString("pol_no"));
+                    accident.setCoverId(rs.getInt("cover_id"));
+                    accident.setClaimStatus(rs.getInt("claim_status"));
+                    // 必要に応じて他のフィールドもマッピングしてください
+                }
+            }
+        }
         return accident;
     }
 

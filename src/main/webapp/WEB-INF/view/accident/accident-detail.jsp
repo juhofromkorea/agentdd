@@ -57,7 +57,7 @@
             
             <input type="hidden" name="claimNo" value="${accident.claimNo}" />
             <input type="hidden" name="polNo" value="${accident.polNo}" />
-            <input type="hidden" name="contractorName" value="${contract.nameKanji1}" />
+            <input type="hidden" name="contractorName" value="${contract.nameKanji1} ${contract.nameKanji2}" />
 
             <input
               class="accounting-controller"
@@ -91,8 +91,8 @@
 
                 <dl class="accident-record-summary">
                   <div><dt>事故受付番号</dt><dd>${accident.claimNo}</dd></div>
-                  <div><dt>証券番号</dt><dd>${accident.polNo}</dd></div>
-                  <div><dt>契約者名</dt><dd>${contract.nameKanji1}</dd></div>
+                  <div><dt>証券番号</dt><dd>${contract.polNo}</dd></div>
+                  <div><dt>契約者名</dt><dd>${contract.nameKanji1} ${contract.nameKanji2}</dd></div>
                 </dl>
 
                 <fieldset class="accident-form-section">
