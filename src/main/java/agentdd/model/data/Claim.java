@@ -16,7 +16,7 @@ public class Claim {
     private Integer accidentRates;
     private Integer licenseColor;
     private Integer ageLimit;
-    private String licenceColorStr;
+    private String licenseColorStr;
     private String ageLimitStr;
 
     public Integer getCoverId() {
