@@ -249,10 +249,12 @@
                 </dl>
 
                 <div class="accounting-actions">
-                  <a
-                    class="button button--primary accounting-button-link cancellation-print-button"
-                    href="${pageContext.request.contextPath}/cancel/complete"
-                  >解約申込書印刷</a>
+                  <form action="${pageContext.request.contextPath}/cancel/complete"
+                        method="post">
+                    <button class="button button--primary" type="submit">
+                      解約申込書印刷
+                    </button>
+                  </form>
                 </div>
               </section>
             </div>

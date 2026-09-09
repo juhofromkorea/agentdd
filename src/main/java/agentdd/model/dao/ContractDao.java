@@ -109,7 +109,7 @@ public class ContractDao {
         }
     }
 
-    public void setCancel(String polNo) throws SQLException {
+    public void setCancel(String insatsuRenban) throws SQLException {
         if (updateCancellation("pol_no", polNo) != 1) {
             throw new SQLException("解約対象が存在しないか、解約可能な状態ではありません。");
         }

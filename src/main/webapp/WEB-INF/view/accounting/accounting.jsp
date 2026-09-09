@@ -63,7 +63,7 @@
             <form
               class="accounting-start-form"
               action="${pageContext.request.contextPath}/account"
-              method="get"
+              method="post"
             >
               <label class="accounting-start-field">
                 <span>印刷連番</span>

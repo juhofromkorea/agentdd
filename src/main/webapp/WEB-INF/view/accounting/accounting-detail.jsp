@@ -89,6 +89,10 @@
                     <dd>${contract.insatsuRenban}</dd>
                   </div>
                   <div class="accounting-data-row">
+                    <dt>証券番号</dt>
+                    <dd>${contract.polNo}</dd>
+                  </div>
+                  <div class="accounting-data-row">
                     <dt>被保険者区分</dt>
                     <dd>${contract.insuredKbn}</dd>
                   </div>

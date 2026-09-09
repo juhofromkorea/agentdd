@@ -67,7 +67,7 @@ public class AccountingController extends HttpServlet {
             session.setAttribute("status_Flg", contract.getStatusFlg());
 
             // ⑤ 印刷連番に紐づく補償情報を取得
-            Claim claim = claimDao.getClaim(insatsuRenban);
+            Claim claim = claimDao.getClaimForAccount(insatsuRenban);
 
             // ⑥ 補償情報が存在しない場合
             if (claim == null) {
