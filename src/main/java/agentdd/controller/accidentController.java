@@ -91,22 +91,21 @@ public class AccidentController extends HttpServlet {
                         return;
                     }
 
-                    // すでに完了（ステータスが9）している場合は accident.jsp に戻す
+                    // すでに完了（事故受付フラグが9）している場合は accident.jsp に戻す
                     if (accidentData.getClaimStatus() == 9) {
                         request.setAttribute("errorMessage", "この事故受付は完了しています。");
                         request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
                         return;
                     }
 
-                    // 事故データに紐づく補償情報および契約情報を取得
-                    // ※ accidentData.getCoverId() から直接取得、または印刷連番等を介して取得
+                    // 事故データに紐づく証券番号から契約情報および補償情報を取得
                     Claim claimData = null;
                     Contract contractData = null;
                     
-                    if (accidentData.getCoverId() > 0) {
-                        // coverId がセットされている場合はそのIDや紐づく情報から取得
-                        // 例: coverIdから直接取得するメソッドがない場合は、証券番号または印刷連番経由で検索
-                        // ここでは事故データ内の情報に応じて適切なDAOメソッドを呼んでください
+                    String polNoFromAccident = accidentData.getPolNo();
+                    if (polNoFromAccident != null && !polNoFromAccident.trim().isEmpty()) {
+                        contractData = contractDao.getContract(polNoFromAccident);
+                        claimData = claimDao.getClaim(polNoFromAccident);
                     }
 
                     request.setAttribute("accident", accidentData);
