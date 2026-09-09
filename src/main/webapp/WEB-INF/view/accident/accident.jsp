@@ -72,7 +72,7 @@
                     name="polNo"
                     inputmode="text"
                     maxlength="10"
-                    placeholder="例：B00000001"
+                    placeholder="例：B000000001"
                     pattern="[A-Za-z0-9]{1,10}"
                     aria-describedby="accident-start-note accident-start-message"
                   />

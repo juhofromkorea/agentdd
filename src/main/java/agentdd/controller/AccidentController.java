@@ -22,30 +22,6 @@ import agentdd.model.data.Contract;
 @WebServlet("/accident/*")
 public class AccidentController extends HttpServlet {
 
-    private AccidentDao accidentDao;
-    private ContractDao contractDao;
-    private ClaimDao claimDao;
-
-    @Override
-    public void init() throws ServletException {
-        try (Connection con = ConnectionManager.getConnection()) {
-            con.setAutoCommit(false);
-            try {
-                accidentDao = new AccidentDao(con);
-                contractDao = new ContractDao(con);
-                claimDao = new ClaimDao(con);
-            } catch (SQLException | RuntimeException e) {
-                try {
-                    con.rollback();
-                } catch (SQLException rollbackError) {
-                    e.addSuppressed(rollbackError);
-                }
-                throw e;
-            }
-            con.commit();
-        }
-    }
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -64,13 +40,16 @@ public class AccidentController extends HttpServlet {
 
         String pathInfo = request.getPathInfo();
 
-        try {
-            // 1. 初期表示
-            if (pathInfo == null || pathInfo.equals("/")) {
-                request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp")
-                        .forward(request, response);
-                return;
-            }
+        if (pathInfo == null || pathInfo.equals("/")) {
+            request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp")
+                    .forward(request, response);
+            return;
+        }
+
+        try (Connection con = ConnectionManager.getConnection()) {
+            AccidentDao accidentDao = new AccidentDao(con);
+            ContractDao contractDao = new ContractDao(con);
+            ClaimDao claimDao = new ClaimDao(con);
 
             // 2. 事故受付開始画面からの遷移
             if ("/detail".equals(pathInfo)) {
@@ -169,8 +148,9 @@ public class AccidentController extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("errorMessage", "システムエラーが発生しました。管理者にお問い合わせください。");
-            request.getRequestDispatcher("/WEB-INF/view/error.jsp").forward(request, response);
+            request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
+            request.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
+                    .forward(request, response);
         }
     }
 }

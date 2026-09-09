@@ -53,7 +53,7 @@
           <h1 class="sr-only" id="accident-detail-title">法人契約の事故受付入力</h1>
           <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
-          <form class="accounting-workspace" action="${pageContext.request.contextPath}/accident-complete-corporate" method="get">
+          <form class="accounting-workspace" action="${pageContext.request.contextPath}/accident/submit" method="get">
             <input
               class="accounting-controller"
               type="radio"

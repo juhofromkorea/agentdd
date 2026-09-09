@@ -15,40 +15,13 @@ import agentdd.model.dao.ConnectionManager;
 import agentdd.model.dao.AccidentDao;
 import agentdd.model.dao.ClaimDao;
 import agentdd.model.dao.ContractDao;
-import agentdd.model.data.Accident; 
+import agentdd.model.data.Accident;
 
 /**
  * 事故情報の登録および更新処理を制御するコントローラーサーブレット。
  */
 @WebServlet("/accident/submit")
 public class AccidentSubmitController extends HttpServlet {
-
-    private AccidentDao accidentDao;
-    private ContractDao contractDao;
-    private ClaimDao claimDao;
-
-    /**
-     * サーブレット初期化時に各種DAOインスタンスを生成する。
-     */
-    @Override
-    public void init() throws ServletException {
-        try (Connection con = ConnectionManager.getConnection()) {
-            con.setAutoCommit(false);
-            try {
-                accidentDao = new AccidentDao(con);
-                contractDao = new ContractDao(con);
-                claimDao = new ClaimDao(con);
-            } catch (SQLException | RuntimeException e) {
-                try {
-                    con.rollback();
-                } catch (SQLException rollbackError) {
-                    e.addSuppressed(rollbackError);
-                }
-                throw e;
-            }
-            con.commit();
-        } 
-    }
 
     /**
      * 事故情報の登録・更新リクエスト（POST）を受け取り、バリデーションとDB保存処理を行う。
@@ -60,14 +33,17 @@ public class AccidentSubmitController extends HttpServlet {
         // リクエストパラメータの文字エンコーディングをUTF-8に指定
         request.setCharacterEncoding("UTF-8");
 
-        try {
+        try (Connection con = ConnectionManager.getConnection()) {
+            AccidentDao accidentDao = new AccidentDao(con);
+            ContractDao contractDao = new ContractDao(con);
+            ClaimDao claimDao = new ClaimDao(con);
             // 0. 押されたボタンの種類（action: "completeReceipt" 等）を先に取得
             String action = request.getParameter("action");
 
             // 1. バリデーション：過失割合のチェック
             int myFault = (int) parseLong(request.getParameter("ratingBlameMyself"));
             int yourFault = (int) parseLong(request.getParameter("ratingBlameYourself"));
-            
+
             boolean isInvalidRatio = false;
             if ("completeReceipt".equals(action)) {
                 // 【事故受付完了時】必ず過失割合の合計が100でなければならない
@@ -84,7 +60,7 @@ public class AccidentSubmitController extends HttpServlet {
             // 過失割合が不正な場合、エラーメッセージを設定して入力画面へ差し戻す
             if (isInvalidRatio) {
                 request.setAttribute("accident", createAccidentFromRequest(request));
-                restoreRelatedData(request);
+                restoreRelatedData(request, contractDao, claimDao);
                 request.setAttribute("errorMessage", "過失割合の合計が100になるように入力してください。（未定の場合は空欄でも可能です）");
                 request.getRequestDispatcher("/WEB-INF/view/accident/accident-detail.jsp").forward(request, response);
                 return;
@@ -103,7 +79,7 @@ public class AccidentSubmitController extends HttpServlet {
             accident.setClaimNo(claimNo);
             accident.setPolNo(request.getParameter("polNo"));
             accident.setCoverId(parseInt(request.getParameter("coverId")));
-            
+
             accident.setClaimStatus(claimStatus);
             accident.setPaymentPrice(paymentAmount);
 
@@ -132,11 +108,23 @@ public class AccidentSubmitController extends HttpServlet {
             accident.setDamageAccidentState(request.getParameter("damageAccidentState"));
 
             // 4. 既存データの存在をチェックし、INSERTかUPDATEを自動振り分け
-            Accident existingAccident = accidentDao.getAccident(claimNo);
-            if (existingAccident == null) {
-                accidentDao.insertAccident(accident);
-            } else {
-                accidentDao.updateAccident(accident);
+            con.setAutoCommit(false);
+
+            try {
+                Accident existingAccident = accidentDao.getAccident(claimNo);
+                if (existingAccident == null) {
+                    accidentDao.insertAccident(accident);
+                } else {
+                    accidentDao.updateAccident(accident);
+                }
+                con.commit();
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    con.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
             }
 
             // 5. 完了画面の表示用に必要なデータをリクエストスコープにセット
@@ -152,8 +140,9 @@ public class AccidentSubmitController extends HttpServlet {
         } catch (Exception e) {
             // 予期せぬ例外が発生した場合はスタックトレースを出力し、エラー画面へ遷移
             e.printStackTrace();
-            request.setAttribute("errorMessage", "システムエラー");
-            request.getRequestDispatcher("/WEB-INF/view/error.jsp").forward(request, response);
+            request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
+            request.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
+                    .forward(request, response);
         }
     }
 
@@ -203,25 +192,31 @@ public class AccidentSubmitController extends HttpServlet {
     /**
      * バリデーションエラー等で入力画面に戻る際に、関連する契約・事故請求データを再取得してセットする。
      */
-    private void restoreRelatedData(HttpServletRequest request) throws Exception {
+    private void restoreRelatedData(
+            HttpServletRequest request,
+            ContractDao contractDao,
+            ClaimDao claimDao) throws Exception {
+
         String polNo = request.getParameter("polNo");
-        if (polNo == null || polNo.trim().isEmpty()) {
+
+        if (polNo == null || polNo.isBlank()) {
             return;
         }
 
-        request.setAttribute("contract", contractDao.getContract(polNo));
-        request.setAttribute("claim", claimDao.getClaim(polNo));
+        request.setAttribute("contract", contractDao.getContract(polNo.trim()));
+        request.setAttribute("claim", claimDao.getClaim(polNo.trim()));
     }
 
     /**
      * 文字列を安全にlong型にパースする。nullや空文字、数値フォーマットエラー時は0Lを返す。
      */
     private long parseLong(String val) {
-        if (val == null || val.trim().isEmpty()) return 0L;
-        try { 
-            return Long.parseLong(val.trim()); 
-        } catch (NumberFormatException e) { 
-            return 0L; 
+        if (val == null || val.trim().isEmpty())
+            return 0L;
+        try {
+            return Long.parseLong(val.trim());
+        } catch (NumberFormatException e) {
+            return 0L;
         }
     }
 
@@ -229,7 +224,8 @@ public class AccidentSubmitController extends HttpServlet {
      * 文字列を安全にint型にパースする。nullや空文字、数値フォーマットエラー時は0を返す。
      */
     private int parseInt(String val) {
-        if (val == null || val.trim().isEmpty()) return 0;
+        if (val == null || val.trim().isEmpty())
+            return 0;
         try {
             return Integer.parseInt(val.trim());
         } catch (NumberFormatException e) {

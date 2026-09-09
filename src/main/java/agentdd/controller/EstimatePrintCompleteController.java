@@ -70,22 +70,26 @@ public class EstimatePrintCompleteController extends HttpServlet {
         HttpSession session = request.getSession();
         Contract contract = (Contract) session.getAttribute("printContract");
         Claim claim = (Claim) session.getAttribute("printClaim");
-        String serialNum = null;
+        String serialNum;
 
         try (Connection con = ConnectionManager.getConnection()) {
             con.setAutoCommit(false);
 
             try {
-                ContractDao contractDao = new ContractDao(con);
-                ClaimDao claimDao = new ClaimDao(con);
-                
                 PrintSerialNumberCalc serialCalc = new PrintSerialNumberCalc();
-                serialNum = serialCalc.numbercalc(contractDao);
+                serialNum = serialCalc.numbercalc(con);
+
                 contract.setInsatsuRenban(serialNum);
                 claim.setInsatsuRenban(serialNum);
 
-                contractDao.setEstimate(contract);
-                claimDao.setEstimate(claim);
+                ContractDao contractDao = new ContractDao(con);
+                ClaimDao claimDao = new ClaimDao(con);
+
+                if (contractDao.setEstimate(contract) != 1
+                        || claimDao.setEstimate(claim) != 1) {
+                    throw new SQLException("契約・補償情報の登録に失敗しました。");
+                }
+
                 con.commit();
             } catch (SQLException | RuntimeException e) {
                 try {
