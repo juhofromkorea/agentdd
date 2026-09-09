@@ -429,6 +429,24 @@
   font-size: 0.92rem;
 }
 
+.estimate-notice {
+  margin-top: 12px;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.estimate-notice--success {
+  color: #176b35;
+  background: #e8f7ec;
+}
+
+.estimate-notice--error {
+  color: #a51d1d;
+  background: #fdeaea;
+}
+
 .estimate-table-wrap {
   width: 100%;
   max-width: 100%;
@@ -490,7 +508,14 @@
 }
 
 .estimate-table__actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   white-space: nowrap;
+}
+
+.estimate-table__actions form {
+  margin: 0;
 }
 
 .estimate-row-button {
@@ -709,6 +734,10 @@
     width: 100%;
   }
 
+  .estimate-save-button {
+    width: 100%;
+  }
+
   .estimate-primary-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -780,6 +809,8 @@
 
   .estimate-table td.estimate-table__actions {
     grid-template-columns: 88px repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
   }
 
   .estimate-row-button {

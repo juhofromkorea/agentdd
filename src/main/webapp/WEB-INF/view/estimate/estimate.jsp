@@ -542,7 +542,8 @@
                                   type="submit">再開</button>
                               </form>
                               <form action="${pageContext.request.contextPath}/tempSaveDelete"
-                                method="post">
+                                method="post"
+                                onsubmit="return confirm('本当に削除してもよろしいですか？');">
                                 <input type="hidden" name="tempSaveId"
                                   value="${tempSave.tempSaveId}" />
                                 <button class="button estimate-row-button estimate-row-button--delete"
@@ -558,7 +559,6 @@
               </div>
             </section>
           </div>
-
         </div>
       </section>
     </main>

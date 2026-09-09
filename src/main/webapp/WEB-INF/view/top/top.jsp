@@ -61,7 +61,7 @@
           <div class="top-menu__list" role="group" aria-label="業務メニュー">
             <a
               class="button button--primary top-menu__button"
-              href="${pageContext.request.contextPath}/estimatecalc"
+              href="${pageContext.request.contextPath}/estimatecalc?new=1"
             >
               新規試算
             </a>
