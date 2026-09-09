@@ -36,7 +36,7 @@ public class CancelCompleteController extends HttpServlet {
             ContractDao contractDao = new ContractDao();
 
             // 証券番号に紐づいた状態フラグを変更する
-            contractDao.setcancel();
+            contractDao.setCancel(contract.getPolNo());
 
             // 被保険者区分によってJSPを出し分け
             if (Integer.valueOf(2).equals(contract.getInsuredKbn())) {
