@@ -3,12 +3,13 @@ package agentdd.controller;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
+import java.time.LocalDateTime;
 
 import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.dao.ConnectionManager;
 import agentdd.model.dao.TempSaveDao;
-import agentdd.model.data.TempSave;
+import agentdd.model.data.LoginUser;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -22,46 +23,55 @@ public class TempSaveDeleteController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected void doPost(
-            HttpServletRequest req,
-            HttpServletResponse resp)
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+        HttpSession session = req.getSession(false);
+        
+        if (session == null || !(session.getAttribute("loginUser") instanceof LoginUser loginUser)
+                || loginUser.getUserId() == null || loginUser.getUserId().isBlank()) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
 
-        // 1. リクエストパラメータから削除対象の一時保存番号を取得
         String tempSaveId = req.getParameter("tempSaveId");
 
-        // 2. セッションからログインユーザーIDを取得
-        HttpSession session = req.getSession(false);
-        String userId = (String) session.getAttribute("userId");
+        if (tempSaveId == null || tempSaveId.isBlank()) {
+            resp.sendRedirect(req.getContextPath()
+                    + "/estimatecalc?tab=saved&result=missing");
+            return;
+        }
+
+        String userId = loginUser.getUserId();
+        int deleted;
 
         try (Connection con = ConnectionManager.getConnection()) {
-
-            TempSaveDao tempSaveDao =
-                    new TempSaveDao(con);
-
-            // 3. 一時保存情報を削除
-            tempSaveDao.delete(tempSaveId, userId);
-
-            // 4. 削除後の一時保存情報一覧を取得
-            List<TempSave> tempSaveList =
-                    tempSaveDao.selectAll(userId);
-
-            // 5. 一時保存情報一覧をリクエストスコープに設定
-            req.setAttribute(
-                    "tempSaveList",
-                    tempSaveList);
-
-            // 6. 新規試算画面JSPへforward
-            req.getRequestDispatcher(
-                    "/WEB-INF/view/Estimate.jsp")
-                    .forward(req, resp);
+            con.setAutoCommit(false);
+            try {
+                TempSaveDao tempSaveDao = new TempSaveDao(con);
+                tempSaveDao.deleteExpired(userId, LocalDateTime.now().minusMonths(1));
+                deleted = tempSaveDao.delete(tempSaveId, userId);
+                con.commit();
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    con.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
+            }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            getServletContext().log("一時保存情報の削除に失敗しました。", e);
             req.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
-            req.getRequestDispatcher(
-                    "/WEB-INF/view/Error.jsp");
+            req.setAttribute("errorBackUrl", "/estimatecalc?tab=saved");
+            req.setAttribute("errorBackLabel", "一時保存一覧へ戻る");
+            req.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
                     .forward(req, resp);
+            return;
         }
+
+        String result = deleted == 1 ? "deleted" : "missing";
+        resp.sendRedirect(req.getContextPath()
+                + "/estimatecalc?tab=saved&result=" + result);
     }
 }

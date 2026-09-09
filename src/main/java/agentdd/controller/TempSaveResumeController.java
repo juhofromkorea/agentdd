@@ -3,11 +3,12 @@ package agentdd.controller;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+
 import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.dao.ConnectionManager;
 import agentdd.model.dao.TempSaveDao;
-import agentdd.model.data.Claim;
-import agentdd.model.data.Contract;
+import agentdd.model.data.LoginUser;
 import agentdd.model.data.TempSave;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -22,51 +23,67 @@ public class TempSaveResumeController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected void doPost(
-            HttpServletRequest req,
-            HttpServletResponse resp)
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        // 1. リクエストパラメータから一時保存番号を取得
-        String tempSaveId = req.getParameter("tempSaveId");
-
-        // 2. セッションからログインユーザーIDを取得
         HttpSession session = req.getSession(false);
-        String userId = (String) session.getAttribute("userId");
-         
+
+        if (session == null || !(session.getAttribute("loginUser") instanceof LoginUser loginUser)
+                || loginUser.getUserId() == null || loginUser.getUserId().isBlank()) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+
+        String tempSaveId = req.getParameter("tempSaveId");
+        if (tempSaveId == null || tempSaveId.isBlank()) {
+            resp.sendRedirect(req.getContextPath()
+                    + "/estimatecalc?tab=saved&result=missing");
+            return;
+        }
+
+        String userId = loginUser.getUserId();
+        TempSave tempSave;
 
         try (Connection con = ConnectionManager.getConnection()) {
-
-            TempSaveDao tempSaveDao = new TempSaveDao(con);
-
-            // 3. 一時保存情報を取得
-            TempSave tempSave =
-                    tempSaveDao.select(tempSaveId, userId);
-
-            if (tempSave == null) {
-                throw new ServletException(
-                        "一時保存情報を取得できません。");
-            }
-
-            // 一時保存情報から契約情報・補償情報を取得
-            Contract contract = tempSave.getContract();
-            Claim claim = tempSave.getClaim();
-
-            // 4. リクエストスコープに設定
-            req.setAttribute("contract", contract);
-            req.setAttribute("claim", claim);
-
-            // 5. 新規a試算画面JSPへforward
-            req.getRequestDispatcher(
-                    "/WEB-INF/view/Estimate.jsp")
-                    .forward(req, resp);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            req.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
-            req.getRequestDispatcher(
-                    "/WEB-INF/view/Error.jsp");
-                    .forward(req, resp);
+            con.setAutoCommit(false);
+            try {
+                TempSaveDao tempSaveDao = new TempSaveDao(con);
+                tempSaveDao.deleteExpired(userId, LocalDateTime.now().minusMonths(1));
+                tempSave = tempSaveDao.select(tempSaveId, userId);
+                if (tempSave == null) {
+                    // 期限切れの掃除だけは確定してから一覧へ戻す。
+                    con.commit();
+                    resp.sendRedirect(req.getContextPath()
+                            + "/estimatecalc?tab=saved&result=missing");
+                    return;
                 }
+                con.commit();
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    con.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
+            }
+        } catch (SQLException e) {
+            getServletContext().log("一時保存情報の再開に失敗しました。", e);
+            req.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
+            req.setAttribute("errorBackUrl", "/estimatecalc?tab=saved");
+            req.setAttribute("errorBackLabel", "一時保存一覧へ戻る");
+            req.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
+                    .forward(req, resp);
+            return;
+        }
+
+        // JSPはリクエストスコープだけでなく、試算・申込書印刷でも同じ値を使う。
+        session.setAttribute("contract", tempSave.getContract());
+        session.setAttribute("claim", tempSave.getClaim());
+        session.setAttribute("calculated", Boolean.FALSE);
+        session.removeAttribute("printContract");
+        session.removeAttribute("printClaim");
+
+        // GET側で車両マスタと一覧を再取得してから、契約条件タブを表示する。
+        resp.sendRedirect(req.getContextPath() + "/estimatecalc?resumed=1");
     }
 }

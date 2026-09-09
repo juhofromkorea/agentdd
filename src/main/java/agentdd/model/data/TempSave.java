@@ -1,9 +1,13 @@
 package agentdd.model.data;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 // 一時保存情報を保持するデータクラス
 public class TempSave {
+
+    private static final DateTimeFormatter DISPLAY_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
     
     // 一時保存データを識別するID
     private String tempSaveId;
@@ -49,6 +53,11 @@ public class TempSave {
     // 一時保存日時を設定
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    /** JSPの一覧表示用。JSTLのfmt:formatDateはLocalDateTimeを扱えないため、Bean側で文字列化します。 */
+    public String getCreatedAtText() {
+        return createdAt == null ? "" : createdAt.format(DISPLAY_FORMAT);
     }
 
     // 契約情報を取得

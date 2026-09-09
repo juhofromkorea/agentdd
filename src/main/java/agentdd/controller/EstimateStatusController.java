@@ -67,10 +67,14 @@ public class EstimateStatusController extends HttpServlet {
     }
 
     private void updateContractFromRequest(HttpServletRequest request, Contract contract) {
-        contract.setNameKana1(request.getParameter("nameKana1"));
-        contract.setNameKana2(request.getParameter("nameKana2"));
-        contract.setNameKanji1(request.getParameter("nameKanji1"));
-        contract.setNameKanji2(request.getParameter("nameKanji2"));
+        int currentInsuredKbn = contract.getInsuredKbn() == null
+                ? 0 : contract.getInsuredKbn();
+        Integer insuredKbn = parseInt(
+                request.getParameter("insuredKbn"), currentInsuredKbn);
+        contract.setNameKana1(selectNameParameter(request, "nameKana1", insuredKbn));
+        contract.setNameKana2(selectNameParameter(request, "nameKana2", insuredKbn));
+        contract.setNameKanji1(selectNameParameter(request, "nameKanji1", insuredKbn));
+        contract.setNameKanji2(selectNameParameter(request, "nameKanji2", insuredKbn));
         contract.setAddressKana1(request.getParameter("addressKana1"));
         contract.setAddressKana2(request.getParameter("addressKana2"));
         contract.setAddressKanji1(request.getParameter("addressKanji1"));
@@ -79,7 +83,7 @@ public class EstimateStatusController extends HttpServlet {
         contract.setConclusionTime(request.getParameter("conclusionTime"));
         contract.setPaymentMethod(parseInt(request.getParameter("paymentMethod"), contract.getPaymentMethod()));
         contract.setInstallment(parseInt(request.getParameter("installment"), contract.getInstallment()));
-        contract.setInsuredKbn(parseInt(request.getParameter("insuredKbn"), contract.getInsuredKbn()));
+        contract.setInsuredKbn(insuredKbn);
         contract.setGender(parseInt(request.getParameter("gender"), contract.getGender()));
         contract.setInceptionDate(normalize(request.getParameter("inceptionDate"), contract.getInceptionDate()));
         contract.setConclusionDate(normalize(request.getParameter("conclusionDate"), contract.getConclusionDate()));
@@ -155,5 +159,17 @@ public class EstimateStatusController extends HttpServlet {
         } catch (NumberFormatException e) {
             return defaultValue;
         }
+    }
+
+    private String selectNameParameter(
+            HttpServletRequest request, String name, Integer insuredKbn) {
+        String[] values = request.getParameterValues(name);
+        if (values == null || values.length == 0) {
+            return null;
+        }
+        if (Integer.valueOf(2).equals(insuredKbn) && values.length > 1) {
+            return values[values.length - 1];
+        }
+        return values[0];
     }
 }

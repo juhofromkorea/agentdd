@@ -2,8 +2,9 @@ package agentdd.controller;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import agentdd.model.dao.ConnectionManager;
 import java.io.IOException;
+import java.time.LocalDateTime;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -11,25 +12,75 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.RequestDispatcher;
+
 import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.data.Contract;
 import agentdd.model.data.Claim;
+import agentdd.model.data.LoginUser;
 import agentdd.model.util.InsuranceCalc;
+import agentdd.model.dao.TempSaveDao;
 import agentdd.model.dao.VehicleDao;
 import agentdd.model.dao.RatesDao;
+import agentdd.model.dao.ConnectionManager;
 
 @WebServlet("/estimatecalc")
 public class EstimateCalcController extends HttpServlet {
 
+    private static final long serialVersionUID = 1L;
+
     @Override
-    protected void doGet(
-            HttpServletRequest request,
-            HttpServletResponse response)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        HttpSession session = request.getSession(false);
+        if (session == null || !(session.getAttribute("loginUser") instanceof LoginUser loginUser)
+                || loginUser.getUserId() == null || loginUser.getUserId().isBlank()) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        if ("1".equals(request.getParameter("new"))) {
+            session.removeAttribute("contract");
+            session.removeAttribute("claim");
+            session.removeAttribute("calculated");
+            session.removeAttribute("printContract");
+            session.removeAttribute("printClaim");
+        }
 
         try (Connection con = ConnectionManager.getConnection()) {
-            VehicleDao vehicleDao = new VehicleDao(con);
-            request.setAttribute("vehicles", vehicleDao.findAll());
+            con.setAutoCommit(false);
+            try {
+                TempSaveDao tempSaveDao = new TempSaveDao(con);
+                // バッチを追加しなくても、画面を開いたタイミングで期限切れを掃除する。
+                tempSaveDao.deleteExpired(
+                        loginUser.getUserId(), LocalDateTime.now().minusMonths(1));
+                request.setAttribute(
+                        "tempSaveList", tempSaveDao.selectAll(loginUser.getUserId()));
+                request.setAttribute("vehicles", new VehicleDao(con).findAll());
+                con.commit();
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    con.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
+            }
+
+            String result = request.getParameter("result");
+            if ("saved".equals(result)) {
+                request.setAttribute("message", "一時保存しました。");
+            } else if ("deleted".equals(result)) {
+                request.setAttribute("message", "一時保存を削除しました。");
+            } else if ("limit".equals(result)) {
+                request.setAttribute("errorMessage", "一時保存できる件数は5件までです。");
+            } else if ("missing".equals(result)) {
+                request.setAttribute("errorMessage", "一時保存情報が見つかりません。");
+            }
+            request.setAttribute("openSaved", "saved".equals(request.getParameter("tab")));
+            request.getRequestDispatcher(
+                    "/WEB-INF/view/estimate/estimate.jsp")
+                    .forward(request, response);
 
         } catch (SQLException e) {
             getServletContext().log(
@@ -44,25 +95,29 @@ public class EstimateCalcController extends HttpServlet {
                     .forward(request, response);
             return;
         }
-
-        // 正常に取得できた場合、ここで画面を表示する
-        request.getRequestDispatcher(
-                "/WEB-INF/view/estimate/estimate.jsp")
-                .forward(request, response);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
 
+        HttpSession session = request.getSession(false);
+        if (session == null || !(session.getAttribute("loginUser") instanceof LoginUser loginUser)
+                || loginUser.getUserId() == null || loginUser.getUserId().isBlank()) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
         Contract contract = new Contract();
         Claim claim = new Claim();
 
-        // 1. そのまま文字列として受け取る項目
-        contract.setNameKana1(request.getParameter("nameKana1"));
-        contract.setNameKana2(request.getParameter("nameKana2"));
-        contract.setNameKanji1(request.getParameter("nameKanji1"));
-        contract.setNameKanji2(request.getParameter("nameKanji2"));
+        // 1. 個人用と法人用で同じname属性を使うため、法人は後方の値を採用する。
+        Integer insuredKbn = parseInt(request.getParameter("insuredKbn"), 0);
+        contract.setInsuredKbn(insuredKbn);
+        contract.setNameKana1(selectNameParameter(request, "nameKana1", insuredKbn));
+        contract.setNameKana2(selectNameParameter(request, "nameKana2", insuredKbn));
+        contract.setNameKanji1(selectNameParameter(request, "nameKanji1", insuredKbn));
+        contract.setNameKanji2(selectNameParameter(request, "nameKanji2", insuredKbn));
         contract.setAddressKana1(request.getParameter("addressKana1"));
         contract.setAddressKana2(request.getParameter("addressKana2"));
         contract.setAddressKanji1(request.getParameter("addressKanji1"));
@@ -71,7 +126,6 @@ public class EstimateCalcController extends HttpServlet {
         contract.setConclusionTime(request.getParameter("conclusionTime"));
         contract.setPaymentMethod(parseInt(request.getParameter("paymentMethod"), 0));
         contract.setInstallment(parseInt(request.getParameter("installment"), 1));
-        contract.setInsuredKbn(parseInt(request.getParameter("insuredKbn"), 0));
         contract.setGender(parseInt(request.getParameter("gender"), 0));
 
         // 初期値設定
@@ -140,11 +194,18 @@ public class EstimateCalcController extends HttpServlet {
                 claim.setPremiumAmount(totalPremium);
                 claim.setPremiumInstallment(totalPremium / contract.getInstallment());
 
-                HttpSession session = request.getSession();
                 session.setAttribute("contract", contract);
                 session.setAttribute("claim", claim);
                 session.setAttribute("calculated", true);
+
+                TempSaveDao tempSaveDao = new TempSaveDao(con);
+                tempSaveDao.deleteExpired(
+                        loginUser.getUserId(), LocalDateTime.now().minusMonths(1));
+                request.setAttribute(
+                        "tempSaveList", tempSaveDao.selectAll(loginUser.getUserId()));
+
                 con.commit();
+
             } catch (SQLException | RuntimeException e) {
                 try {
                     con.rollback();
@@ -175,5 +236,17 @@ public class EstimateCalcController extends HttpServlet {
         } catch (NumberFormatException e) {
             return defaultValue;
         }
+    }
+
+    private String selectNameParameter(
+            HttpServletRequest request, String name, Integer insuredKbn) {
+        String[] values = request.getParameterValues(name);
+        if (values == null || values.length == 0) {
+            return null;
+        }
+        if (Integer.valueOf(2).equals(insuredKbn) && values.length > 1) {
+            return values[values.length - 1];
+        }
+        return values[0];
     }
 }
