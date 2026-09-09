@@ -115,30 +115,60 @@ public class AccidentDao {
      * @return 新規事故受付番号
      * @throws SQLException
      */
+    private static final String CLAIM_NUMBER_LOCK = "agentdd.claim_no";
+
+    /** 新規受付の保存前、通常のSELECTやトランザクション開始より前に呼び出す。 */
+    public void lockClaimNumber() throws SQLException {
+        try (PreparedStatement stmt = con.prepareStatement("SELECT GET_LOCK(?, 5)")) {
+            stmt.setString(1, CLAIM_NUMBER_LOCK);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (!rs.next() || rs.getInt(1) != 1 || rs.wasNull()) {
+                    throw new SQLException("事故受付番号の採番が混み合っています。再度お試しください。");
+                }
+            }
+        }
+    }
+
+    /** commit/rollbackでは解放されないため、finallyから明示的に解放する。 */
+    public void unlockClaimNumber() throws SQLException {
+        try (PreparedStatement stmt = con.prepareStatement("SELECT RELEASE_LOCK(?)")) {
+            stmt.setString(1, CLAIM_NUMBER_LOCK);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (!rs.next() || rs.getInt(1) != 1 || rs.wasNull()) {
+                    throw new SQLException("事故受付番号のロックを解放できませんでした。");
+                }
+            }
+        }
+    }
+
     public String generateNextClaimNo() throws SQLException {
         requireTransaction();
-        long previous;
-        String selectSql = "SELECT last_value FROM agentdd_sequence "
-                + "WHERE sequence_name = 'claim_no' FOR UPDATE";
-        try (PreparedStatement stmt = con.prepareStatement(selectSql);
-                ResultSet rs = stmt.executeQuery()) {
-            if (!rs.next()) {
-                throw new SQLException("事故受付番号の採番テーブルが初期化されていません。");
+        // 同じ接続が共通の採番ロックを保持していることを確認する。
+        try (PreparedStatement stmt = con.prepareStatement(
+                "SELECT IS_USED_LOCK(?) = CONNECTION_ID()")) {
+            stmt.setString(1, CLAIM_NUMBER_LOCK);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (!rs.next() || rs.getInt(1) != 1 || rs.wasNull()) {
+                    throw new SQLException("採番前にlockClaimNumber()を実行してください。");
+                }
             }
-            previous = rs.getLong("last_value");
         }
-        if (previous < 0 || previous >= 9_999_999L) {
+        String current = null;
+        try (PreparedStatement stmt = con.prepareStatement("SELECT MAX(claim_no) FROM claim_tbl");
+                ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) current = rs.getString(1);
+        }
+        long previous = 0;
+        if (current != null) {
+            if (!current.matches("C[0-9]{7}")) {
+                throw new SQLException("既存の事故受付番号の形式が不正です。");
+            }
+            previous = Long.parseLong(current.substring(1));
+        }
+        if (previous >= 9_999_999L) {
             throw new SQLException("事故受付番号の採番可能範囲を超えています。");
         }
-        long next = previous + 1;
-        try (PreparedStatement stmt = con.prepareStatement(
-                "UPDATE agentdd_sequence SET last_value = ? WHERE sequence_name = 'claim_no'")) {
-            stmt.setLong(1, next);
-            if (stmt.executeUpdate() != 1) {
-                throw new SQLException("事故受付番号の採番に失敗しました。");
-            }
-        }
-        return String.format(java.util.Locale.ROOT, "C%07d", next);
+        return String.format(java.util.Locale.ROOT, "C%07d", previous + 1);
     }
 
     /** 保存時に事故行をロックし、その後に最新の関連情報を取得する。 */

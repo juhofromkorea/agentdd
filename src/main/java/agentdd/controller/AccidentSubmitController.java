@@ -50,14 +50,20 @@ public class AccidentSubmitController extends HttpServlet {
         }
         request.setAttribute("accidentInput", input);
 
+        String claimNo = trimmed(request.getParameter("claimNo"));
+        boolean isNew = claimNo.isEmpty();
         try (Connection con = ConnectionManager.getConnection()) {
-            con.setAutoCommit(false);
+            AccidentDao accidentDao = new AccidentDao(con);
+            boolean numberLocked = false;
             try {
-                AccidentDao accidentDao = new AccidentDao(con);
+                // 最新値で採番するため、DBの通常SELECTより前にロックを取得する。
+                if (isNew) {
+                    accidentDao.lockClaimNumber();
+                    numberLocked = true;
+                }
+                con.setAutoCommit(false);
                 ContractDao contractDao = new ContractDao(con);
                 ClaimDao claimDao = new ClaimDao(con);
-                String claimNo = trimmed(request.getParameter("claimNo"));
-                boolean isNew = claimNo.isEmpty();
                 Accident accident;
                 String polNo;
                 if (isNew) {
@@ -122,6 +128,16 @@ public class AccidentSubmitController extends HttpServlet {
                     e.addSuppressed(rollbackError);
                 }
                 throw e;
+            } finally {
+                if (numberLocked) {
+                    try {
+                        accidentDao.unlockClaimNumber();
+                    } catch (SQLException releaseError) {
+                        // 元の例外や保存成功を上書きしない。
+                        // この後try-with-resourcesで物理接続を閉じ、セッションロックを解放する。
+                        getServletContext().log("事故受付番号のロック解放に失敗しました。", releaseError);
+                    }
+                }
             }
         } catch (BusinessException e) {
             Contract contract = (Contract) request.getAttribute("contract");
