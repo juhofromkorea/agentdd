@@ -9,8 +9,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import agentdd.model.dao.AccidentDao;
+import agentdd.model.dao.ClaimDao;
 import agentdd.model.dao.ContractDao;
 import agentdd.model.data.Accident;
+import agentdd.model.data.Claim;
 import agentdd.model.data.Contract;
 
 @WebServlet("/accident/*")
@@ -18,12 +20,14 @@ public class AccidentController extends HttpServlet {
 
     private AccidentDao accidentDao;
     private ContractDao contractDao;
+    private ClaimDao claimDao;
 
     @Override
     public void init() throws ServletException {
         try {
             accidentDao = new AccidentDao();
             contractDao = new ContractDao();
+            claimDao = new ClaimDao();
         } catch (Exception e) {
             throw new ServletException("DAOの初期化に失敗しました", e);
         }
@@ -86,7 +90,31 @@ public class AccidentController extends HttpServlet {
                         request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
                         return;
                     }
+
+                    // すでに完了（事故受付フラグが9）している場合は accident.jsp に戻す
+                    if (accidentData.getClaimStatus() == 9) {
+                        request.setAttribute("errorMessage", "この事故受付は完了しています。");
+                        request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
+                        return;
+                    }
+
+                    // 事故データに紐づく証券番号から契約情報および補償情報を取得
+                    Claim claimData = null;
+                    Contract contractData = null;
+                    
+                    String polNoFromAccident = accidentData.getPolNo();
+                    if (polNoFromAccident != null && !polNoFromAccident.trim().isEmpty()) {
+                        contractData = contractDao.getContract(polNoFromAccident);
+                        claimData = claimDao.getClaim(polNoFromAccident);
+                    }
+
                     request.setAttribute("accident", accidentData);
+                    request.setAttribute("contract", contractData);
+                    request.setAttribute("claim", claimData);
+                    
+                    if (contractData != null) {
+                        request.setAttribute("nameKanji1", contractData.getNameKanji1());
+                    }
                 } 
                 // B: 証券番号が入力された場合 (新規受付)
                 else if (hasPolNo) {
@@ -98,23 +126,25 @@ public class AccidentController extends HttpServlet {
                         return;
                     }
                     
+                    // 証券番号に紐づく補償情報を取得
+                    Claim claimData = claimDao.getClaim(polNo);
+                    
                     // 新規事故受付番号の発行
                     String newClaimNo = accidentDao.generateNextClaimNo();
                     
                     // 新規受付用の事故データオブジェクトを作成してセット
                     Accident newAccident = new Accident();
                     newAccident.setClaimNo(newClaimNo);
+                    newAccident.setPolNo(polNo);
+
+                    if (claimData != null) {
+                        newAccident.setCoverId(claimData.getCoverId());
+                    }
                     
-                    // 契約情報から coverId と contractorName をセット
-                    newAccident.setCoverId(Integer.parseInt(contractData.getInsatsuRenban()));
-                    
-                    String kanji1 = contractData.getNameKanji1();
-                    String kanji2 = contractData.getNameKanji2();
-                    String contractorName = (kanji1 != null ? kanji1 : "") + (kanji2 != null ? kanji2 : "");
-                    newAccident.setContractorName(contractorName);
-                    
+                    //request.setAttribute("nameKanji1", contractData.getNameKanji1());
                     request.setAttribute("accident", newAccident);
                     request.setAttribute("contract", contractData);
+                    request.setAttribute("claim", claimData);
                 }
 
                 // 詳細画面へフォワード

@@ -53,13 +53,12 @@
           <h1 class="sr-only" id="accident-detail-title">個人契約の事故受付入力</h1>
           <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
-          <!-- ★修正: action先を /accident/submit に統一 -->
           <form class="accounting-workspace" action="${pageContext.request.contextPath}/accident/submit" method="post">
             
-            <!-- ★追加: 完了画面の表示で必要な基本情報をhiddenで保持 -->
             <input type="hidden" name="claimNo" value="${accident.claimNo}" />
             <input type="hidden" name="polNo" value="${accident.polNo}" />
-            <input type="hidden" name="contractorName" value="${accident.contractorName}" />
+            <input type="hidden" name="coverId" value="${accident.coverId}" />
+            <input type="hidden" name="contractorName" value="${contract.nameKanji1} ${contract.nameKanji2}" />
 
             <input
               class="accounting-controller"
@@ -93,8 +92,8 @@
 
                 <dl class="accident-record-summary">
                   <div><dt>事故受付番号</dt><dd>${accident.claimNo}</dd></div>
-                  <div><dt>証券番号</dt><dd>${accident.polNo}</dd></div>
-                  <div><dt>契約者氏名</dt><dd>${accident.contractorName}</dd></div>
+                  <div><dt>証券番号</dt><dd>${contract.polNo}</dd></div>
+                  <div><dt>契約者名</dt><dd>${contract.nameKanji1} ${contract.nameKanji2}</dd></div>
                 </dl>
 
                 <fieldset class="accident-form-section">
@@ -211,7 +210,6 @@
                         <label class="accident-field">
                           <span>車両損害額</span>
                           <span class="accident-affixed-control">
-                            <!-- ★修正: name="vehicleDamageAmount" に統一 -->
                             <input class="accident-input" type="text" name="damageCarPrice" value="${accident.damageCarPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：250000" />
                             <span class="accident-affix">円</span>
                           </span>
@@ -228,7 +226,6 @@
                         <label class="accident-field">
                           <span>対人損害額</span>
                           <span class="accident-affixed-control">
-                            <!-- ★修正: name="bodilyDamageAmount" に統一 -->
                             <input class="accident-input" type="text" name="damageBodilyPrice" value="${accident.damageBodilyPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：100000" />
                             <span class="accident-affix">円</span>
                           </span>
@@ -245,7 +242,6 @@
                         <label class="accident-field">
                           <span>対物損害額</span>
                           <span class="accident-affixed-control">
-                            <!-- ★修正: name="propertyDamageAmount" に統一 -->
                             <input class="accident-input" type="text" name="damagePropertyPrice" value="${accident.damagePropertyPrice}" inputmode="numeric" maxlength="18" pattern="[0-9]{1,18}" placeholder="例：50000" />
                             <span class="accident-affix">円</span>
                           </span>
@@ -275,7 +271,6 @@
                   </div>
                 </fieldset>
 
-                <!-- ★修正: buttonに name="action" と value を付与 -->
                 <div class="accident-panel-actions">
                   <button class="button button--primary" type="submit" formaction="${pageContext.request.contextPath}/accident-update-complete">状況更新</button>
                   <button class="button button--primary" type="submit">事故受付完了</button>
@@ -285,22 +280,22 @@
               <section class="accounting-panel accident-panel--contract">
                 <h2 class="accounting-section-title">契約情報</h2>
                 <dl class="accounting-data-list">
-                  <div class="accounting-data-row"><dt>保険期間</dt><dd>${accident.insurancePeriod}</dd></div>
-                  <div class="accounting-data-row"><dt>証券番号</dt><dd>${accident.polNo}</dd></div>
-                  <div class="accounting-data-row"><dt>印刷連番</dt><dd>${accident.printSeq}</dd></div>
-                  <div class="accounting-data-row"><dt>被保険者区分</dt><dd>${accident.insuredType}</dd></div>
-                  <div class="accounting-data-row"><dt>払込方法</dt><dd>${accident.paymentMethod}</dd></div>
-                  <div class="accounting-data-row"><dt>払込回数</dt><dd>${accident.paymentCount}</dd></div>
-                  <div class="accounting-data-row"><dt>氏名（漢字）</dt><dd>${accident.nameKanji}</dd></div>
-                  <div class="accounting-data-row"><dt>氏名（カナ）</dt><dd>${accident.nameKana}</dd></div>
-                  <div class="accounting-data-row"><dt>性別</dt><dd>${accident.gender}</dd></div>
-                  <div class="accounting-data-row"><dt>生年月日</dt><dd>${accident.birthDate}</dd></div>
-                  <div class="accounting-data-row"><dt>住所（漢字）</dt><dd>${accident.addressKanji}</dd></div>
-                  <div class="accounting-data-row"><dt>住所（カナ）</dt><dd>${accident.addressKana}</dd></div>
-                  <div class="accounting-data-row"><dt>郵便番号</dt><dd>${accident.zipCode}</dd></div>
-                  <div class="accounting-data-row"><dt>電話番号</dt><dd>${accident.tel}</dd></div>
-                  <div class="accounting-data-row"><dt>携帯電話番号</dt><dd>${accident.mobile}</dd></div>
-                  <div class="accounting-data-row"><dt>FAX番号</dt><dd>${accident.fax}</dd></div>
+                  <div class="accounting-data-row"><dt>保険期間</dt><dd>${contract.inceptionDate} ${contract.inceptionTime} ～ ${contract.conclusionDate} ${contract.conclusionTime}</dd></div>
+                  <div class="accounting-data-row"><dt>証券番号</dt><dd>${contract.polNo}</dd></div>
+                  <div class="accounting-data-row"><dt>印刷連番</dt><dd>${contract.insatsuRenban}</dd></div>
+                  <div class="accounting-data-row"><dt>被保険者区分</dt><dd>${contract.insuredStr}</dd></div>
+                  <div class="accounting-data-row"><dt>払込方法</dt><dd>${contract.paymentStr}</dd></div>
+                  <div class="accounting-data-row"><dt>払込回数</dt><dd>${contract.installment}回</dd></div>
+                  <div class="accounting-data-row"><dt>氏名（漢字）</dt><dd>${contract.nameKanji1} ${contract.nameKanji2}</dd></div>
+                  <div class="accounting-data-row"><dt>氏名（カナ）</dt><dd>${contract.nameKana1} ${contract.nameKana2}</dd></div>
+                  <div class="accounting-data-row"><dt>性別</dt><dd>${contract.genderStr}</dd></div>
+                  <div class="accounting-data-row"><dt>生年月日</dt><dd>${contract.birthday}</dd></div>
+                  <div class="accounting-data-row"><dt>住所（漢字）</dt><dd>${contract.addressKanji1} ${contract.addressKanji2}</dd></div>
+                  <div class="accounting-data-row"><dt>住所（カナ）</dt><dd>${contract.addressKana1} ${contract.addressKana2}</dd></div>
+                  <div class="accounting-data-row"><dt>郵便番号</dt><dd>${contract.postcode}</dd></div>
+                  <div class="accounting-data-row"><dt>電話番号</dt><dd>${contract.telephoneNo}</dd></div>
+                  <div class="accounting-data-row"><dt>携帯電話番号</dt><dd>${contract.mobilephoneNo}</dd></div>
+                  <div class="accounting-data-row"><dt>FAX番号</dt><dd>${contract.faxNo}</dd></div>
                 </dl>
                 <div class="accident-panel-actions">
                   <button class="button button--primary" type="submit" formaction="${pageContext.request.contextPath}/accident-update-complete">状況更新</button>
@@ -313,21 +308,21 @@
                   <h2 class="accounting-section-title">自動車保険試算結果</h2>
                   <div class="accounting-premium-summary">
                     <span>総額保険料</span>
-                    <strong>${accident.totalPremium}</strong>
+                    <strong>${claim.premiumAmount}円</strong>
                   </div>
                 </div>
                 <dl class="accounting-data-list accounting-data-list--coverage">
-                  <div class="accounting-data-row"><dt>一回分保険料</dt><dd>${accident.singlePremium}</dd></div>
-                  <div class="accounting-data-row"><dt>メーカー</dt><dd>${accident.carMaker}</dd></div>
-                  <div class="accounting-data-row"><dt>車名</dt><dd>${accident.carName}</dd></div>
-                  <div class="accounting-data-row"><dt>車のナンバー</dt><dd>${accident.carNumber}</dd></div>
-                  <div class="accounting-data-row"><dt>車両保険金額</dt><dd>${accident.carInsurancePrice}</dd></div>
-                  <div class="accounting-data-row"><dt>免許証の色</dt><dd>${accident.licenseColor}</dd></div>
-                  <div class="accounting-data-row"><dt>車両料率</dt><dd>${accident.carRate}</dd></div>
-                  <div class="accounting-data-row"><dt>対人料率</dt><dd>${accident.bodilyRate}</dd></div>
-                  <div class="accounting-data-row"><dt>対物料率</dt><dd>${accident.propertyRate}</dd></div>
-                  <div class="accounting-data-row"><dt>傷害料率</dt><dd>${accident.accidentRate}</dd></div>
-                  <div class="accounting-data-row"><dt>年齢条件</dt><dd>${accident.ageCondition}</dd></div>
+                  <div class="accounting-data-row"><dt>一回分保険料</dt><dd>${claim.premiumInstallment}円</dd></div>
+                  <div class="accounting-data-row"><dt>メーカー</dt><dd>${claim.maker}</dd></div>
+                  <div class="accounting-data-row"><dt>車名</dt><dd>${claim.carName}</dd></div>
+                  <div class="accounting-data-row"><dt>車のナンバー</dt><dd>${claim.licenseNo}</dd></div>
+                  <div class="accounting-data-row"><dt>車両保険金額</dt><dd>${claim.vehiclePrice}円</dd></div>
+                  <div class="accounting-data-row"><dt>免許証の色</dt><dd>${claim.licenseColor}</dd></div>
+                  <div class="accounting-data-row"><dt>車両料率</dt><dd>${claim.vehicleRates}</dd></div>
+                  <div class="accounting-data-row"><dt>対人料率</dt><dd>${claim.bodilyRates}</dd></div>
+                  <div class="accounting-data-row"><dt>対物料率</dt><dd>${claim.propertyDamageRates}</dd></div>
+                  <div class="accounting-data-row"><dt>傷害料率</dt><dd>${claim.accidentRates}</dd></div>
+                  <div class="accounting-data-row"><dt>年齢条件</dt><dd>${claim.ageLimit}歳以上</dd></div>
                 </dl>
                 <div class="accident-panel-actions">
                   <button class="button button--primary" type="submit" name="action" value="updateStatus">状況更新</button>

@@ -310,4 +310,35 @@ public class ContractDao {
         contract.setGenderStr(res.getString("gender_name"));
         return contract;
     }
+
+    /**
+     * 印刷連番をもとに契約情報を取得する
+     */
+    public Contract findContractByInsatsuRenban(String insatsuRenban) throws SQLException {
+        Contract contract = null;
+        String sql = "SELECT * FROM contractinfo_tbl WHERE insatsu_renban = ?";
+
+        try (Connection conn = getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, insatsuRenban);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    contract = new Contract();
+                    contract.setInsatsuRenban(rs.getString("insatsu_renban"));
+                    contract.setPolNo(rs.getString("pol_no"));
+                    contract.setStatusFlg((Integer) rs.getObject("status_flg"));
+                    contract.setCancelFlg(rs.getBoolean("cancel_flg"));
+                    contract.setNameKanji1(rs.getString("name_kanji1"));
+                    contract.setNameKanji2(rs.getString("name_kanji2"));
+                    contract.setPostcode(rs.getString("postcode"));
+                    contract.setAddressKanji1(rs.getString("address_kanji1"));
+                    contract.setAddressKanji2(rs.getString("address_kanji2"));
+                    contract.setTelephoneNo(rs.getString("telephone_no"));
+                }
+            }
+        }
+        return contract;
+    }
 }
