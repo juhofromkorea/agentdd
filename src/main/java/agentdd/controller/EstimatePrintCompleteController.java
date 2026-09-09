@@ -12,6 +12,7 @@ import agentdd.model.data.Claim;
 import agentdd.model.util.PrintSerialNumberCalc;
 import agentdd.model.dao.ContractDao;
 import agentdd.model.dao.ClaimDao;
+import agentdd.model.dao.VehicleDao;
 
 @WebServlet("/estimateprint")
 public class EstimatePrintCompleteController extends HttpServlet{
@@ -35,7 +36,12 @@ public class EstimatePrintCompleteController extends HttpServlet{
             session.setAttribute("calculated", printClaim.getPremiumAmount() > 0);
         }
 
-        request.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(request, response);
+        try {
+            request.setAttribute("vehicles", new VehicleDao().findAll());
+            request.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(request, response);
+        } catch (Exception e) {
+            throw new ServletException("車両マスタ一覧の取得に失敗しました。", e);
+        }
         
         }
 

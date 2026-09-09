@@ -393,6 +393,9 @@
                     <select class="estimate-control" name="carName" id="carNameSelect"
                       onchange="onCarNameChange()" required>
                       <option value="">選択してください</option>
+                      <c:forEach var="vehicle" items="${vehicles}">
+                        <option value="${vehicle.name}" data-maker="${vehicle.maker}">${vehicle.name}</option>
+                      </c:forEach>
                     </select>
                   </label>
 
@@ -611,33 +614,13 @@
   </div>
   <script>
 
-    // --- 1. 車両データベース (Excel画像から抜粋) ---
-    const carDatabase = [
-      { maker: "レクサス", name: "LS" },
-      { maker: "レクサス", name: "GS" },
-      { maker: "レクサス", name: "IS" },
-      { maker: "マツダ", name: "デミオ" },
-      { maker: "マツダ", name: "アクセラ" },
-      { maker: "マツダ", name: "アテンザ" },
-      { maker: "ホンダ", name: "インテグラ" },
-      { maker: "ホンダ", name: "ステップワゴン" },
-      { maker: "ホンダ", name: "アコードハイブリッド" },
-      { maker: "ニッサン", name: "フーガ" },
-      { maker: "ニッサン", name: "マーチ" },
-      { maker: "ニッサン", name: "セレナ" },
-      { maker: "ニッサン", name: "スカイライン" },
-      { maker: "トヨタ", name: "カローラアクシオ" },
-      { maker: "トヨタ", name: "アクア" },
-      { maker: "トヨタ", name: "クラウン" },
-      { maker: "スバル", name: "レガシィ" },
-      { maker: "スバル", name: "WRX", dbName: "ＷＲＸ" },
-      { maker: "スバル", name: "レヴォーグ" },
-      { maker: "スズキ", name: "スイフト" },
-      { maker: "スズキ", name: "キザシ" },
-      { maker: "スズキ", name: "エスクード" },
-      { maker: "三菱", name: "アウトランダーPHEV", dbName: "アウトランダーＰＨＥＶ" },
-      { maker: "三菱", name: "デリカD:5", dbName: "デリカＤ：５" }
-    ];
+    // 車両一覧はControllerがM_CARS_TBLから生成したoptionを利用する。
+    const carDatabase = Array.from(document.querySelectorAll("#carNameSelect option[data-maker]"))
+      .map(option => ({
+        maker: option.dataset.maker,
+        name: option.textContent,
+        dbName: option.value
+      }));
 
     // --- 2. 画面が開いた時の初期設定 ---
     document.addEventListener("DOMContentLoaded", function () {
@@ -667,9 +650,8 @@
         });
       }
 
-      const makerSelect = document.getElementById("makerSelect");
-
       // 重複のないメーカーの一覧を作成して、メーカープルダウンにセット
+      const makerSelect = document.getElementById("makerSelect");
       const uniqueMakers = [...new Set(carDatabase.map(car => car.maker))];
       uniqueMakers.forEach(maker => {
         const option = document.createElement("option");
