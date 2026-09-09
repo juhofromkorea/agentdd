@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.constant.SystemConst;
 import agentdd.model.dao.ConnectionManager;
 import agentdd.model.dao.TempSaveDao;
@@ -238,7 +239,6 @@ public class TempSaveController extends HttpServlet {
                         req.setAttribute(
                                         "message",
                                         "一時保存しました。");
-
                 } catch (SQLException e) {
 
                         if (con != null) {
@@ -250,25 +250,6 @@ public class TempSaveController extends HttpServlet {
                                         ex.printStackTrace();
                                 }
                         }
-
-                        throw new ServletException(e);
-
-                } finally {
-
-                        if (con != null) {
-
-                                try {
-                                        con.close();
-
-                                } catch (SQLException e) {
-                                        e.printStackTrace();
-                                }
-                        }
-                }
-
-                /*
-                 * 9. 新規試算画面JSPにforward
-                 */
                 req.getRequestDispatcher(nextJsp)
                                 .forward(req, resp);
         }
