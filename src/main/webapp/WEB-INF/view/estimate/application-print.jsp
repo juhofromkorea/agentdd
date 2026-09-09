@@ -79,8 +79,6 @@
 
       <main class="app-main print-main">
         <section class="card print-card" aria-labelledby="print-title">
-          <a class="print-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
-
           <div class="print-content">
             <h1 class="print-title" id="print-title">申込書印刷確認</h1>
 
