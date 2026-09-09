@@ -42,9 +42,10 @@ public class AccidentDao {
     public Accident getAccident(String accidentNo) throws SQLException {
         Accident accident = null;
 
-        String sql = "SELECT cl.*, co.name_kanji1, co.name_kanji2 " +
-                    "FROM claim_tbl cl " +
-                    "LEFT JOIN contractinfo_tbl co ON cl.cover_id = co.insatsu_renban " +
+        String sql = "SELECT cl.*, co.pol_no, co.name_kanji1, co.name_kanji2 " +
+                "FROM claim_tbl cl " +
+                "LEFT JOIN cover_tbl cv ON cl.cover_id = cv.cover_id " +
+                "LEFT JOIN contractinfo_tbl co ON cv.insatsu_renban = co.insatsu_renban " +
                     "WHERE cl.claim_no = ?";
 
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -55,6 +56,7 @@ public class AccidentDao {
                     accident = new Accident();
 
                     accident.setClaimNo(rs.getString("claim_no"));
+                    accident.setPolNo(rs.getString("pol_no"));
                     accident.setCoverId(rs.getInt("cover_id"));
                     accident.setClaimStatus(rs.getInt("claim_status"));
                     accident.setPaymentPrice(rs.getLong("payment_price"));
@@ -95,8 +97,9 @@ public class AccidentDao {
      */
     public Accident getAccidentByPolNo(String polNo) throws SQLException {
         Accident accident = null;
-        String sql = "SELECT cl.* FROM claim_tbl cl " +
-                    "JOIN contractinfo_tbl co ON cl.cover_id = co.insatsu_renban " +
+        String sql = "SELECT cl.*, co.pol_no FROM claim_tbl cl " +
+                "JOIN cover_tbl cv ON cl.cover_id = cv.cover_id " +
+                "JOIN contractinfo_tbl co ON cv.insatsu_renban = co.insatsu_renban " +
                     "WHERE co.pol_no = ?";
 
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -109,7 +112,6 @@ public class AccidentDao {
                     accident.setPolNo(rs.getString("pol_no"));
                     accident.setCoverId(rs.getInt("cover_id"));
                     accident.setClaimStatus(rs.getInt("claim_status"));
-                    // 必要に応じて他のフィールドもマッピングしてください
                 }
             }
         }

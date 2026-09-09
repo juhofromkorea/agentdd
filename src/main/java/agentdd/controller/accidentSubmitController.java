@@ -9,17 +9,23 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import agentdd.model.dao.AccidentDao;
+import agentdd.model.dao.ClaimDao;
+import agentdd.model.dao.ContractDao;
 import agentdd.model.data.Accident; 
 
 @WebServlet("/accident/submit")
 public class AccidentSubmitController extends HttpServlet {
 
     private AccidentDao accidentDao;
+    private ContractDao contractDao;
+    private ClaimDao claimDao;
 
     @Override
     public void init() throws ServletException {
         try {
             accidentDao = new AccidentDao();
+            contractDao = new ContractDao();
+            claimDao = new ClaimDao();
         } catch (Exception e) {
             throw new ServletException("DAOの初期化に失敗しました", e);
         }
@@ -53,6 +59,8 @@ public class AccidentSubmitController extends HttpServlet {
             }
 
             if (isInvalidRatio) {
+                request.setAttribute("accident", createAccidentFromRequest(request));
+                restoreRelatedData(request);
                 request.setAttribute("errorMessage", "過失割合の合計が100になるように入力してください。（未定の場合は空欄でも可能です）");
                 request.getRequestDispatcher("/WEB-INF/view/accident/accident-detail.jsp").forward(request, response);
                 return;
@@ -70,8 +78,7 @@ public class AccidentSubmitController extends HttpServlet {
             String claimNo = request.getParameter("claimNo");
             accident.setClaimNo(claimNo);
             accident.setPolNo(request.getParameter("polNo"));
-
-            accident.setCoverId(1);
+            accident.setCoverId(parseInt(request.getParameter("coverId")));
             
             accident.setClaimStatus(claimStatus);
             accident.setPaymentPrice(paymentAmount);
@@ -137,12 +144,55 @@ public class AccidentSubmitController extends HttpServlet {
         return Math.round(totalDamage * faultRatio);
     }
 
+    private Accident createAccidentFromRequest(HttpServletRequest request) {
+        Accident accident = new Accident();
+        accident.setClaimNo(request.getParameter("claimNo"));
+        accident.setPolNo(request.getParameter("polNo"));
+        accident.setCoverId(parseInt(request.getParameter("coverId")));
+        accident.setAccidentLocationKana1(request.getParameter("accidentLocationKana1"));
+        accident.setAccidentLocationKana2(request.getParameter("accidentLocationKana2"));
+        accident.setAccidentLocationKanji1(request.getParameter("accidentLocationKanji1"));
+        accident.setAccidentLocationKanji2(request.getParameter("accidentLocationKanji2"));
+        accident.setAccidentDate(request.getParameter("accidentDate"));
+        accident.setAccidentSituation(request.getParameter("accidentSituation"));
+        accident.setRatingBlameMyself((int) parseLong(request.getParameter("ratingBlameMyself")));
+        accident.setRatingBlameYourself((int) parseLong(request.getParameter("ratingBlameYourself")));
+        accident.setDamageCarPrice(parseLong(request.getParameter("damageCarPrice")));
+        accident.setDamageBodilyPrice(parseLong(request.getParameter("damageBodilyPrice")));
+        accident.setDamagePropertyPrice(parseLong(request.getParameter("damagePropertyPrice")));
+        accident.setDamageAccidentPrice(parseLong(request.getParameter("damageAccidentPrice")));
+        accident.setDamageCarState(request.getParameter("damageCarState"));
+        accident.setDamageBodilyState(request.getParameter("damageBodilyState"));
+        accident.setDamagePropertyState(request.getParameter("damagePropertyState"));
+        accident.setDamageAccidentState(request.getParameter("damageAccidentState"));
+        return accident;
+    }
+
+    private void restoreRelatedData(HttpServletRequest request) throws Exception {
+        String polNo = request.getParameter("polNo");
+        if (polNo == null || polNo.trim().isEmpty()) {
+            return;
+        }
+
+        request.setAttribute("contract", contractDao.getContract(polNo));
+        request.setAttribute("claim", claimDao.getClaim(polNo));
+    }
+
     private long parseLong(String val) {
         if (val == null || val.trim().isEmpty()) return 0L;
         try { 
             return Long.parseLong(val.trim()); 
         } catch (NumberFormatException e) { 
             return 0L; 
+        }
+    }
+
+    private int parseInt(String val) {
+        if (val == null || val.trim().isEmpty()) return 0;
+        try {
+            return Integer.parseInt(val.trim());
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
 }

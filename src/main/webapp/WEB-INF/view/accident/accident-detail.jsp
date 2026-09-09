@@ -57,6 +57,7 @@
             
             <input type="hidden" name="claimNo" value="${accident.claimNo}" />
             <input type="hidden" name="polNo" value="${accident.polNo}" />
+            <input type="hidden" name="coverId" value="${accident.coverId}" />
             <input type="hidden" name="contractorName" value="${contract.nameKanji1} ${contract.nameKanji2}" />
 
             <input

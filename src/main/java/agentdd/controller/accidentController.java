@@ -150,7 +150,7 @@ public class AccidentController extends HttpServlet {
                         newAccident.setCoverId(claimData.getCoverId());
                     }
                     
-                    request.setAttribute("nameKanji1", contractData.getNameKanji1());
+                    //request.setAttribute("nameKanji1", contractData.getNameKanji1());
                     request.setAttribute("accident", newAccident);
                     request.setAttribute("contract", contractData);
                     request.setAttribute("claim", claimData);
