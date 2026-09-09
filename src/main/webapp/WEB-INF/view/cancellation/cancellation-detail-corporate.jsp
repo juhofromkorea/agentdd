@@ -202,7 +202,7 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>免許証の色</dt>
-                    <dd>${claim.licenseColor}</dd>
+                    <dd>${claim.licenseColorStr}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>車両料率</dt>
@@ -222,7 +222,7 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>年齢条件</dt>
-                    <dd>${claim.ageLimit}</dd>
+                    <dd>${claim.ageLimitStr}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>一回分保険料</dt>

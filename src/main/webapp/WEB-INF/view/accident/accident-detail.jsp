@@ -330,7 +330,7 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>免許証の色</dt>
-                    <dd><c:out value='${claim.licenseColor}' /></dd>
+                    <dd><c:out value='${claim.licenseColorStr}' /></dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>車両料率</dt>
@@ -350,7 +350,7 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>年齢条件</dt>
-                    <dd><c:out value='${claim.ageLimit}' />歳以上</dd>
+                    <dd><c:out value='${claim.ageLimitStr}' /></dd>
                   </div>
                 </dl>
                 <div class="accident-panel-actions">

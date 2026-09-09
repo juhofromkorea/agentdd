@@ -16,6 +16,8 @@ public class Claim {
     private Integer accidentRates;
     private Integer licenseColor;
     private Integer ageLimit;
+    private String licenceColorStr;
+    private String ageLimitStr;
 
     public Integer getCoverId() {
         return coverId;
@@ -37,7 +39,7 @@ public class Claim {
         return premiumAmount;
     }
 
-    public void setPremiumAmount (Integer premiumAmount) {
+    public void setPremiumAmount(Integer premiumAmount) {
         this.premiumAmount = premiumAmount;
     }
 
@@ -45,7 +47,7 @@ public class Claim {
         return premiumInstallment;
     }
 
-    public void setPremiumInstallment (Integer premiumInstallment) {
+    public void setPremiumInstallment(Integer premiumInstallment) {
         this.premiumInstallment = premiumInstallment;
     }
 
@@ -77,7 +79,7 @@ public class Claim {
         return vehiclePrice;
     }
 
-    public void setVehiclePrice (Integer vehiclePrice) {
+    public void setVehiclePrice(Integer vehiclePrice) {
         this.vehiclePrice = vehiclePrice;
     }
 
@@ -129,4 +131,19 @@ public class Claim {
         this.ageLimit = ageLimit;
     }
 
+    public String getLicenseColorStr() {
+        return licenseColorStr;
+    }
+
+    public void setLicenseColorStr(String licenseColorStr) {
+        this.licenseColorStr = licenseColorStr;
+    }
+
+    public String getAgeLimitStr() {
+        return ageLimitStr;
+    }
+
+    public void setAgeLimitStr(String ageLimitStr) {
+        this.ageLimitStr = ageLimitStr;
+    }
 }

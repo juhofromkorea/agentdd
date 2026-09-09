@@ -17,7 +17,15 @@ public class ClaimDao {
     }
 
     public Claim getClaimForAccount(String insatsuRenban) throws SQLException {
-        String sql = "SELECT * FROM COVER_TBL WHERE insatsu_renban = ?";
+        String sql = "SELECT cv.*, "
+                + "lc.name AS license_color_name, "
+                + "al.name AS age_limit_name "
+                + "FROM COVER_TBL cv "
+                + "LEFT JOIN m_license_color_tbl lc "
+                + "ON cv.license_color = lc.id "
+                + "LEFT JOIN m_age_limit_tbl al "
+                + "ON cv.age_limit = al.id "
+                + "WHERE cv.insatsu_renban = ?";
 
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, insatsuRenban);
@@ -33,11 +41,17 @@ public class ClaimDao {
 
     public Claim getClaim(String polNo) throws SQLException {
 
-        String sql = "SELECT COVER_TBL.* "
-                + "FROM COVER_TBL "
-                + "INNER JOIN CONTRACTINFO_TBL "
-                + "ON COVER_TBL.insatsu_renban = CONTRACTINFO_TBL.insatsu_renban "
-                + "WHERE CONTRACTINFO_TBL.pol_no = ?";
+        String sql = "SELECT cv.*, "
+                + "lc.name AS license_color_name, "
+                + "al.name AS age_limit_name "
+                + "FROM COVER_TBL cv "
+                + "INNER JOIN CONTRACTINFO_TBL co "
+                + "ON cv.insatsu_renban = co.insatsu_renban "
+                + "LEFT JOIN m_license_color_tbl lc "
+                + "ON cv.license_color = lc.id "
+                + "LEFT JOIN m_age_limit_tbl al "
+                + "ON cv.age_limit = al.id "
+                + "WHERE co.pol_no = ?";
 
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, polNo);
@@ -96,6 +110,10 @@ public class ClaimDao {
         claim.setAccidentRates(res.getObject("accident_rates", Integer.class));
         claim.setLicenseColor(res.getObject("license_color", Integer.class));
         claim.setAgeLimit(res.getObject("age_limit", Integer.class));
+
+        // マスタから取得した表示用名称
+        claim.setLicenseColorStr(res.getString("license_color_name"));
+        claim.setAgeLimitStr(res.getString("age_limit_name"));
 
         return claim;
     }
