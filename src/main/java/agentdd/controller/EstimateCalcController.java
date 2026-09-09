@@ -22,28 +22,33 @@ import agentdd.model.dao.RatesDao;
 public class EstimateCalcController extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(
+            HttpServletRequest request,
+            HttpServletResponse response)
             throws ServletException, IOException {
+
         try (Connection con = ConnectionManager.getConnection()) {
-            con.setAutoCommit(false);
-            try {
-                request.setAttribute("vehicles", new VehicleDao(con).findAll());
-                con.commit();
-            } catch (SQLException | RuntimeException e) {
-                try {
-                    con.rollback();
-                } catch (SQLException rollbackError) {
-                    e.addSuppressed(rollbackError);
-                }
-                throw e;
-            }
-        } catch (Exception e) {
-            getServletContext().log("DB更新に失敗しました。", e);
-            RequestDispatcher rd = request.getRequestDispatcher(
-                    "/WEB-INF/view/estimate/estimate.jsp");
-            rd.forward(request, response);
+            VehicleDao vehicleDao = new VehicleDao(con);
+            request.setAttribute("vehicles", vehicleDao.findAll());
+
+        } catch (SQLException e) {
+            getServletContext().log(
+                    "新規試算画面の車両マスタ取得に失敗しました。", e);
+
+            request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
+            request.setAttribute("errorBackUrl", "/top");
+            request.setAttribute("errorBackLabel", "トップへ戻る");
+
+            request.getRequestDispatcher(
+                    "/WEB-INF/view/error/error.jsp")
+                    .forward(request, response);
+            return;
         }
 
+        // 正常に取得できた場合、ここで画面を表示する
+        request.getRequestDispatcher(
+                "/WEB-INF/view/estimate/estimate.jsp")
+                .forward(request, response);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -155,9 +160,9 @@ public class EstimateCalcController extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
-            request.setAttribute("errorBackUrl", "/estimate");
+            request.setAttribute("errorBackUrl", "/estimatecalc");
             request.setAttribute("errorBackLabel", "試算画面へ戻る");
-            request.getRequestDispatcher("/WEB-INF/view/error/Error.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/view/error/error.jsp").forward(request, response);
         }
     }
 

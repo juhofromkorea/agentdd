@@ -94,9 +94,8 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>被保険者区分</dt>
-                    <dd>${contract.insuredKbn}</dd>
+                    <dd>${contract.insuredStr}</dd>
                   </div>
-
                   <div class="accounting-data-row">
                     <dt>姓（漢字）</dt>
                     <dd>${contract.nameKanji1}</dd>
@@ -115,13 +114,12 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>性別</dt>
-                    <dd>${contract.gender}</dd>
+                    <dd>${contract.genderStr}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>生年月日</dt>
                     <dd>${contract.birthday}</dd>
                   </div>
-
                   <div class="accounting-data-row">
                     <dt>郵便番号</dt>
                     <dd>${contract.postcode}</dd>
@@ -172,7 +170,7 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>払込方法</dt>
-                    <dd>${contract.paymentMethod}</dd>
+                    <dd>${contract.paymentStr}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>払込回数</dt>

@@ -98,11 +98,11 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>契約状態</dt>
-                    <dd>${contract.statusFlg}</dd>
+                    <dd>${contract.statusStr}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>被保険者区分</dt>
-                    <dd>${contract.insuredKbn}</dd>
+                    <dd>${contract.insuredStr}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>会社名（漢字）</dt>
@@ -162,7 +162,7 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>払込方法</dt>
-                    <dd>${contract.paymentMethod}</dd>
+                    <dd>${contract.paymentStr}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>払込回数</dt>
