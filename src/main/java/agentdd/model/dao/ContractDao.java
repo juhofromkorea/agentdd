@@ -138,7 +138,7 @@ public class ContractDao {
     public void setCancel(String insatsuRenban) throws SQLException {
         
         String sql = "UPDATE CONTRACTINFO_TBL "
-                + "SET status_flg = 0, cancel_flg b'1' "
+                + "SET status_flg = 0, cancel_flg = b'1' "
                 + "WHERE insatsu_renban = ? "
                 + "AND status_flg = 9 "
                 + "AND cancel_flg = b'0'";

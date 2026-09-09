@@ -70,7 +70,7 @@
                 <input
                   class="accounting-control"
                   type="text"
-                  name="print-sequence"
+                  name="insatsuRenban"
                   inputmode="text"
                   placeholder="例：A1111111"
                   pattern="[A-Za-z][0-9]{7}"

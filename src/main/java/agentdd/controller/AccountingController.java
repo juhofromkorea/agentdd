@@ -54,7 +54,7 @@ public class AccountingController extends HttpServlet {
             if (contract == null) {
 
                 request.setAttribute(
-                        "errorMessage",
+                        "error",
                         "該当する契約情報がありません。");
 
                 request.getRequestDispatcher(
@@ -102,7 +102,7 @@ public class AccountingController extends HttpServlet {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            request.setAttribute("errMsg", ErrorMsgConst.UNEXPECTED_ERROR);
+            request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
             request.getRequestDispatcher(
                     "/WEB-INF/view/error/error.jsp").forward(request, response);
 
