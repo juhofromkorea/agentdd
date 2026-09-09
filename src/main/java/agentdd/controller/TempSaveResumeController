@@ -3,7 +3,7 @@ package agentdd.controller;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-
+import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.dao.ConnectionManager;
 import agentdd.model.dao.TempSaveDao;
 import agentdd.model.data.Claim;
@@ -32,18 +32,8 @@ public class TempSaveResumeController extends HttpServlet {
 
         // 2. セッションからログインユーザーIDを取得
         HttpSession session = req.getSession(false);
-
-        if (session == null) {
-            throw new ServletException(
-                    "ログインユーザー情報を取得できません。");
-        }
-
         String userId = (String) session.getAttribute("userId");
-
-        if (userId == null) {
-            throw new ServletException(
-                    "ログインユーザーIDを取得できません。");
-        }
+         
 
         try (Connection con = ConnectionManager.getConnection()) {
 
@@ -51,7 +41,7 @@ public class TempSaveResumeController extends HttpServlet {
 
             // 3. 一時保存情報を取得
             TempSave tempSave =
-                    tempSaveDao.select(saveNo, userId);
+                    tempSaveDao.select(tempSaveId, userId);
 
             if (tempSave == null) {
                 throw new ServletException(
@@ -66,14 +56,17 @@ public class TempSaveResumeController extends HttpServlet {
             req.setAttribute("contract", contract);
             req.setAttribute("claim", claim);
 
-            // 5. 新規試算画面JSPへforward
+            // 5. 新規a試算画面JSPへforward
             req.getRequestDispatcher(
-                    "/WEB-INF/view/NewEstimatePage.jsp")
+                    "/WEB-INF/view/Estimate.jsp")
                     .forward(req, resp);
 
         } catch (SQLException e) {
-            throw new ServletException(
-                    "一時保存情報の取得に失敗しました。", e);
-        }
+            e.printStackTrace();
+            req.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
+            req.getRequestDispatcher(
+                    "/WEB-INF/view/Error.jsp");
+                    .forward(req, resp);
+                }
     }
 }

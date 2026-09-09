@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.constant.SystemConst;
 import agentdd.model.dao.ConnectionManager;
 import agentdd.model.dao.TempSaveDao;
@@ -171,12 +172,6 @@ public class TempSaveController extends HttpServlet {
             HttpSession session =
                     req.getSession(false);
 
-            if (session == null
-                    || session.getAttribute("userId") == null) {
-
-                throw new ServletException(
-                        "ログインユーザーIDを取得できません。");
-            }
 
             String userId =
                     (String) session.getAttribute("userId");
@@ -204,10 +199,13 @@ public class TempSaveController extends HttpServlet {
              * 6. 上限件数チェック
              */
             if (count >= TEMP_SAVE_LIMIT) {
+            
+                // トランザクションを取り消す
+                con.rollback();
 
                 req.setAttribute(
                         "errorMessage",
-                        "一時保存できる件数は5件までです。");
+                        "途中保存件数が上限に達しています。");
 
                 req.getRequestDispatcher(nextJsp)
                         .forward(req, resp);
@@ -261,9 +259,17 @@ public class TempSaveController extends HttpServlet {
                     ex.printStackTrace();
                 }
             }
+                    e.printStackTrace();
 
-            throw new ServletException(e);
+                        req.setAttribute(
+                        "error",
+                        ErrorMsgConst.SYSTEM_ERROR);
 
+                        req.getRequestDispatcher(
+                        "/WEB-INF/view/Error.jsp")
+                        .forward(req, resp);
+
+                return;
         } finally {
 
             if (con != null) {

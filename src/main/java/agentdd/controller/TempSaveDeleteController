@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.dao.ConnectionManager;
 import agentdd.model.dao.TempSaveDao;
 import agentdd.model.data.TempSave;
@@ -31,18 +32,7 @@ public class TempSaveDeleteController extends HttpServlet {
 
         // 2. セッションからログインユーザーIDを取得
         HttpSession session = req.getSession(false);
-
-        if (session == null) {
-            throw new ServletException(
-                    "セッションを取得できません。");
-        }
-
         String userId = (String) session.getAttribute("userId");
-
-        if (userId == null) {
-            throw new ServletException(
-                    "ログインユーザーIDを取得できません。");
-        }
 
         try (Connection con = ConnectionManager.getConnection()) {
 
@@ -63,13 +53,15 @@ public class TempSaveDeleteController extends HttpServlet {
 
             // 6. 新規試算画面JSPへforward
             req.getRequestDispatcher(
-                    "/WEB-INF/view/CustomerFormPage.jsp")
+                    "/WEB-INF/view/Estimate.jsp")
                     .forward(req, resp);
 
         } catch (SQLException e) {
-            throw new ServletException(
-                    "一時保存情報の削除に失敗しました。",
-                    e);
+            e.printStackTrace();
+            req.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
+            req.getRequestDispatcher(
+                    "/WEB-INF/view/Error.jsp");
+                    .forward(req, resp);
         }
     }
 }
