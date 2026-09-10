@@ -49,7 +49,8 @@
   transition: transform 180ms ease;
 }
 
-.theme-controller:checked + .app-shell .theme-switch__thumb {
+.theme-controller:checked + .app-shell .theme-switch__thumb,
+html.dark-mode .app-shell .theme-switch__thumb {
   transform: translateX(22px);
 }
 

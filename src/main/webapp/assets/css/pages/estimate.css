@@ -615,7 +615,9 @@
   color: #ffffff;
 }
 
-.theme-controller:checked + .app-shell .estimate-tab__count {
+.theme-controller:checked + .app-shell .estimate-tab__count,
+html.dark-mode .app-shell
+.accounting-error-space {
   color: #17202a;
   background: #ff9f2f;
   box-shadow: 0 1px 4px rgb(255 159 47 / 30%);

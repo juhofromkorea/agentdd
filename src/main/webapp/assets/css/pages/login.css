@@ -47,7 +47,9 @@
   text-align: left;
 }
 
-.theme-controller:checked + .app-shell .login-form__error-space {
+.theme-controller:checked + .app-shell .login-form__error-space,
+html.dark-mode .app-shell
+.accounting-error-space {
   color: #ff8a8a;
 }
 

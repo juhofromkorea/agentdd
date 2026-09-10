@@ -32,7 +32,8 @@
   --space-7: 48px;
 }
 
-.theme-controller:checked + .app-shell {
+.theme-controller:checked + .app-shell,
+html.dark-mode .app-shell {
   color-scheme: dark;
 
   --color-page: #0d1b2a;

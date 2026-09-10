@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/layout.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/components.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/error.css" />
+    <script src="${pageContext.request.contextPath}/assets/js/theme.js"></script>
   </head>
   <body>
     <input

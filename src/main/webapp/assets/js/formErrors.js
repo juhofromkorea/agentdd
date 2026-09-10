@@ -30,7 +30,7 @@
                 const slot = document.createElement('span');
                 slot.className = 'field-error'; slot.id = 'field-error-' + (++sequence);
                 slot.hidden = true; slot.setAttribute('aria-live', 'polite');
-                const holder = el.closest('.form-field, .accident-affixed-control');
+                const holder = el.closest('.form-field, .accident-affixed-control, .accounting-start-field, .estimate-field');
                 (holder || el).insertAdjacentElement('afterend', slot);
                 const described = new Set((el.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean));
                 described.add(slot.id); el.setAttribute('aria-describedby', [...described].join(' '));

@@ -101,7 +101,9 @@
   line-height: 1.5;
 }
 
-.theme-controller:checked + .app-shell .accounting-error-space {
+.theme-controller:checked + .app-shell .accounting-error-space,
+html.dark-mode .app-shell
+.accounting-error-space {
   color: #ff8a8a;
 }
 

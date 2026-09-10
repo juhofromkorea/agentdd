@@ -19,6 +19,7 @@
     <script defer src="${pageContext.request.contextPath}/assets/js/dataCheck.js"></script>
     <script defer src="${pageContext.request.contextPath}/assets/js/formErrors.js"></script>
     <script defer src="${pageContext.request.contextPath}/assets/js/inputValidation.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/theme.js"></script>
   </head>
 
   <body>

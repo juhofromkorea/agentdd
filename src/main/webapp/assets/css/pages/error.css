@@ -13,7 +13,9 @@
   padding: 48px 32px;
 }
 
-.theme-controller:checked + .app-shell .error-card {
+.theme-controller:checked + .app-shell .error-card,
+html.dark-mode .app-shell
+.accounting-error-space {
   --color-error-message: #ff8585;
 }
 

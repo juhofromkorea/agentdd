@@ -12,34 +12,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/layout.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/components.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/application-print.css" />
-    <script>
-    // 1. ページが描画される瞬間にテーマを適用（画面のちらつきを防止）
-    if (localStorage.getItem("appTheme") === "dark") {
-        document.documentElement.classList.add("dark-mode");
-    }
-
-    // 2. ページ読み込み完了後にトグルスイッチの同期とイベントを設定
-    document.addEventListener("DOMContentLoaded", function() {
-        const toggle = document.getElementById("theme-toggle");
-        if (!toggle) return;
-
-        // 保存されている設定に合わせてスイッチのチェック状態を同期
-        if (localStorage.getItem("appTheme") === "dark") {
-            toggle.checked = true;
-        }
-
-        // スイッチが切り替わったときに保存とクラスの付け外しを行う
-        toggle.addEventListener("change", function() {
-            if (toggle.checked) {
-                document.documentElement.classList.add("dark-mode");
-                localStorage.setItem("appTheme", "dark");
-            } else {
-                document.documentElement.classList.remove("dark-mode");
-                localStorage.setItem("appTheme", "light");
-            }
-        });
-    });
-    </script>
+    <script src="${pageContext.request.contextPath}/assets/js/theme.js"></script>
   </head>
 
   <body>
