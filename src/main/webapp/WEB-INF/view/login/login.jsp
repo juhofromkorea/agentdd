@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!doctype html>
 <html lang="ja">
   <head>
@@ -12,6 +13,10 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/layout.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/components.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/login.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/validation.css" />
+    <script defer src="${pageContext.request.contextPath}/assets/js/dataCheck.js"></script>
+    <script defer src="${pageContext.request.contextPath}/assets/js/formErrors.js"></script>
+    <script defer src="${pageContext.request.contextPath}/assets/js/loginCheck.js"></script>
   </head>
   <body>
     <!-- CSSだけでテーマを切り替えるため、チェックボックスを画面全体より前に置く -->
@@ -71,7 +76,7 @@
             AGENT D.D
           </h1>
 
-          <form class="login-form" action="${pageContext.request.contextPath}/login" method="post">
+          <form id="login-form" data-validation="login" class="login-form" action="${pageContext.request.contextPath}/login" method="post">
             <label class="sr-only" for="login-id">ID</label>
             <div class="form-field">
               <svg
@@ -124,7 +129,7 @@
 
             <p
               class="login-form__error-space"
-              id="login-error-message"
+              ${empty requestScope.error ? 'hidden' : ''}
               aria-live="polite"
             >
               <c:out value="${requestScope.error}" />
@@ -140,6 +145,8 @@
             </div>
           </form>
         </section>
+        <c:set var="validationFormId" value="login-form" />
+        <%@ include file="../template/validation-errors.jspf" %>
       </main>
     </div>
   </body>

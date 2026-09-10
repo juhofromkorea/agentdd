@@ -15,34 +15,11 @@
   <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/layout.css" />
   <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/components.css" />
   <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/estimate.css" />
-
-  <script>
-    // 画面が描画される前に最速で判定してクラスをつける！
-    if (localStorage.getItem("appTheme") === "dark") {
-      document.documentElement.classList.add("dark-mode"); // ※あなたのクラス名に合わせてね
-    }
-    // 2. ページ読み込み完了後にトグルスイッチの同期とイベントを設定
-    document.addEventListener("DOMContentLoaded", function () {
-      const toggle = document.getElementById("theme-toggle");
-      if (!toggle) return;
-
-      // 保存されている設定に合わせてスイッチのチェック状態を同期
-      if (localStorage.getItem("appTheme") === "dark") {
-        toggle.checked = true;
-      }
-
-      // スイッチが切り替わったときに保存とクラスの付け外しを行う
-      toggle.addEventListener("change", function () {
-        if (toggle.checked) {
-          document.documentElement.classList.add("dark-mode");
-          localStorage.setItem("appTheme", "dark");
-        } else {
-          document.documentElement.classList.remove("dark-mode");
-          localStorage.setItem("appTheme", "light");
-        }
-      });
-    });
-  </script>
+  <script src="${pageContext.request.contextPath}/assets/js/theme.js"></script>
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/validation.css" />
+  <script defer src="${pageContext.request.contextPath}/assets/js/dataCheck.js"></script>
+  <script defer src="${pageContext.request.contextPath}/assets/js/formErrors.js"></script>
+  <script defer src="${pageContext.request.contextPath}/assets/js/estimate.js"></script>
 </head>
 
 <body>
@@ -111,7 +88,7 @@
 
           <div class="estimate-panels">
             <section class="estimate-panel estimate-panel--contract">
-              <form class="estimate-form" action="#" method="get">
+              <div class="estimate-form">
                 <fieldset class="estimate-section">
                   <legend>お客様情報</legend>
 
@@ -143,22 +120,22 @@
                     <label class="estimate-field estimate-field--personal">
                       <span class="estimate-field__label">姓（漢字）</span>
                       <input class="estimate-control" type="text" name="nameKanji1"
-                        value="${contract.nameKanji1}" form="coverage-form" placeholder="例：東京" />
+                        value="${fn:escapeXml(contract.nameKanji1)}" form="coverage-form" placeholder="例：東京" />
                     </label>
                     <label class="estimate-field estimate-field--personal">
                       <span class="estimate-field__label">名（漢字）</span>
                       <input class="estimate-control" type="text" name="nameKanji2"
-                        value="${contract.nameKanji2}" form="coverage-form" placeholder="例：太郎" />
+                        value="${fn:escapeXml(contract.nameKanji2)}" form="coverage-form" placeholder="例：太郎" />
                     </label>
 
                     <label class="estimate-field estimate-field--personal">
                       <span class="estimate-field__label">姓（カナ）</span>
-                      <input class="estimate-control" type="text" name="nameKana1" value="${contract.nameKana1}"
+                      <input class="estimate-control" type="text" name="nameKana1" value="${fn:escapeXml(contract.nameKana1)}"
                         form="coverage-form" placeholder="例：トウキョウ" />
                     </label>
                     <label class="estimate-field estimate-field--personal">
                       <span class="estimate-field__label">名（カナ）</span>
-                      <input class="estimate-control" type="text" name="nameKana2" value="${contract.nameKana2}"
+                      <input class="estimate-control" type="text" name="nameKana2" value="${fn:escapeXml(contract.nameKana2)}"
                         form="coverage-form" placeholder="例：タロウ" />
                     </label>
 
@@ -184,8 +161,8 @@
                     <label class="estimate-field estimate-field--personal">
                       <span class="estimate-field__label">生年月日</span>
                       <input class="estimate-control" type="date" name="birthday" form="coverage-form" <c:if
-                        test="${not empty contract.birthday and fn:length(contract.birthday) == 8}">value="${fn:substring(contract.birthday,
-                      0, 4)}-${fn:substring(contract.birthday, 4, 6)}-${fn:substring(contract.birthday, 6, 8)}"
+                        test="${not empty contract.birthday and fn:length(contract.birthday) == 8}">value="${fn:escapeXml(fn:substring(contract.birthday,
+                      0, 4))}-${fn:escapeXml(fn:substring(contract.birthday, 4, 6))}-${fn:escapeXml(fn:substring(contract.birthday, 6, 8))}"
                       </c:if>
                       />
                     </label>
@@ -193,67 +170,67 @@
                     <label class="estimate-field estimate-field--corporation">
                       <span class="estimate-field__label">会社名（漢字）</span>
                       <input class="estimate-control" type="text" name="nameKanji1"
-                        value="${contract.nameKanji1}" form="coverage-form" placeholder="例：株式会社サンプル商事" />
+                        value="${fn:escapeXml(contract.nameKanji1)}" form="coverage-form" placeholder="例：株式会社サンプル商事" />
                     </label>
                     <label class="estimate-field estimate-field--corporation">
                       <span class="estimate-field__label">会社名（カナ）</span>
-                      <input class="estimate-control" type="text" name="nameKana1" value="${contract.nameKana1}"
+                      <input class="estimate-control" type="text" name="nameKana1" value="${fn:escapeXml(contract.nameKana1)}"
                         form="coverage-form" placeholder="例：カブシキガイシャサンプルショウジ" />
                     </label>
 
                     <label class="estimate-field estimate-field--wide">
                       <span class="estimate-field__label">郵便番号</span>
                       <input class="estimate-control estimate-control--half" type="text" name="postcode"
-                        value="${contract.postcode}" form="coverage-form" inputmode="numeric"
+                        value="${fn:escapeXml(contract.postcode)}" form="coverage-form" inputmode="numeric"
                         placeholder="例：111-1111" />
                     </label>
 
                     <label class="estimate-field">
                       <span class="estimate-field__label">住所1（漢字）</span>
                       <input class="estimate-control" type="text" name="addressKanji1"
-                        value="${contract.addressKanji1}" form="coverage-form" placeholder="例：東京都多摩市" />
+                        value="${fn:escapeXml(contract.addressKanji1)}" form="coverage-form" placeholder="例：東京都多摩市" />
                     </label>
                     <label class="estimate-field">
                       <span class="estimate-field__label">住所2（漢字）</span>
                       <input class="estimate-control" type="text" name="addressKanji2"
-                        value="${contract.addressKanji2}" form="coverage-form" placeholder="例：1-1-1" />
+                        value="${fn:escapeXml(contract.addressKanji2)}" form="coverage-form" placeholder="例：1-1-1" />
                     </label>
 
                     <label class="estimate-field">
                       <span class="estimate-field__label">住所1（カタカナ）</span>
                       <input class="estimate-control" type="text" name="addressKana1"
-                        value="${contract.addressKana1}" form="coverage-form" placeholder="例：トウキョウトタマシ" />
+                        value="${fn:escapeXml(contract.addressKana1)}" form="coverage-form" placeholder="例：トウキョウトタマシ" />
                     </label>
                     <label class="estimate-field">
                       <span class="estimate-field__label">住所2（カタカナ）</span>
                       <input class="estimate-control" type="text" name="addressKana2"
-                        value="${contract.addressKana2}" form="coverage-form" placeholder="例：1-1-1" />
+                        value="${fn:escapeXml(contract.addressKana2)}" form="coverage-form" placeholder="例：1-1-1" />
                     </label>
 
                     <label class="estimate-field">
                       <span class="estimate-field__label">電話番号</span>
                       <input class="estimate-control" type="tel" name="telephoneNo"
-                        value="${contract.telephoneNo}" form="coverage-form" placeholder="例：00-0000-0000" />
+                        value="${fn:escapeXml(contract.telephoneNo)}" form="coverage-form" placeholder="例：00-0000-0000" />
                     </label>
                     <label class="estimate-field">
                       <span class="estimate-field__label">携帯電話番号</span>
                       <input class="estimate-control" type="tel" name="mobilephoneNo"
-                        value="${contract.mobilephoneNo}" form="coverage-form" placeholder="例：000-0000-0000" />
+                        value="${fn:escapeXml(contract.mobilephoneNo)}" form="coverage-form" placeholder="例：000-0000-0000" />
                     </label>
 
                     <label class="estimate-field estimate-field--wide">
                       <span class="estimate-field__label">FAX番号</span>
                       <input class="estimate-control estimate-control--half" type="tel" name="faxNo"
-                        value="${contract.faxNo}" form="coverage-form" placeholder="例：00-0000-0000" />
+                        value="${fn:escapeXml(contract.faxNo)}" form="coverage-form" placeholder="例：00-0000-0000" />
                     </label>
 
                     <label class="estimate-field">
                       <span class="estimate-field__label">保険期間開始日</span>
                       <input class="estimate-control" type="date" name="inceptionDate" form="coverage-form"
                         <c:if
-                        test="${not empty contract.inceptionDate and fn:length(contract.inceptionDate) == 8}">value="${fn:substring(contract.inceptionDate,
-                      0, 4)}-${fn:substring(contract.inceptionDate, 4,
-                      6)}-${fn:substring(contract.inceptionDate, 6, 8)}"</c:if>
+                        test="${not empty contract.inceptionDate and fn:length(contract.inceptionDate) == 8}">value="${fn:escapeXml(fn:substring(contract.inceptionDate,
+                        0, 4))}-${fn:escapeXml(fn:substring(contract.inceptionDate, 4,
+                        6))}-${fn:escapeXml(fn:substring(contract.inceptionDate, 6, 8))}"</c:if>
                       />
                     </label>
 
@@ -278,9 +255,9 @@
                       <span class="estimate-field__label">保険期間満期日</span>
                       <input class="estimate-control" type="date" name="conclusionDate" form="coverage-form"
                         <c:if
-                        test="${not empty contract.conclusionDate and fn:length(contract.conclusionDate) == 8}">value="${fn:substring(contract.conclusionDate,
-                      0, 4)}-${fn:substring(contract.conclusionDate, 4,
-                      6)}-${fn:substring(contract.conclusionDate, 6, 8)}"</c:if>
+                        test="${not empty contract.conclusionDate and fn:length(contract.conclusionDate) == 8}">value="${fn:escapeXml(fn:substring(contract.conclusionDate,
+                        0, 4))}-${fn:escapeXml(fn:substring(contract.conclusionDate, 4,
+                        6))}-${fn:escapeXml(fn:substring(contract.conclusionDate, 6, 8))}"</c:if>
                       />
                     </label>
 
@@ -345,11 +322,11 @@
                     </button>
                   </div>
                 </div>
-              </form>
+              </div>
             </section>
 
             <section class="estimate-panel estimate-panel--coverage">
-              <form id="coverage-form" class="estimate-form"
+              <form id="coverage-form" data-validation="estimate" data-calculated="${calculated eq true}" class="estimate-form"
                 action="${pageContext.request.contextPath}/estimatecalc" method="post">
                 <fieldset class="estimate-section">
                   <legend>試算結果</legend>
@@ -381,7 +358,7 @@
                   <!-- メーカーの入力欄をプルダウンに変更 -->
                   <label class="estimate-field">
                     <span class="estimate-field__label">メーカー</span>
-                    <select class="estimate-control" name="maker" id="makerSelect" onchange="onMakerChange()"
+                    <select class="estimate-control" name="maker" id="makerSelect" data-initial="${fn:escapeXml(claim.maker)}"
                       required>
                       <option value="">選択してください</option>
                     </select>
@@ -391,10 +368,10 @@
                   <label class="estimate-field">
                     <span class="estimate-field__label">車名</span>
                     <select class="estimate-control" name="carName" id="carNameSelect"
-                      onchange="onCarNameChange()" required>
+                      data-initial="${fn:escapeXml(claim.carName)}" required>
                       <option value="">選択してください</option>
                       <c:forEach var="vehicle" items="${vehicles}">
-                        <option value="${vehicle.name}" data-maker="${vehicle.maker}">${vehicle.name}</option>
+                        <option value="${fn:escapeXml(vehicle.name)}" data-maker="${fn:escapeXml(vehicle.maker)}"><c:out value="${vehicle.name}" /></option>
                       </c:forEach>
                     </select>
                   </label>
@@ -402,14 +379,14 @@
 
                   <label class="estimate-field">
                     <span class="estimate-field__label">車のナンバー</span>
-                    <input class="estimate-control" type="text" name="licenseNo" value="${claim.licenseNo}"
+                    <input class="estimate-control" type="text" name="licenseNo" value="${fn:escapeXml(claim.licenseNo)}"
                       required placeholder="例：品川300あ00-0000" />
                   </label>
 
                   <label class="estimate-field">
                     <span class="estimate-field__label">免許証の色</span>
                     <select class="estimate-control" name="licenseColor" required>
-                      <option value="" <c:if test="${not calculated}">selected</c:if> disabled>例：ブルー</option>
+                      <option value="" <c:if test="${empty claim.licenseColor or claim.licenseColor == 0}">selected</c:if> disabled>例：ブルー</option>
                       <option value="1" <c:if test="${claim.licenseColor == '1'}">selected</c:if>>ブルー</option>
                       <option value="2" <c:if test="${claim.licenseColor == '2'}">selected</c:if>>グリーン</option>
                       <option value="3" <c:if test="${claim.licenseColor == '3'}">selected</c:if>>ゴールド</option>
@@ -543,7 +520,7 @@
                               </form>
                               <form action="${pageContext.request.contextPath}/tempSaveDelete"
                                 method="post"
-                                onsubmit="return confirm('本当に削除してもよろしいですか？');">
+                                data-confirm-delete>
                                 <input type="hidden" name="tempSaveId"
                                   value="${tempSave.tempSaveId}" />
                                 <button class="button estimate-row-button estimate-row-button--delete"
@@ -561,138 +538,9 @@
           </div>
         </div>
       </section>
+      <c:set var="validationFormId" value="coverage-form" />
+      <%@ include file="../template/validation-errors.jspf" %>
     </main>
   </div>
-  <script>
-
-    // 車両一覧はControllerがM_CARS_TBLから生成したoptionを利用する。
-    const carDatabase = Array.from(document.querySelectorAll("#carNameSelect option[data-maker]"))
-      .map(option => ({
-        maker: option.dataset.maker,
-        name: option.textContent,
-        dbName: option.value
-      }));
-
-    // --- 2. 画面が開いた時の初期設定 ---
-    document.addEventListener("DOMContentLoaded", function () {
-
-      // ----------------------------------------
-      // 【A】ダークモードのスイッチ連動処理
-      // ----------------------------------------
-      const themeToggle = document.getElementById("theme-toggle");
-
-      // すでに<head>のスクリプトでダークモードになっている場合、スイッチの見た目だけを合わせる
-      if (localStorage.getItem("appTheme") === "dark") {
-        if (themeToggle) {
-          themeToggle.checked = true;
-        }
-      }
-
-      // スイッチを切り替えた時の処理はそのまま！
-      if (themeToggle) {
-        themeToggle.addEventListener("change", function () {
-          if (this.checked) {
-            document.documentElement.classList.add("dark-mode");
-            localStorage.setItem("appTheme", "dark");
-          } else {
-            document.documentElement.classList.remove("dark-mode");
-            localStorage.setItem("appTheme", "light");
-          }
-        });
-      }
-
-      // 重複のないメーカーの一覧を作成して、メーカープルダウンにセット
-      const makerSelect = document.getElementById("makerSelect");
-      const uniqueMakers = [...new Set(carDatabase.map(car => car.maker))];
-      uniqueMakers.forEach(maker => {
-        const option = document.createElement("option");
-        option.value = maker;
-        option.textContent = maker;
-        makerSelect.appendChild(option);
-      });
-
-      // 初期状態では全車名を車名プルダウンにセット
-      updateCarSelect();
-
-      // ★もし試算ボタンを押した後で、Java(Controller)から値が戻ってきていたらセットする！
-      const initialMaker = "${claim.maker}";
-      const initialCarName = "${claim.carName}";
-
-      if (initialMaker) {
-        makerSelect.value = initialMaker;
-        updateCarSelect(); // メーカーに合わせて車名を絞り込む
-      }
-
-      if (initialCarName) {
-        const initialCar = carDatabase.find(car =>
-          car.name === initialCarName || getDbCarName(car) === initialCarName);
-        if (initialCar) {
-          document.getElementById("carNameSelect").value = getDbCarName(initialCar);
-        }
-      }
-
-    });
-
-    // --- 3. イベント処理 (双方向連動の魔法) ---
-
-    function getDbCarName(car) {
-      return car.dbName || car.name;
-    }
-
-    // パターンA：メーカーが選ばれたら → 車名を絞り込む
-    function onMakerChange() {
-      updateCarSelect();
-    }
-
-    // パターンB：車名が選ばれたら → メーカーを逆引きして自動セットする
-    function onCarNameChange() {
-      const selectedCarName = document.getElementById("carNameSelect").value;
-      const makerSelect = document.getElementById("makerSelect");
-
-      if (selectedCarName) {
-        // 選ばれた車名から、該当する車データを検索
-        const foundCar = carDatabase.find(car => getDbCarName(car) === selectedCarName);
-        if (foundCar) {
-          // 見つかったメーカーをセット
-          makerSelect.value = foundCar.maker;
-          // 絞り込みを実行して他のメーカーの車を隠す
-          updateCarSelect();
-          // 絞り込み直後だと車名の選択が外れちゃうから、もう一度セット！
-          document.getElementById("carNameSelect").value = selectedCarName;
-        }
-      }
-    }
-
-    // --- 4. 車名プルダウンの更新ロジック ---
-    function updateCarSelect() {
-      const selectedMaker = document.getElementById("makerSelect").value;
-      const carSelect = document.getElementById("carNameSelect");
-
-      // 現在選択されている車名を記憶しておく
-      const currentCarValue = carSelect.value;
-
-      // 中身をリセット
-      carSelect.innerHTML = '<option value="">選択してください</option>';
-
-      let filteredCars = carDatabase;
-      // メーカーが選ばれていたら、そのメーカーの車だけに絞り込む
-      if (selectedMaker) {
-        filteredCars = carDatabase.filter(car => car.maker === selectedMaker);
-      }
-
-      // 絞り込んだ結果をプルダウンに追加
-      filteredCars.forEach(car => {
-        const option = document.createElement("option");
-        option.value = getDbCarName(car);
-        option.textContent = car.name;
-        carSelect.appendChild(option);
-      });
-
-      // リセット前に選んでいた車名が、絞り込み後のリストに残っていれば再選択状態にする
-      if (filteredCars.some(car => getDbCarName(car) === currentCarValue)) {
-        carSelect.value = currentCarValue;
-      }
-    }
-  </script>
 </body>
 </html>

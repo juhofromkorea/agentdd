@@ -15,6 +15,10 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/components.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/accounting.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/accident.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/validation.css" />
+    <script defer src="${pageContext.request.contextPath}/assets/js/dataCheck.js"></script>
+    <script defer src="${pageContext.request.contextPath}/assets/js/formErrors.js"></script>
+    <script defer src="${pageContext.request.contextPath}/assets/js/inputValidation.js"></script>
   </head>
 
   <body>
@@ -43,7 +47,7 @@
           <h1 class="sr-only" id="accident-detail-title">法人契約の事故受付入力</h1>
           <a class="accounting-breadcrumb" href="${pageContext.request.contextPath}/top">トップへ戻る</a>
 
-          <form class="accounting-workspace" action="${pageContext.request.contextPath}/accident/submit" method="post">
+          <form id="accident-form" data-validation="accident-detail" data-inception-date="${fn:escapeXml(contract.inceptionDate)}" data-conclusion-date="${fn:escapeXml(contract.conclusionDate)}" class="accounting-workspace" action="${pageContext.request.contextPath}/accident/submit" method="post">
 
             <input type="hidden" name="claimNo" value="${fn:escapeXml(accident.claimNo)}" />
             <input type="hidden" name="polNo" value="${fn:escapeXml(accident.polNo)}" />
@@ -51,10 +55,6 @@
             <input class="accounting-controller" type="radio" name="accident-tab" id="accident-tab-reception" checked />
             <input class="accounting-controller" type="radio" name="accident-tab" id="accident-tab-contract" />
             <input class="accounting-controller" type="radio" name="accident-tab" id="accident-tab-coverage" />
-
-            <c:if test="${not empty errorMessage}">
-              <p role="alert"><c:out value="${errorMessage}" /></p>
-            </c:if>
 
             <div class="accounting-tabs accident-tabs" aria-label="事故受付メニュー">
               <label class="accounting-tab" for="accident-tab-reception">事故受付</label>
@@ -353,6 +353,8 @@
             </div>
           </form>
         </section>
+        <c:set var="validationFormId" value="accident-form" />
+        <%@ include file="../template/validation-errors.jspf" %>
       </main>
     </div>
   </body>

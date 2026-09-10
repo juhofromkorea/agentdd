@@ -47,6 +47,16 @@ public class LoginController extends HttpServlet {
         String userId = request.getParameter("userId");
         String password = request.getParameter("password");
 
+        java.util.Map<String, String> fieldErrors = new java.util.LinkedHashMap<>();
+        if (userId == null || userId.isBlank()) fieldErrors.put("userId", "ユーザーIDを入力してください。");
+        if (password == null || password.isEmpty()) fieldErrors.put("password", "パスワードを入力してください。");
+        if (!fieldErrors.isEmpty()) {
+            request.setAttribute("userId", userId);
+            request.setAttribute("fieldErrors", fieldErrors);
+            request.getRequestDispatcher("/WEB-INF/view/login/login.jsp").forward(request, response);
+            return;
+        }
+
         LoginUser loginUser = new LoginUser();
         loginUser.setUserId(userId);
         loginUser.setPassword(password);

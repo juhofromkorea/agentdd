@@ -1,0 +1,10 @@
+/* 既存ページCSSの後に読み込む。初期状態の疑似エラーは表示しない。 */
+.field-error { display: block; margin: .35rem 0 0; color: #b42318; font-size: .875rem; line-height: 1.5; overflow-wrap: anywhere; }
+.field-error[hidden], .server-field-error[hidden] { display: none !important; }
+.form-error { margin-bottom: 1rem; }
+[aria-invalid="true"] { border-color: #b42318 !important; outline-color: #b42318; }
+.login-form .field-error { text-align: left; }
+.accounting-error-space:empty, .login-form__error-space:empty { display: none; }
+.dark-mode .field-error, #theme-toggle:checked ~ .app-shell .field-error { color: #ffb4ab; }
+
+#login-error-message[hidden] { display: none !important; }

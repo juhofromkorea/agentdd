@@ -39,6 +39,12 @@ public class AccountingController extends HttpServlet {
 
         // ① 計上画面から印刷連番を取得
         String insatsuRenban = request.getParameter("insatsuRenban");
+        insatsuRenban = insatsuRenban == null ? "" : insatsuRenban.trim();
+        if (!insatsuRenban.matches("A[0-9]{7}")) {
+            request.setAttribute("fieldErrors", java.util.Map.of("insatsuRenban", "印刷連番はAと半角数字7桁で入力してください。"));
+            request.getRequestDispatcher("/WEB-INF/view/accounting/accounting.jsp").forward(request, response);
+            return;
+        }
         Contract contract = new Contract();
         Claim claim = new Claim();
 
@@ -58,13 +64,20 @@ public class AccountingController extends HttpServlet {
                 // ④ 契約情報が存在しない場合
                 if (contract == null) {
 
-                    request.setAttribute(
-                            "error",
-                            "該当する契約情報がありません。");
+                    request.setAttribute("fieldErrors", java.util.Map.of("insatsuRenban", "該当する契約情報がありません。"));
+                    con.rollback();
 
                     request.getRequestDispatcher(
-                            "/WEB-INF/view/error/error.jsp").forward(request, response);
+                            "/WEB-INF/view/accounting/accounting.jsp").forward(request, response);
 
+                    return;
+                }
+
+                if (!Integer.valueOf(1).equals(contract.getStatusFlg())
+                        || Boolean.TRUE.equals(contract.isCancelFlg())) {
+                    request.setAttribute("fieldErrors", java.util.Map.of("insatsuRenban", "計上可能な契約ではありません。計上済み・解約済みでないか確認してください。"));
+                    con.rollback();
+                    request.getRequestDispatcher("/WEB-INF/view/accounting/accounting.jsp").forward(request, response);
                     return;
                 }
 
@@ -77,12 +90,11 @@ public class AccountingController extends HttpServlet {
                 // ⑥ 補償情報が存在しない場合
                 if (claim == null) {
 
-                    request.setAttribute(
-                            "error",
-                            "該当する補償情報がありません。");
+                    request.setAttribute("fieldErrors", java.util.Map.of("insatsuRenban", "該当する補償情報がありません。"));
+                    con.rollback();
 
                     request.getRequestDispatcher(
-                            "/WEB-INF/view/error/error.jsp").forward(request, response);
+                            "/WEB-INF/view/accounting/accounting.jsp").forward(request, response);
 
                     return;
                 }

@@ -45,6 +45,14 @@ public class CancelController extends HttpServlet {
         ContractDao contractDao = null;
         ClaimDao claimDao = null;
         String polNo = request.getParameter("polNo");
+
+        polNo = polNo == null ? "" : polNo.trim();
+        if (!polNo.matches("B[0-9]{9}")) {
+            request.setAttribute("fieldErrors", java.util.Map.of("polNo", "証券番号はBと半角数字9桁で入力してください。"));
+            request.getRequestDispatcher("/WEB-INF/view/cancellation/cancellation.jsp").forward(request, response);
+            return;
+        }
+
         // ①-2セッションスコープに証券番号を格納
         HttpSession session = request.getSession();
         session.setAttribute("polNo", polNo);
@@ -61,9 +69,8 @@ public class CancelController extends HttpServlet {
                 // ④ 契約情報が存在しない場合
                 if (contract == null) {
 
-                    request.setAttribute(
-                            "errorMessage",
-                            "該当する契約情報がありません。");
+                    request.setAttribute("fieldErrors", java.util.Map.of("polNo", "該当する契約情報がありません。"));
+                    con.rollback();
 
                     request.getRequestDispatcher(
                             "/WEB-INF/view/cancellation/cancellation.jsp").forward(request, response);
@@ -78,9 +85,8 @@ public class CancelController extends HttpServlet {
                 // ⑥ 補償情報が存在しない場合
                 if (claim == null) {
 
-                    request.setAttribute(
-                            "error",
-                            "該当する補償情報がありません。");
+                    request.setAttribute("fieldErrors", java.util.Map.of("polNo", "該当する補償情報がありません。"));
+                    con.rollback();
                     request.getRequestDispatcher(
                             "/WEB-INF/view/cancellation/cancellation.jsp").forward(request, response);
 

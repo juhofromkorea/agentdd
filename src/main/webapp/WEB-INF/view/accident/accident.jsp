@@ -1,4 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!doctype html>
 <html lang="ja">
   <head>
@@ -12,6 +14,10 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/components.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/accounting.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/accident.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/validation.css" />
+    <script defer src="${pageContext.request.contextPath}/assets/js/dataCheck.js"></script>
+    <script defer src="${pageContext.request.contextPath}/assets/js/formErrors.js"></script>
+    <script defer src="${pageContext.request.contextPath}/assets/js/inputValidation.js"></script>
   </head>
   <body>
     <input
@@ -58,7 +64,7 @@
             </h1>
 
             <!-- 修正②：formのactionを本番Controllerのパス (/accident/detail) に修正 -->
-            <form
+            <form id="accident-start-form" data-validation="accident-start"
               class="accounting-start-form"
               action="${pageContext.request.contextPath}/accident/detail"
               method="get"
@@ -69,12 +75,12 @@
                   <input
                     class="accounting-control"
                     type="text"
-                    name="polNo"
+                    name="polNo" value="${fn:escapeXml(param.polNo)}"
                     inputmode="text"
                     maxlength="10"
                     placeholder="例：B000000001"
-                    pattern="[A-Za-z0-9]{1,10}"
-                    aria-describedby="accident-start-note accident-start-message"
+                    pattern="B[0-9]{9}"
+                    aria-describedby="accident-start-note"
                   />
                 </label>
 
@@ -83,23 +89,18 @@
                   <input
                     class="accounting-control"
                     type="text"
-                    name="claimNo"
+                    name="claimNo" value="${fn:escapeXml(param.claimNo)}"
                     inputmode="text"
                     maxlength="8"
                     placeholder="例：C0000001"
-                    pattern="[A-Za-z0-9]{1,8}"
-                    aria-describedby="accident-start-note accident-start-message"
+                    pattern="C[0-9]{7}"
+                    aria-describedby="accident-start-note"
                   />
                 </label>
               </div>
 
               <p class="accident-start-note" id="accident-start-note">
                 新規受付は証券番号、受付済み事故の更新は事故受付番号を入力してください。
-              </p>
-              
-              <!-- 修正③：Controllerから返されたエラーメッセージを表示できるように変更 -->
-              <p class="accounting-error-space" id="accident-start-message">
-                ${errorMessage}
               </p>
 
               <button class="button button--primary accounting-submit" type="submit">
@@ -108,6 +109,8 @@
             </form>
           </div>
         </section>
+        <c:set var="validationFormId" value="accident-start-form" />
+        <%@ include file="../template/validation-errors.jspf" %>
       </main>
     </div>
   </body>

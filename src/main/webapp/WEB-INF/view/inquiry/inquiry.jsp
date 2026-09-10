@@ -1,4 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!doctype html>
 <html lang="ja">
   <head>
@@ -12,6 +14,10 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/components.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/accounting.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/inquiry.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/validation.css" />
+    <script defer src="${pageContext.request.contextPath}/assets/js/dataCheck.js"></script>
+    <script defer src="${pageContext.request.contextPath}/assets/js/formErrors.js"></script>
+    <script defer src="${pageContext.request.contextPath}/assets/js/inputValidation.js"></script>
   </head>
   <body>
     <input
@@ -61,7 +67,7 @@
               契約内容照会
             </h1>
 
-            <form
+            <form id="inquiry-form" data-validation="inquiry"
               class="accounting-start-form"
               action="${pageContext.request.contextPath}/inquiry"
               method="post"
@@ -71,19 +77,14 @@
                 <input
                   class="accounting-control"
                   type="text"
-                  name="polNo"
+                  name="polNo" value="${fn:escapeXml(param.polNo)}"
                   inputmode="text"
                   maxlength="10"
-                  placeholder="例：B00000001"
-                  pattern="[A-Za-z0-9]{1,10}"
-                  aria-describedby="inquiry-start-message"
+                  placeholder="例：B000000001"
+                  pattern="B[0-9]{9}"
                   required
                 />
               </label>
-
-              <p class="accounting-error-space" id="inquiry-start-message">
-                ※入力内容に誤りがある場合、ここにメッセージを表示します。
-              </p>
 
               <div class="inquiry-search-actions">
                 <button class="button button--primary" type="submit">
@@ -96,6 +97,8 @@
             </form>
           </div>
         </section>
+        <c:set var="validationFormId" value="inquiry-form" />
+        <%@ include file="../template/validation-errors.jspf" %>
       </main>
     </div>
   </body>

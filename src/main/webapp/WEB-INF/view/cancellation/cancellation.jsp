@@ -1,4 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!doctype html>
 <html lang="ja">
   <head>
@@ -12,6 +14,10 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/components.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/accounting.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/cancellation.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/validation.css" />
+    <script defer src="${pageContext.request.contextPath}/assets/js/dataCheck.js"></script>
+    <script defer src="${pageContext.request.contextPath}/assets/js/formErrors.js"></script>
+    <script defer src="${pageContext.request.contextPath}/assets/js/inputValidation.js"></script>
   </head>
   <body>
     <input
@@ -61,7 +67,7 @@
               解約開始
             </h1>
 
-            <form
+            <form id="cancel-form" data-validation="cancel"
               class="accounting-start-form"
               action="${pageContext.request.contextPath}/cancel"
               method="post"
@@ -71,20 +77,14 @@
                 <input
                   class="accounting-control"
                   type="text"
-                  name="polNo"
+                  name="polNo" value="${fn:escapeXml(param.polNo)}"
                   inputmode="text"
                   maxlength="10"
-                  placeholder="例：B00000001"
-                  pattern="[A-Za-z0-9]{1,10}"
-                  aria-describedby="cancellation-start-message"
+                  placeholder="例：B000000001"
+                  pattern="B[0-9]{9}"
                   required
-                  value="${sessionScope.constract.polNo }"
                 />
               </label>
-
-              <p class="accounting-error-space" id="cancellation-start-message">
-                ※入力内容に誤りがある場合、ここにメッセージを表示します。
-              </p>
 
               <button class="button button--primary accounting-submit" type="submit">
                 次へ
@@ -92,6 +92,8 @@
             </form>
           </div>
         </section>
+        <c:set var="validationFormId" value="cancel-form" />
+        <%@ include file="../template/validation-errors.jspf" %>
       </main>
     </div>
   </body>

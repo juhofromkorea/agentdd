@@ -11,6 +11,10 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/layout.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/components.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/accounting.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/validation.css" />
+    <script defer src="${pageContext.request.contextPath}/assets/js/dataCheck.js"></script>
+    <script defer src="${pageContext.request.contextPath}/assets/js/formErrors.js"></script>
+    <script defer src="${pageContext.request.contextPath}/assets/js/inputValidation.js"></script>
   </head>
   <body>
     <input
@@ -60,7 +64,7 @@
               計上開始
             </h1>
 
-            <form
+            <form id="accounting-form" data-validation="accounting"
               class="accounting-start-form"
               action="${pageContext.request.contextPath}/account"
               method="post"
@@ -70,18 +74,13 @@
                 <input
                   class="accounting-control"
                   type="text"
-                  name="insatsuRenban"
+                  name="insatsuRenban" value="${fn:escapeXml(param.insatsuRenban)}"
                   inputmode="text"
                   placeholder="例：A1111111"
-                  pattern="[A-Za-z][0-9]{7}"
-                  aria-describedby="accounting-start-message"
+                  pattern="A[0-9]{7}"
                   required
                 />
               </label>
-
-              <p class="accounting-error-space" id="accounting-start-message">
-                ※入力内容に誤りがある場合、ここにメッセージを表示します。
-              </p>
 
               <button class="button button--primary accounting-submit" type="submit">
                 計上開始
@@ -89,6 +88,8 @@
             </form>
           </div>
         </section>
+        <c:set var="validationFormId" value="accounting-form" />
+        <%@ include file="../template/validation-errors.jspf" %>
       </main>
     </div>
   </body>

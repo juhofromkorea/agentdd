@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -22,6 +23,7 @@ import agentdd.model.dao.TempSaveDao;
 import agentdd.model.dao.VehicleDao;
 import agentdd.model.dao.RatesDao;
 import agentdd.model.dao.ConnectionManager;
+import agentdd.model.datacheck.InputChecks;
 
 @WebServlet("/estimatecalc")
 public class EstimateCalcController extends HttpServlet {
@@ -43,6 +45,7 @@ public class EstimateCalcController extends HttpServlet {
             session.removeAttribute("contract");
             session.removeAttribute("claim");
             session.removeAttribute("calculated");
+            session.removeAttribute("estimateSnapshot");
             session.removeAttribute("printContract");
             session.removeAttribute("printClaim");
         }
@@ -74,6 +77,8 @@ public class EstimateCalcController extends HttpServlet {
                 request.setAttribute("message", "一時保存を削除しました。");
             } else if ("limit".equals(result)) {
                 request.setAttribute("errorMessage", "一時保存できる件数は5件までです。");
+            } else if ("recalculate".equals(result)) {
+                request.setAttribute("fieldErrors", Map.of("_form", "先に保険料試算・申込書印刷確認を実行してください。"));
             } else if ("missing".equals(result)) {
                 request.setAttribute("errorMessage", "一時保存情報が見つかりません。");
             }
@@ -107,6 +112,11 @@ public class EstimateCalcController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
+
+        session.removeAttribute("estimateSnapshot");
+        session.removeAttribute("calculated");
+        session.removeAttribute("printContract");
+        session.removeAttribute("printClaim");
 
         Contract contract = new Contract();
         Claim claim = new Claim();
@@ -173,6 +183,26 @@ public class EstimateCalcController extends HttpServlet {
             con.setAutoCommit(false);
 
             try {
+                Map<String, String> fieldErrors = InputChecks.estimate(request, false);
+                Object printError = request.getAttribute("estimatePrintError");
+                if (printError != null) fieldErrors.put("_form", printError.toString());
+                var vehicles = new VehicleDao(con).findAll();
+                boolean vehicleExists = vehicles.stream().anyMatch(v ->
+                        java.util.Objects.equals(v.get("maker"), claim.getMaker())
+                        && java.util.Objects.equals(v.get("name"), claim.getCarName()));
+                if (!vehicleExists) fieldErrors.putIfAbsent("carName", "メーカー・車名を選び直してください。");
+                if (!fieldErrors.isEmpty()) {
+                    request.setAttribute("fieldErrors", fieldErrors);
+                    request.setAttribute("contract", contract);
+                    request.setAttribute("claim", claim);
+                    request.setAttribute("calculated", false);
+                    request.setAttribute("vehicles", vehicles);
+                    request.setAttribute("tempSaveList", new TempSaveDao(con).selectAll(loginUser.getUserId()));
+                    con.rollback();
+                    request.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(request, response);
+                    return;
+                }
+
                 // 2. マスタ情報の取得 (メーカーと車名をキーにする)
                 vehicleDao = new VehicleDao(con);
                 vehicleDao.getVehicle(claim);
@@ -181,10 +211,26 @@ public class EstimateCalcController extends HttpServlet {
 
                 // 3. マスタの料率IDを RatesDao で実際の数字に変換
                 // ※ RateDao が double などの数値を返す前提のコードです
-                double vRate = rateDao.getRate((int) claim.getVehicleRates());
-                double bRate = rateDao.getRate((int) claim.getBodilyRates());
-                double pRate = rateDao.getRate((int) claim.getPropertyDamageRates());
-                double aRate = rateDao.getRate((int) claim.getAccidentRates());
+                Double vRate = claim.getVehicleRates() == null ? null : rateDao.getRate(claim.getVehicleRates());
+                Double bRate = claim.getBodilyRates() == null ? null : rateDao.getRate(claim.getBodilyRates());
+                Double pRate = claim.getPropertyDamageRates() == null ? null : rateDao.getRate(claim.getPropertyDamageRates());
+                Double aRate = claim.getAccidentRates() == null ? null : rateDao.getRate(claim.getAccidentRates());
+
+                if (vRate == null || bRate == null || pRate == null || aRate == null
+                        || !Double.isFinite(vRate) || !Double.isFinite(bRate)
+                        || !Double.isFinite(pRate) || !Double.isFinite(aRate)
+                        || vRate < 0 || bRate < 0 || pRate < 0 || aRate < 0
+                        || claim.getVehiclePrice() == null || claim.getVehiclePrice() < 0) {
+                    request.setAttribute("fieldErrors", Map.of("carName", "この車両の補償条件を確認できません。管理者にマスタ登録を確認してください。"));
+                    request.setAttribute("contract", contract);
+                    request.setAttribute("claim", claim);
+                    request.setAttribute("calculated", false);
+                    request.setAttribute("vehicles", vehicles);
+                    request.setAttribute("tempSaveList", new TempSaveDao(con).selectAll(loginUser.getUserId()));
+                    con.rollback();
+                    request.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(request, response);
+                    return;
+                }
 
                 // 5. 保険料のガチ計算
                 InsuranceCalc calc = new InsuranceCalc();
@@ -197,6 +243,7 @@ public class EstimateCalcController extends HttpServlet {
                 session.setAttribute("contract", contract);
                 session.setAttribute("claim", claim);
                 session.setAttribute("calculated", true);
+                session.setAttribute("estimateSnapshot", InputChecks.estimateSnapshot(request));
 
                 TempSaveDao tempSaveDao = new TempSaveDao(con);
                 tempSaveDao.deleteExpired(
@@ -219,6 +266,8 @@ public class EstimateCalcController extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(request, response);
 
         } catch (Exception e) {
+            session.removeAttribute("calculated");
+            session.removeAttribute("estimateSnapshot");
             e.printStackTrace();
             request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
             request.setAttribute("errorBackUrl", "/estimatecalc");

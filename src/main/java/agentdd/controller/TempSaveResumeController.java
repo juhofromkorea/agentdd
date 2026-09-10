@@ -80,6 +80,7 @@ public class TempSaveResumeController extends HttpServlet {
         session.setAttribute("contract", tempSave.getContract());
         session.setAttribute("claim", tempSave.getClaim());
         session.setAttribute("calculated", Boolean.FALSE);
+        session.removeAttribute("estimateSnapshot");
         session.removeAttribute("printContract");
         session.removeAttribute("printClaim");
 

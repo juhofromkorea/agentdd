@@ -41,6 +41,13 @@ public class InquiryController extends HttpServlet {
 
         // 照会検索画面から証券番号を取得
         String polNo = request.getParameter("polNo");
+        polNo = polNo == null ? "" : polNo.trim();
+        if (!polNo.matches("B[0-9]{9}")) {
+            request.setAttribute("fieldErrors", java.util.Map.of("polNo", "証券番号はBと半角数字9桁で入力してください。"));
+            request.getRequestDispatcher("/WEB-INF/view/inquiry/inquiry.jsp").forward(request, response);
+            return;
+        }
+
         Contract contract = null;
         Claim claim = null;
         ContractDao contractDao = null;
@@ -59,9 +66,8 @@ public class InquiryController extends HttpServlet {
                 // 契約情報が存在しない場合
                 if (contract == null) {
 
-                    request.setAttribute(
-                            "errorMessage",
-                            "該当する契約情報がありません。");
+                    request.setAttribute("fieldErrors", java.util.Map.of("polNo", "該当する契約情報がありません。"));
+                    con.rollback();
 
                     request.getRequestDispatcher(
                             "/WEB-INF/view/inquiry/inquiry.jsp").forward(request, response);
@@ -75,9 +81,8 @@ public class InquiryController extends HttpServlet {
                 // 補償情報が存在しない場合
                 if (claim == null) {
 
-                    request.setAttribute(
-                            "errorMessage",
-                            "該当する補償情報がありません。");
+                    request.setAttribute("fieldErrors", java.util.Map.of("polNo", "該当する補償情報がありません。"));
+                    con.rollback();
 
                     request.getRequestDispatcher(
                             "/WEB-INF/view/inquiry/inquiry.jsp").forward(request, response);

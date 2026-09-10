@@ -1,0 +1,6 @@
+<%-- Controller: request.setAttribute("fieldErrors", Map<String,String>) --%>
+<c:forEach var="entry" items="${requestScope.fieldErrors}">
+  <p class="field-error server-field-error" role="alert"
+     data-error-form="${fn:escapeXml(validationFormId)}"
+     data-server-error="${fn:escapeXml(entry.key)}"><c:out value="${entry.value}" /></p>
+</c:forEach>

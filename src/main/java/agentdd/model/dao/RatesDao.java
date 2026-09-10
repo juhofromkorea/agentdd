@@ -14,8 +14,8 @@ public class RatesDao {
         this.con = java.util.Objects.requireNonNull(con);
     }
 
-    public double getRate(int id) throws SQLException {
-        double rate = 1.0; // デフォルトの倍率
+    public Double getRate(int id) throws SQLException {
+        Double rate = null; // 未登録を1.0で隠さず、呼出側で業務エラーとして扱う
         // SQL: IDをキーにして料率マスタから倍率を取得
         String sql = "SELECT RATES FROM M_RATES_TBL WHERE ID = ?";
 
@@ -27,6 +27,7 @@ public class RatesDao {
                 if (rs.next()) {
                     // DBから実際の倍率（1.9など）を取り出す
                     rate = rs.getDouble("rates");
+                    if (rs.wasNull()) rate = null;
                 }
             }
         }

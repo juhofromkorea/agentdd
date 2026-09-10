@@ -79,9 +79,21 @@ public class EstimatePrintCompleteController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // 1. セッションから大事なデータを取り出す
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(false);
+        if (session == null || !(session.getAttribute("loginUser") instanceof LoginUser loginUser)
+                || loginUser.getUserId() == null || loginUser.getUserId().isBlank()) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
         Contract contract = (Contract) session.getAttribute("printContract");
         Claim claim = (Claim) session.getAttribute("printClaim");
+
+        if (contract == null || claim == null || session.getAttribute("estimateSnapshot") == null) {
+            response.sendRedirect(request.getContextPath() + "/estimatecalc?result=recalculate");
+            return;
+        }
+
         String serialNum;
 
         try (Connection con = ConnectionManager.getConnection()) {
@@ -120,6 +132,7 @@ public class EstimatePrintCompleteController extends HttpServlet {
             session.removeAttribute("contract");
             session.removeAttribute("claim");
             session.removeAttribute("calculated");
+            session.removeAttribute("estimateSnapshot");
 
             // 5. 完了画面に発行した連番だけを渡して遷移
             request.setAttribute("serialNum", serialNum);

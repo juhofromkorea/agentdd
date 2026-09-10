@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import agentdd.model.datacheck.InputChecks;
 import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.dao.AccidentDao;
 import agentdd.model.dao.ClaimDao;
@@ -100,6 +101,12 @@ public class AccidentSubmitController extends HttpServlet {
                 request.setAttribute("claim", claim);
                 request.setAttribute("accident", accident);
 
+                Map<String, String> fieldErrors = InputChecks.accident(input, contract, "completeReceipt".equals(action));
+                if (!fieldErrors.isEmpty()) {
+                    request.setAttribute("fieldErrors", fieldErrors);
+                    throw new BusinessException("入力内容を確認してください。");
+                }
+
                 bindAndValidate(input, accident, "completeReceipt".equals(action));
                 accident.setClaimStatus("completeReceipt".equals(action) ? 9 : 1);
                 accident.setPaymentPrice(calculatePaymentAmount(accident));
@@ -142,14 +149,16 @@ public class AccidentSubmitController extends HttpServlet {
         } catch (BusinessException e) {
             Contract contract = (Contract) request.getAttribute("contract");
             if (contract != null) {
-                request.setAttribute("errorMessage", e.getMessage());
+                if (request.getAttribute("fieldErrors") == null) {
+                    request.setAttribute("fieldErrors", Map.of("_form", e.getMessage()));
+                }
                 String jsp = Integer.valueOf(2).equals(contract.getInsuredKbn())
                         ? "/WEB-INF/view/accident/accident-detail-corporate.jsp"
                         : "/WEB-INF/view/accident/accident-detail.jsp";
                 request.getRequestDispatcher(jsp).forward(request, response);
             } else {
-                request.setAttribute("error", e.getMessage());
-                request.getRequestDispatcher("/WEB-INF/view/error/error.jsp").forward(request, response);
+                request.setAttribute("fieldErrors", Map.of(isNew ? "polNo" : "claimNo", e.getMessage()));
+                request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
             }
             return;
         } catch (SQLException | RuntimeException e) {

@@ -63,16 +63,24 @@ public class AccidentController extends HttpServlet {
 
                 // 入力チェック（両方空）
                 if (!hasPolNo && !hasClaimNo) {
-                    request.setAttribute("errorMessage", "証券番号または事故受付番号を入力してください。");
+                    request.setAttribute("fieldErrors", java.util.Map.of(hasClaimNo ? "claimNo" : "polNo", "証券番号または事故受付番号を入力してください。"));
                     request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
                     return;
                 }
 
                 // 排他チェック（両方入力された場合はエラーとする）
                 if (hasPolNo && hasClaimNo) {
-                    request.setAttribute("errorMessage", "新規受付の場合は証券番号のみ、更新の場合は事故受付番号のみを入力してください。");
+                    request.setAttribute("fieldErrors", java.util.Map.of(hasClaimNo ? "claimNo" : "polNo", "新規受付の場合は証券番号のみ、更新の場合は事故受付番号のみを入力してください。"));
                     request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
                     return;
+                }
+
+                if ((hasPolNo && !polNo.matches("B[0-9]{9}"))
+                        || (hasClaimNo && !claimNo.matches("C[0-9]{7}"))) {
+                    request.setAttribute("fieldErrors", java.util.Map.of(hasClaimNo ? "claimNo" : "polNo",
+                            hasClaimNo ? "事故受付番号はCと半角数字7桁で入力してください。" : "証券番号はBと半角数字9桁で入力してください。"));
+                    request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
+                    return;                    
                 }
 
                 // A: 事故受付番号が入力された場合 (既存データの更新・再開)
@@ -80,14 +88,14 @@ public class AccidentController extends HttpServlet {
                     Accident accidentData = accidentDao.getAccident(claimNo);
 
                     if (accidentData == null) {
-                        request.setAttribute("errorMessage", "該当する事故受付番号が見つかりませんでした。");
+                        request.setAttribute("fieldErrors", java.util.Map.of(hasClaimNo ? "claimNo" : "polNo", "該当する事故受付番号が見つかりませんでした。"));
                         request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
                         return;
                     }
 
                     // すでに完了（事故受付フラグが9）している場合は accident.jsp に戻す
                     if (accidentData.getClaimStatus() == 9) {
-                        request.setAttribute("errorMessage", "この事故受付は完了しています。");
+                        request.setAttribute("fieldErrors", java.util.Map.of(hasClaimNo ? "claimNo" : "polNo", "この事故受付は完了しています。"));
                         request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
                         return;
                     }
@@ -115,7 +123,7 @@ public class AccidentController extends HttpServlet {
                     Contract contractData = contractDao.getContract(polNo);
 
                     if (contractData == null) {
-                        request.setAttribute("errorMessage", "該当する証券番号（契約情報）が見つかりませんでした。");
+                        request.setAttribute("fieldErrors", java.util.Map.of(hasClaimNo ? "claimNo" : "polNo", "該当する証券番号（契約情報）が見つかりませんでした。"));
                         request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
                         return;
                     }
@@ -144,7 +152,7 @@ public class AccidentController extends HttpServlet {
                 Accident accidentData = (Accident) request.getAttribute("accident");
                 if (contractData == null || claimData == null || claimData.getCoverId() == null
                         || accidentData == null || accidentData.getCoverId() != claimData.getCoverId()) {
-                    request.setAttribute("errorMessage", "関連する契約・補償情報が見つかりませんでした。");
+                    request.setAttribute("fieldErrors", java.util.Map.of(hasClaimNo ? "claimNo" : "polNo", "関連する契約・補償情報が見つかりませんでした。"));
                     request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp")
                             .forward(request, response);
                     return;

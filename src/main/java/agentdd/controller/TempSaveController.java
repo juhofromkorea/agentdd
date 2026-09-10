@@ -5,6 +5,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.Map;
+import agentdd.model.datacheck.InputChecks;
+import agentdd.model.dao.VehicleDao;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -53,6 +56,27 @@ public class TempSaveController extends HttpServlet {
         tempSave.setClaim(claim);
 
         try (Connection con = ConnectionManager.getConnection()) {
+            Map<String, String> fieldErrors = InputChecks.estimate(req, true);
+            var vehicles = new VehicleDao(con).findAll();
+            if (claim.getMaker() != null && !claim.getMaker().isBlank()
+                    && vehicles.stream().noneMatch(v -> java.util.Objects.equals(v.get("maker"), claim.getMaker()))) {
+                fieldErrors.put("maker", "メーカーを選び直してください。");
+            }
+            if (claim.getCarName() != null && !claim.getCarName().isBlank()
+                    && vehicles.stream().noneMatch(v -> java.util.Objects.equals(v.get("maker"), claim.getMaker())
+                    && java.util.Objects.equals(v.get("name"), claim.getCarName()))) {
+                fieldErrors.put("carName", "メーカーに対応する車名を選択してください。");
+            }
+            if (!fieldErrors.isEmpty()) {
+                req.setAttribute("fieldErrors", fieldErrors);
+                req.setAttribute("contract", contract);
+                req.setAttribute("claim", claim);
+                req.setAttribute("calculated", false);
+                req.setAttribute("vehicles", vehicles);
+                req.setAttribute("tempSaveList", new TempSaveDao(con).selectAll(userId));
+                req.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(req, resp);
+                return;
+            }
             TempSaveDao tempSaveDao = new TempSaveDao(con);
             boolean lockHeld = false;
             boolean transactionStarted = false;
@@ -68,8 +92,13 @@ public class TempSaveController extends HttpServlet {
                 if (tempSaveDao.countByUserId(userId) >= TEMP_SAVE_LIMIT) {
                     // 期限切れの掃除だけは確定してから上限画面へ戻す。
                     con.commit();
-                    resp.sendRedirect(req.getContextPath()
-                            + "/estimatecalc?tab=saved&result=limit");
+                    req.setAttribute("fieldErrors", Map.of("_form", "一時保存できる件数は5件までです。一覧から不要な保存を削除してください。"));
+                    req.setAttribute("contract", contract);
+                    req.setAttribute("claim", claim);
+                    req.setAttribute("calculated", false);
+                    req.setAttribute("vehicles", vehicles);
+                    req.setAttribute("tempSaveList", tempSaveDao.selectAll(userId));
+                    req.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(req, resp);
                     return;
                 }
                 if (tempSaveDao.insert(tempSave) != 1) {
