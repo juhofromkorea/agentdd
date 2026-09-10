@@ -283,10 +283,10 @@
                       <select class="estimate-control" name="paymentMethod" form="coverage-form">
                         <option value="1" <c:if
                           test="${contract.paymentMethod == 0 or contract.paymentMethod == 1}">selected</c:if>
-                          >クレジットカード</option>
+                          >直接集金</option>
                         <option value="2" <c:if test="${contract.paymentMethod == 2}">selected</c:if>>口座振替
                         </option>
-                        <option value="3" <c:if test="${contract.paymentMethod == 3}">selected</c:if>>払込票
+                        <option value="3" <c:if test="${contract.paymentMethod == 3}">selected</c:if>>クレジットカード
                         </option>
                       </select>
                     </label>
