@@ -4,13 +4,14 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
+import java.util.Map;
 
 import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.constant.SystemConst;
 import agentdd.model.dao.ConnectionManager;
 import agentdd.model.dao.LoginDao;
 import agentdd.model.data.LoginUser;
-import agentdd.model.datacheck.LoginChecker;
+import agentdd.model.datacheck.InputChecks;
 import agentdd.model.exception.BusinessException;
 
 import jakarta.servlet.RequestDispatcher;
@@ -47,13 +48,14 @@ public class LoginController extends HttpServlet {
         String userId = request.getParameter("userId");
         String password = request.getParameter("password");
 
-        java.util.Map<String, String> fieldErrors = new java.util.LinkedHashMap<>();
-        if (userId == null || userId.isBlank()) fieldErrors.put("userId", "ユーザーIDを入力してください。");
-        if (password == null || password.isEmpty()) fieldErrors.put("password", "パスワードを入力してください。");
+        Map<String, String> fieldErrors = InputChecks.login(userId, password);
+
         if (!fieldErrors.isEmpty()) {
             request.setAttribute("userId", userId);
             request.setAttribute("fieldErrors", fieldErrors);
-            request.getRequestDispatcher("/WEB-INF/view/login/login.jsp").forward(request, response);
+            request.getRequestDispatcher(
+                    "/WEB-INF/view/login/login.jsp"
+            ).forward(request, response);
             return;
         }
 
@@ -61,70 +63,60 @@ public class LoginController extends HttpServlet {
         loginUser.setUserId(userId);
         loginUser.setPassword(password);
 
-        try {
-            LoginChecker loginChecker = new LoginChecker();
-            String errMsg = loginChecker.check(loginUser);
+        try (Connection con = ConnectionManager.getConnection()) {
+            con.setAutoCommit(false);
 
-            if (errMsg != null) {
-                throw new BusinessException(errMsg);
-            }
+            try {
+                LoginDao loginDao = new LoginDao(con);
+                LoginUser dbUser = loginDao.findByUserId(userId);
 
-            try (Connection con = ConnectionManager.getConnection()) {
-                con.setAutoCommit(false);
+                if (dbUser == null) {
+                    con.rollback();
+                    throw new BusinessException(ErrorMsgConst.LOGIN_ERROR);
+                }
 
-                try {
-                    LoginDao loginDao = new LoginDao(con);
-                    LoginUser dbUser = loginDao.findByUserId(userId);
+                if (dbUser.getLockFlag() == 1) {
+                    con.rollback();
+                    throw new BusinessException(ErrorMsgConst.ACCOUNT_LOCKED);
+                }
 
-                    if (dbUser == null) {
-                        con.rollback();
-                        throw new BusinessException(ErrorMsgConst.LOGIN_ERROR);
-                    }
+                if (!Objects.equals(dbUser.getPassword(), password)) {
 
-                    if (dbUser.getLockFlag() == 1) {
-                        con.rollback();
+                    int newLoginCount = Math.min(dbUser.getLoginCount() + 1, 5);
+
+                    loginDao.increaseLoginCount(userId);
+                    con.commit();
+
+                    if (newLoginCount >= 5) {
                         throw new BusinessException(ErrorMsgConst.ACCOUNT_LOCKED);
                     }
 
-                    if (!Objects.equals(dbUser.getPassword(), password)) {
-
-                        int newLoginCount = Math.min(dbUser.getLoginCount() + 1, 5);
-
-                        loginDao.increaseLoginCount(userId);
-                        con.commit();
-
-                        if (newLoginCount >= 5) {
-                            throw new BusinessException(ErrorMsgConst.ACCOUNT_LOCKED);
-                        }
-
-                        throw new BusinessException(ErrorMsgConst.LOGIN_ERROR);
-                    }
-
-                    loginDao.resetLoginCount(userId);
-                    con.commit();
-
-                    dbUser.setPassword(null);
-                    dbUser.setLoginCount(0);
-
-                    HttpSession oldSession = request.getSession(false);
-
-                    if (oldSession != null) {
-                        oldSession.invalidate();
-                    }
-
-                    HttpSession newSession = request.getSession(true);
-
-                    newSession.setAttribute("loginUser", dbUser);
-
-                    response.sendRedirect(request.getContextPath() + "/top");
-                    return;
-
-                } catch (SQLException e) {
-                    con.rollback();
-                    throw e;
+                    throw new BusinessException(ErrorMsgConst.LOGIN_ERROR);
                 }
-            }
 
+                loginDao.resetLoginCount(userId);
+                con.commit();
+
+                dbUser.setPassword(null);
+                dbUser.setLoginCount(0);
+
+                HttpSession oldSession = request.getSession(false);
+
+                if (oldSession != null) {
+                    oldSession.invalidate();
+                }
+
+                HttpSession newSession = request.getSession(true);
+
+                newSession.setAttribute("loginUser", dbUser);
+
+                response.sendRedirect(request.getContextPath() + "/top");
+                return;
+
+            } catch (SQLException e) {
+                con.rollback();
+                throw e;
+            }
         } catch (BusinessException e) {
             request.setAttribute("userId", userId);
             request.setAttribute("error", e.getMessage());

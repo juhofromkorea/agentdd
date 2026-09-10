@@ -33,6 +33,22 @@ public final class InputChecks {
         "conclusionDate", "conclusionTime", "paymentMethod", "installment", "maker", "carName",
         "licenseNo", "licenseColor", "ageLimit"
     };
+    public static Map<String, String> login(
+            String userId,
+            String password) {
+
+        Map<String, String> errors = new LinkedHashMap<>();
+
+        if (userId == null || userId.isBlank()) {
+            errors.put("userId", "ユーザーIDを入力してください。");
+        }
+
+        if (password == null || password.isEmpty()) {
+            errors.put("password", "パスワードを入力してください。");
+        }
+
+        return errors;
+    }
     /** 比較対象は業務項目のみ。タブラジオや送信ボタンを含めない。 */
     public static Map<String, String> estimateValues(HttpServletRequest request) {
         Map<String, String> result = new LinkedHashMap<>();
