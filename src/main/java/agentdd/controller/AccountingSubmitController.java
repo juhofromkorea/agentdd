@@ -84,6 +84,8 @@ public class AccountingSubmitController extends HttpServlet {
             request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
             request.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
                     .forward(request, response);
+        } finally {
+            con.close();
         }
 
     }
