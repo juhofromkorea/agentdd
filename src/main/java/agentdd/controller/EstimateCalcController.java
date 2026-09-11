@@ -99,8 +99,6 @@ public class EstimateCalcController extends HttpServlet {
                     "/WEB-INF/view/error/error.jsp")
                     .forward(request, response);
             return;
-        } finally {
-            con.close();
         }
     }
 
