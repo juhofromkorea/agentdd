@@ -80,7 +80,6 @@
                   type="text"
                   name="polNo" value="${fn:escapeXml(param.polNo)}"
                   inputmode="text"
-                  maxlength="10"
                   placeholder="例：B000000001"
                   pattern="B[0-9]{9}"
                   required
