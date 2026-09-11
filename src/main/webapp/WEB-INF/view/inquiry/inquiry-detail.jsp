@@ -151,15 +151,15 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>電話番号</dt>
-                    <dd>${contract.telephoneNo}</dd>
+                    <dd>${contract.formattedTelephoneNo}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>携帯電話番号</dt>
-                    <dd>${contract.mobilephoneNo}</dd>
+                    <dd>${contract.formattedMobilephoneNo}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>FAX番号</dt>
-                    <dd>${contract.faxNo}</dd>
+                    <dd>${contract.formattedFaxNo}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>保険期間開始日</dt>
