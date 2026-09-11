@@ -67,7 +67,7 @@
                 <dd>${serialNum}</dd>
               </div>
               <div>
-                <dt>契約者名</dt>
+                <dt>契約者</dt>
                 <!-- ★個人なら「姓 名 様」、法人なら「会社名 様」が表示される -->
                 <dd>${contract.nameKanji1} ${contract.nameKanji2} 様</dd>
               </div>
