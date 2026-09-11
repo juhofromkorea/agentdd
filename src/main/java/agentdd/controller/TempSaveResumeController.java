@@ -74,6 +74,8 @@ public class TempSaveResumeController extends HttpServlet {
             req.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
                     .forward(req, resp);
             return;
+        } finally {
+            con.close();
         }
 
         // JSPはリクエストスコープだけでなく、試算・申込書印刷でも同じ値を使う。

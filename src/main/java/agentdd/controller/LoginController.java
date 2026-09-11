@@ -134,6 +134,8 @@ public class LoginController extends HttpServlet {
             RequestDispatcher rd = request.getRequestDispatcher(
                     "/WEB-INF/view/error/error.jsp");
             rd.forward(request, response);
+        } finally {
+            con.close();
         }
     }
 }

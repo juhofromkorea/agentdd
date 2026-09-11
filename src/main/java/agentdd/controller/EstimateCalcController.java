@@ -99,6 +99,8 @@ public class EstimateCalcController extends HttpServlet {
                     "/WEB-INF/view/error/error.jsp")
                     .forward(request, response);
             return;
+        } finally {
+            con.close();
         }
     }
 
@@ -273,6 +275,8 @@ public class EstimateCalcController extends HttpServlet {
             request.setAttribute("errorBackUrl", "/estimatecalc");
             request.setAttribute("errorBackLabel", "試算画面へ戻る");
             request.getRequestDispatcher("/WEB-INF/view/error/error.jsp").forward(request, response);
+        } finally {
+            con.close();
         }
     }
 

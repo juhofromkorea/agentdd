@@ -81,6 +81,8 @@ public class CancelCompleteController extends HttpServlet {
             request.getRequestDispatcher(
                     "/WEB-INF/view/error/error.jsp").forward(request, response);
 
+        } finally {
+            con.close();
         }
 
     }
