@@ -143,8 +143,6 @@ public class EstimatePrintCompleteController extends HttpServlet {
         } catch (Exception e) {
             getServletContext().log("DB更新に失敗しました。", e);
             request.getRequestDispatcher("/WEB-INF/view/error/error.jsp").forward(request, response);
-        } finally {
-            con.close();
         }
     }
 }

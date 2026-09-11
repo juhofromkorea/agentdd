@@ -132,8 +132,6 @@ public class TempSaveController extends HttpServlet {
             req.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
                     .forward(req, resp);
             return;
-        } finally {
-            con.close();
         }
         // POST後に再送信されないよう、保存結果はPRGで返す。
         resp.sendRedirect(req.getContextPath() + "/estimatecalc?result=saved");

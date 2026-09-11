@@ -68,8 +68,6 @@ public class TempSaveDeleteController extends HttpServlet {
             req.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
                     .forward(req, resp);
             return;
-        } finally {
-            con.close();
         }
 
         String result = deleted == 1 ? "deleted" : "missing";

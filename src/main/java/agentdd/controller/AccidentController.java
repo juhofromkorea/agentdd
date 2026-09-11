@@ -171,8 +171,6 @@ public class AccidentController extends HttpServlet {
             request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
             request.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
                     .forward(request, response);
-        } finally {
-            con.close();
         }
     }
 }
