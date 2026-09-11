@@ -266,4 +266,49 @@ public class Contract {
         this.faxNo = faxNo;
     }
 
+
+
+/**
+ * 電話番号（表示用）
+ * 0312345678 → 03-1234-5678
+ */
+public String getFormattedTelephoneNo() {
+    return formatFixedPhoneNumber(telephoneNo);
+}
+
+/**
+ * 携帯電話番号（表示用）
+ * 09012345678 → 090-1234-5678
+ */
+public String getFormattedMobilephoneNo() {
+    if (mobilephoneNo == null || mobilephoneNo.isEmpty()) {
+        return "";
+    }
+
+    return mobilephoneNo.replaceFirst(
+            "(\\d{3})(\\d{4})(\\d{4})",
+            "$1-$2-$3");
+}
+
+/**
+ * FAX番号（表示用）
+ * 0312345678 → 03-1234-5678
+ */
+public String getFormattedFaxNo() {
+    return formatFixedPhoneNumber(faxNo);
+}
+
+/**
+ * 電話番号・FAX番号を表示用に整形する
+ * 0312345678 → 03-1234-5678
+ */
+private String formatFixedPhoneNumber(String number) {
+    if (number == null || number.isEmpty()) {
+        return "";
+    }
+
+    return number.replaceFirst(
+            "(\\d{2})(\\d{4})(\\d{4})",
+            "$1-$2-$3");
+}
 }
