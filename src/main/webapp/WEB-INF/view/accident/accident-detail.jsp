@@ -283,15 +283,15 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>電話番号</dt>
-                    <dd><c:out value='${contract.telephoneNo}' /></dd>
+                    <dd><c:out value='${contract.formattedTelephoneNo}' /></dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>携帯電話番号</dt>
-                    <dd><c:out value='${contract.mobilephoneNo}' /></dd>
+                    <dd><c:out value='${contract.formattedMobilephoneNo}' /></dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>FAX番号</dt>
-                    <dd><c:out value='${contract.faxNo}' /></dd>
+                    <dd><c:out value='${contract.formattedFaxNo}' /></dd>
                   </div>
                 </dl>
                 <div class="accident-panel-actions">
