@@ -239,6 +239,10 @@ public class EstimateCalcController extends HttpServlet {
                 // 6. 計算結果をメインの箱にセットして画面へ返す
                 claim.setPremiumAmount(totalPremium);
                 claim.setPremiumInstallment(totalPremium / contract.getInstallment());
+                claim.setVehicleRateValue(vRate);
+                claim.setBodilyRateValue(bRate);
+                claim.setPropertyDamageRateValue(pRate);
+                claim.setAccidentRateValue(aRate);
 
                 session.setAttribute("contract", contract);
                 session.setAttribute("claim", claim);
