@@ -51,7 +51,7 @@ public class TempSaveController extends HttpServlet {
         TempSave tempSave = new TempSave();
         tempSave.setTempSaveId(createTempSaveId());
         tempSave.setUserId(userId);
-        tempSave.setCreatedAt(LocalDateTime.now());
+        tempSave.setCreatedAt(LocalDateTime.now(ZoneId.of("Asia/Tokyo")));
         tempSave.setContract(contract);
         tempSave.setClaim(claim);
 
@@ -87,7 +87,7 @@ public class TempSaveController extends HttpServlet {
 
                 con.setAutoCommit(false);
                 transactionStarted = true;
-                tempSaveDao.deleteExpired(userId, LocalDateTime.now().minusMonths(1));
+                tempSaveDao.deleteExpired(userId, LocalDateTime.now(ZoneId.of("Asia/Tokyo")).minusMonths(1));
 
                 if (tempSaveDao.countByUserId(userId) >= TEMP_SAVE_LIMIT) {
                     // 期限切れの掃除だけは確定してから上限画面へ戻す。
