@@ -415,25 +415,25 @@
                   <label class="estimate-field">
                     <span class="estimate-field__label">車両料率</span>
                     <output class="estimate-control estimate-control--readonly">
-                      <fmt:formatNumber value="${claim.vehicleRates}" maxFractionDigits="2" />
+                      <fmt:formatNumber value="${claim.vehicleRateValue}" maxFractionDigits="2" />
                     </output>
                   </label>
                   <label class="estimate-field">
                     <span class="estimate-field__label">対人料率</span>
                     <output class="estimate-control estimate-control--readonly">
-                      <fmt:formatNumber value="${claim.bodilyRates}" maxFractionDigits="2" />
+                      <fmt:formatNumber value="${claim.bodilyRateValue}" maxFractionDigits="2" />
                     </output>
                   </label>
                   <label class="estimate-field">
                     <span class="estimate-field__label">対物料率</span>
                     <output class="estimate-control estimate-control--readonly">
-                      <fmt:formatNumber value="${claim.propertyDamageRates}" maxFractionDigits="2" />
+                      <fmt:formatNumber value="${claim.propertyDamageRateValue}" maxFractionDigits="2" />
                     </output>
                   </label>
                   <label class="estimate-field">
                     <span class="estimate-field__label">傷害料率</span>
                     <output class="estimate-control estimate-control--readonly">
-                      <fmt:formatNumber value="${claim.accidentRates}" maxFractionDigits="2" />
+                      <fmt:formatNumber value="${claim.accidentRateValue}" maxFractionDigits="2" />
                     </output>
                   </label>
 
