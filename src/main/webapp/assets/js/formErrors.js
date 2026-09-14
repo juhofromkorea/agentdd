@@ -26,45 +26,87 @@
         let submitted = false, lastButton = null;
         function ensureSlots() {
             controls(form).forEach(el => {
-                if (slots.has(el)) return;
+
+                if (slots.has(el)) {
+                    return;
+                }
+
                 const slot = document.createElement('span');
-                slot.className = 'field-error'; slot.id = 'field-error-' + (++sequence);
+                slot.className = 'field-error'; 
+                slot.id = 'field-error-' + (++sequence);
                 slot.hidden = true; slot.setAttribute('aria-live', 'polite');
-                const holder = el.closest('.form-field, .accident-affixed-control, .accounting-start-field, .estimate-field');
-                (holder || el).insertAdjacentElement('afterend', slot);
+
+                const field = el.closest('.estimate-field, .accident-field');
+
+                if (field) {
+                    // 入力項目内の最後の要素として追加
+                    field.appendChild(slot);
+                } else {
+                    const holder = el.closest('.form-field, .accounting-start-field');
+                    (holder || el).insertAdjacentElement('afterend', slot);
+                }
+
                 const described = new Set((el.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean));
-                described.add(slot.id); el.setAttribute('aria-describedby', [...described].join(' '));
+                described.add(slot.id); 
+                el.setAttribute('aria-describedby', [...described].join(' '));
                 slots.set(el, slot);
             });
         }
+
         const summary = document.createElement('p');
-        summary.className = 'field-error form-error'; summary.hidden = true;
-        summary.tabIndex = -1; summary.setAttribute('role', 'alert');
+        summary.className = 'field-error form-error'; 
+        summary.hidden = true;
+        summary.tabIndex = -1; 
+        summary.setAttribute('role', 'alert');
+
         // estimateのformは補償タブ内なので、全体エラーはタブの外へ。
         const workspace = form.closest('.estimate-workspace');
-        if (workspace) workspace.before(summary); else form.prepend(summary);
+        if (workspace) {
+            workspace.before(summary);
+        } else {
+            form.prepend(summary);
+        }
+
         function show(errors, focus = false) {
             ensureSlots();
             let first = null;
             slots.forEach((slot, el) => {
                 const message = el.disabled ? '' : (errors[el.name] || '');
-                slot.textContent = message; slot.hidden = !message;
-                if (message) { el.setAttribute('aria-invalid', 'true'); first ||= el; }
-                else el.removeAttribute('aria-invalid');
+                slot.textContent = message; 
+                slot.hidden = !message;
+
+                if (message) { 
+                    el.setAttribute('aria-invalid', 'true'); 
+                    first ||= el; 
+                } else {
+                    el.removeAttribute('aria-invalid');
+                }
             });
+
             const unresolved = Object.keys(errors).some(name => name !== '_form' && !controls(form).some(el => el.name === name));
             summary.textContent = errors._form || (unresolved ? '入力内容を確認してください。' : '');
             summary.hidden = !summary.textContent;
-            if (focus && first) { reveal(first); first.focus(); }
-            else if (focus && !summary.hidden) summary.focus();
+
+            if (focus && first) { 
+                reveal(first); first.focus();
+            } else if (focus && !summary.hidden) {
+                summary.focus();
+            }
+
             return Object.keys(errors).length === 0;
         }
+
         form.addEventListener('submit', event => {
-            if (event.defaultPrevented) return;
+            if (event.defaultPrevented) {
+                return;
+            }
             lastButton = event.submitter;
             submitted = true;
-            if (!show(validate(values(form), lastButton), true)) event.preventDefault();
+            if (!show(validate(values(form), lastButton), true)) {
+                event.preventDefault();
+            }
         });
+
         // form属性で関連付けられた、formの外側にある入力も対象とする。
         function onEdit(event) {
             if (event.target.form !== form) return;
@@ -76,13 +118,22 @@
             submitted = false; lastButton = null;
             show({});
             const loginError = document.getElementById('login-error-message');
-            if (loginError && form.dataset.validation === 'login') { loginError.textContent = ''; loginError.hidden = true; }
+            if (loginError && form.dataset.validation === 'login') { 
+                loginError.textContent = ''; loginError.hidden = true; 
+            }
         });
         const server = {};
         document.querySelectorAll('[data-server-error]').forEach(el => {
-            if (el.dataset.errorForm === form.id) { server[el.dataset.serverError] = el.textContent.trim(); el.hidden = true; }
+            if (el.dataset.errorForm === form.id) { 
+                server[el.dataset.serverError] = el.textContent.trim(); 
+                el.hidden = true; 
+            }
         });
-        if (Object.keys(server).length) show(server, true);
+
+        if (Object.keys(server).length) {
+            show(server, true);
+        }
+        
         return { show, values: () => values(form) };
     }
     window.FormErrors = { attach, values, controls };
