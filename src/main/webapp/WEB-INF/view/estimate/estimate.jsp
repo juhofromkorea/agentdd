@@ -501,7 +501,7 @@
                               <c:out value="${tempSave.contract.nameKanji2}" />
                             </td>
                             <td data-label="郵便番号">
-                              <c:out value="${tempSave.contract.postcode}" />
+                              <c:out value="${tempSave.contract.formattedPostcode}" />
                             </td>
                             <td data-label="住所">
                               <c:out value="${tempSave.contract.addressKanji1}" />
@@ -509,7 +509,7 @@
                               <c:out value="${tempSave.contract.addressKanji2}" />
                             </td>
                             <td data-label="連絡先">
-                              <c:out value="${tempSave.contract.telephoneNo}" />
+                              <c:out value="${tempSave.contract.formattedTelephoneNo}" />
                             </td>
                             <td data-label="操作" class="estimate-table__actions">
                               <form action="${pageContext.request.contextPath}/tempSaveResume"
