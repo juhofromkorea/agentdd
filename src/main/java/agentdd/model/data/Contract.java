@@ -1,5 +1,12 @@
 package agentdd.model.data;
 
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.chrono.JapaneseDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 public class Contract {
 
     private String insatsuRenban;
@@ -33,6 +40,14 @@ public class Contract {
     private String statusStr;
     private String insuredStr;
     private String genderStr;
+
+    // 和暦表示用フォーマッター
+    private static final DateTimeFormatter JAPANESE_DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("Gy年M月d日", Locale.JAPAN);
+    
+    // 午前・午後表示用フォーマッター
+    private static final DateTimeFormatter JAPANESE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("aK時", Locale.JAPAN);
 
     public String getPaymentStr() {
         return paymentStr;
@@ -274,6 +289,16 @@ public class Contract {
         return formatFixedPhoneNumber(telephoneNo);
     }
 
+    public String getFormattedPostcode() {
+        if (postcode == null || postcode.isEmpty()) {
+            return "";
+        }
+
+        return postcode.replaceFirst(
+                "(\\d{3})(\\d{4})",
+                "$1-$2");
+    }
+
     /**
      * 携帯電話番号（表示用）
      * 09012345678 → 090-1234-5678
@@ -308,5 +333,88 @@ public class Contract {
         return number.replaceFirst(
                 "(\\d{2})(\\d{4})(\\d{4})",
                 "$1-$2-$3");
+    }
+
+    /**
+     * 生年月日（表示用）
+     * 19980219 → 平成10年2月19日
+     */
+    public String getFormattedBirthday() {
+        return formatJapaneseDate(birthday);
+    }
+
+    /**
+     * 保険期間開始日（表示用）
+     * 20260901 → 令和8年9月1日
+     */
+    public String getFormattedInceptionDate() {
+        return formatJapaneseDate(inceptionDate);
+    }
+
+    /**
+     * 保険期間満期日（表示用）
+     * 20260930 → 令和8年9月30日
+     */
+    public String getFormattedConclusionDate() {
+        return formatJapaneseDate(conclusionDate);
+    }
+
+    /**
+     * 保険期間開始時刻（表示用）
+     * 09 → 午前9時
+     * 15 → 午後3時
+     */
+    public String getFormattedInceptionTime() {
+        return formatJapaneseTime(inceptionTime);
+    }
+
+    /**
+     * 保険期間満期時刻（表示用）
+     * 18 → 午後6時
+     */
+    public String getFormattedConclusionTime() {
+        return formatJapaneseTime(conclusionTime);
+    }
+
+    /**
+     * yyyyMMdd形式の日付を和暦に変換する
+     */
+    private String formatJapaneseDate(String dateValue) {
+        if (dateValue == null || dateValue.isBlank()) {
+            return "";
+        }
+
+        try {
+            LocalDate localDate = LocalDate.parse(
+                dateValue,
+                DateTimeFormatter.BASIC_ISO_DATE);
+            
+            JapaneseDate japaneseDate = JapaneseDate.from(localDate);
+
+            return japaneseDate.format(JAPANESE_DATE_FORMATTER);
+
+        } catch (DateTimeException e) {
+            // 不正な値の場合は、調査できるよう元の値を返す
+            return dateValue;
+        }
+    }
+
+    /**
+     * HH形式の時刻を午前・午後表記に変換する
+     */
+    private String formatJapaneseTime(String timeValue) {
+        if (timeValue == null || timeValue.isBlank()) {
+            return "";
+        }
+
+        try {
+            int hour = Integer.parseInt(timeValue);
+            LocalTime localTime = LocalTime.of(hour, 0);
+
+            return localTime.format(JAPANESE_TIME_FORMATTER);
+
+        } catch (NumberFormatException | DateTimeException e) {
+            return timeValue;
+        }
     }
 }
