@@ -19,12 +19,24 @@ public class ClaimDao {
     public Claim getClaimForAccount(String insatsuRenban) throws SQLException {
         String sql = "SELECT cv.*, "
                 + "lc.name AS license_color_name, "
-                + "al.name AS age_limit_name "
+                + "al.name AS age_limit_name, "
+                + "vr.rates AS vehicle_rate_value, "
+                + "br.rates AS bodily_rate_value, "
+                + "pdr.rates AS property_damage_rate_value, "
+                + "ar.rates AS accident_rate_value "
                 + "FROM COVER_TBL cv "
                 + "LEFT JOIN m_license_color_tbl lc "
                 + "ON cv.license_color = lc.id "
                 + "LEFT JOIN m_age_limit_tbl al "
                 + "ON cv.age_limit = al.id "
+                + "LEFT JOIN m_rates_tbl vr "
+                + "ON cv.vehicle_rates = vr.id "
+                + "LEFT JOIN m_rates_tbl br "
+                + "ON cv.bodily_rates = br.id "
+                + "LEFT JOIN m_rates_tbl pdr "
+                + "ON cv.property_damage_rates = pdr.id "
+                + "LEFT JOIN m_rates_tbl ar "
+                + "ON cv.accident_rates = ar.id "
                 + "WHERE cv.insatsu_renban = ?";
 
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -44,6 +56,10 @@ public class ClaimDao {
         String sql = "SELECT cv.*, "
                 + "lc.name AS license_color_name, "
                 + "al.name AS age_limit_name "
+                + "vr.rates AS vehicle_rate_value, "
+                + "br.rates AS bodily_rate_value, "
+                + "pdr.rates AS property_damage_rate_value, "
+                + "ar.rates AS accident_rate_value "
                 + "FROM COVER_TBL cv "
                 + "INNER JOIN CONTRACTINFO_TBL co "
                 + "ON cv.insatsu_renban = co.insatsu_renban "
@@ -51,6 +67,13 @@ public class ClaimDao {
                 + "ON cv.license_color = lc.id "
                 + "LEFT JOIN m_age_limit_tbl al "
                 + "ON cv.age_limit = al.id "
+                + "ON cv.vehicle_rates = vr.id "
+                + "LEFT JOIN m_rates_tbl br "
+                + "ON cv.bodily_rates = br.id "
+                + "LEFT JOIN m_rates_tbl pdr "
+                + "ON cv.property_damage_rates = pdr.id "
+                + "LEFT JOIN m_rates_tbl ar "
+                + "ON cv.accident_rates = ar.id "
                 + "WHERE co.pol_no = ?";
 
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -114,6 +137,12 @@ public class ClaimDao {
         // マスタから取得した表示用名称
         claim.setLicenseColorStr(res.getString("license_color_name"));
         claim.setAgeLimitStr(res.getString("age_limit_name"));
+
+        // 料率マスタから取得した実際の料率
+        claim.setVehicleRateValue(res.getObject("vehicle_rate_value", Double.class));
+        claim.setBodilyRateValue(res.getObject("bodily_rate_value", Double.class));
+        claim.setPropertyDamageRateValue(res.getObject("property_damage_rate_value", Double.class));
+        claim.setAccidentRateValue(res.getObject("accident_rate_value", Double.class));
 
         return claim;
     }

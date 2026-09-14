@@ -16,8 +16,13 @@ public class Claim {
     private Integer accidentRates;
     private Integer licenseColor;
     private Integer ageLimit;
+
     private String licenseColorStr;
     private String ageLimitStr;
+    private Double vehicleRateValue;
+    private Double bodilyRateValue;
+    private Double propertyDamageRateValue;
+    private Double accidentRateValue;
 
     public Integer getCoverId() {
         return coverId;
@@ -145,5 +150,37 @@ public class Claim {
 
     public void setAgeLimitStr(String ageLimitStr) {
         this.ageLimitStr = ageLimitStr;
+    }
+
+    public Double getVehicleRateValue() {
+        return vehicleRateValue;
+    }
+
+    public void setVehicleRateValue(Double vehicleRateValue) {
+        this.vehicleRateValue = vehicleRateValue;
+    }
+
+    public Double getBodilyRateValue() {
+        return bodilyRateValue;
+    }
+
+    public void setBodilyRateValue(Double bodilyRateValue) {
+        this.bodilyRateValue = bodilyRateValue;
+    }
+
+    public Double getPropertyDamageRateValue() {
+        return propertyDamageRateValue;
+    }
+
+    public void setPropertyDamageRateValue(Double propertyDamageRateValue) {
+        this.propertyDamageRateValue = propertyDamageRateValue;
+    }
+
+    public Double getAccidentRateValue() {
+        return accidentRateValue;
+    }
+
+    public void setAccidentRateValue(Double accidentRateValue) {
+        this.accidentRateValue = accidentRateValue;
     }
 }
