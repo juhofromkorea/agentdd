@@ -55,7 +55,7 @@ public class ClaimDao {
 
         String sql = "SELECT cv.*, "
                 + "lc.name AS license_color_name, "
-                + "al.name AS age_limit_name "
+                + "al.name AS age_limit_name, "
                 + "vr.rates AS vehicle_rate_value, "
                 + "br.rates AS bodily_rate_value, "
                 + "pdr.rates AS property_damage_rate_value, "
@@ -67,6 +67,7 @@ public class ClaimDao {
                 + "ON cv.license_color = lc.id "
                 + "LEFT JOIN m_age_limit_tbl al "
                 + "ON cv.age_limit = al.id "
+                + "LEFT JOIN m_rates_tbl vr "
                 + "ON cv.vehicle_rates = vr.id "
                 + "LEFT JOIN m_rates_tbl br "
                 + "ON cv.bodily_rates = br.id "
