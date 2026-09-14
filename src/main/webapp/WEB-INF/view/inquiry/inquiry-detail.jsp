@@ -127,11 +127,11 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>生年月日</dt>
-                    <dd>${contract.birthday}</dd>
+                    <dd>${contract.formattedBirthday}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>郵便番号</dt>
-                    <dd>${contract.postcode}</dd>
+                    <dd>${contract.formattedPostcode}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>住所1（漢字）</dt>
@@ -142,11 +142,11 @@
                     <dd>${contract.addressKanji2}</dd>
                   </div>
                   <div class="accounting-data-row">
-                    <dt>住所1（カタカナ）</dt>
+                    <dt>住所1（カナ）</dt>
                     <dd>${contract.addressKana1}</dd>
                   </div>
                   <div class="accounting-data-row">
-                    <dt>住所2（カタカナ）</dt>
+                    <dt>住所2（カナ）</dt>
                     <dd>${contract.addressKana2}</dd>
                   </div>
                   <div class="accounting-data-row">
@@ -162,20 +162,20 @@
                     <dd>${contract.formattedFaxNo}</dd>
                   </div>
                   <div class="accounting-data-row">
-                    <dt>保険期間開始日</dt>
-                    <dd>${contract.inceptionDate}</dd>
+                    <dt>保険期間始期日</dt>
+                    <dd>${contract.formattedInceptionDate}</dd>
                   </div>
                   <div class="accounting-data-row">
-                    <dt>保険期間開始時刻</dt>
-                    <dd>${contract.inceptionTime}</dd>
+                    <dt>保険期間始期時刻</dt>
+                    <dd>${contract.formattedInceptionTime}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>保険期間満期日</dt>
-                    <dd>${contract.conclusionDate}</dd>
+                    <dd>${contract.formattedConclusionDate}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>保険期間満期時刻</dt>
-                    <dd>${contract.conclusionTime}</dd>
+                    <dd>${contract.formattedConclusionTime}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>払込方法</dt>
@@ -220,19 +220,19 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>車両料率</dt>
-                    <dd>${claim.vehicleRates}</dd>
+                    <dd>${claim.vehicleRateValue}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>対人料率</dt>
-                    <dd>${claim.bodilyRates}</dd>
+                    <dd>${claim.bodilyRateValue}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>対物料率</dt>
-                    <dd>${claim.propertyDamageRates}</dd>
+                    <dd>${claim.propertyDamageRateValue}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>傷害料率</dt>
-                    <dd>${claim.accidentRates}</dd>
+                    <dd>${claim.accidentRateValue}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>年齢条件</dt>

@@ -198,12 +198,12 @@
                     </label>
 
                     <label class="estimate-field">
-                      <span class="estimate-field__label">住所1（カタカナ）</span>
+                      <span class="estimate-field__label">住所1（カナ）</span>
                       <input class="estimate-control" type="text" name="addressKana1"
                         value="${fn:escapeXml(contract.addressKana1)}" form="coverage-form" placeholder="例：トウキョウトタマシ" />
                     </label>
                     <label class="estimate-field">
-                      <span class="estimate-field__label">住所2（カタカナ）</span>
+                      <span class="estimate-field__label">住所2（カナ）</span>
                       <input class="estimate-control" type="text" name="addressKana2"
                         value="${fn:escapeXml(contract.addressKana2)}" form="coverage-form" placeholder="例：1-1-1" />
                     </label>
@@ -226,7 +226,7 @@
                     </label>
 
                     <label class="estimate-field">
-                      <span class="estimate-field__label">保険期間開始日</span>
+                      <span class="estimate-field__label">保険期間始期日</span>
                       <input class="estimate-control" type="date" name="inceptionDate" form="coverage-form"
                         <c:if
                         test="${not empty contract.inceptionDate and fn:length(contract.inceptionDate) == 8}">value="${fn:escapeXml(fn:substring(contract.inceptionDate,
@@ -236,7 +236,7 @@
                     </label>
 
                     <label class="estimate-field">
-                      <span class="estimate-field__label">保険期間開始時刻</span>
+                      <span class="estimate-field__label">保険期間始期時刻</span>
                       <select class="estimate-control" name="inceptionTime" form="coverage-form">
                         <option value="" ${empty contract.inceptionTime ? 'selected' : '' }>選択してください</option>
                         <option value="09" ${contract.inceptionTime=='09' ? 'selected' : '' }>午前9時</option>

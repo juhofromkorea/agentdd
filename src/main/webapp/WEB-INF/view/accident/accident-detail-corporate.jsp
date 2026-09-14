@@ -230,8 +230,10 @@
                 <dl class="accounting-data-list">
                   <div class="accounting-data-row">
                     <dt>保険期間</dt>
-                    <dd><c:out value='${contract.inceptionDate}' /> <c:out value='${contract.inceptionTime}' /> ～ <c:out value='${contract.conclusionDate}' />
-                      <c:out value='${contract.conclusionTime}' /></dd>
+                    <dd><c:out value='${contract.formattedInceptionDate}' /> 
+                      <c:out value='${contract.formattedInceptionTime}' /> ～ 
+                      <c:out value='${contract.formattedConclusionDate}' />
+                      <c:out value='${contract.formattedConclusionTime}' /></dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>証券番号</dt>
@@ -271,7 +273,7 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>郵便番号</dt>
-                    <dd><c:out value='${contract.postcode}' /></dd>
+                    <dd><c:out value='${contract.formattedPostcode}' /></dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>電話番号</dt>
@@ -327,19 +329,19 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>車両料率</dt>
-                    <dd><c:out value='${claim.vehicleRates}' /></dd>
+                    <dd><c:out value='${claim.vehicleRateValue}' /></dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>対人料率</dt>
-                    <dd><c:out value='${claim.bodilyRates}' /></dd>
+                    <dd><c:out value='${claim.bodilyRateValue}' /></dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>対物料率</dt>
-                    <dd><c:out value='${claim.propertyDamageRates}' /></dd>
+                    <dd><c:out value='${claim.propertyDamageRateValue}' /></dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>傷害料率</dt>
-                    <dd><c:out value='${claim.accidentRates}' /></dd>
+                    <dd><c:out value='${claim.accidentRateValue}' /></dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>年齢条件</dt>
