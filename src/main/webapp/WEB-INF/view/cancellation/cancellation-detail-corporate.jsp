@@ -107,7 +107,7 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>会社名（カナ）</dt>
-                    <dd>${contract.nameKanji2}</dd>
+                    <dd>${contract.nameKana1}</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>郵便番号</dt>
