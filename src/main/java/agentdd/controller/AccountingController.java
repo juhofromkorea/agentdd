@@ -75,7 +75,7 @@ public class AccountingController extends HttpServlet {
 
                 if (!Integer.valueOf(1).equals(contract.getStatusFlg())
                         && !Integer.valueOf(9).equals(contract.getStatusFlg())) {
-                    request.setAttribute("fieldErrors", java.util.Map.of("insatsuRenban", "計上可能な契約ではありません。計上済み・解約申請中でないか確認してください。"));
+                    request.setAttribute("fieldErrors", java.util.Map.of("insatsuRenban", "計上可能な契約ではありません。計上済みでないか確認してください。"));
                     con.rollback();
                     request.getRequestDispatcher("/WEB-INF/view/accounting/accounting.jsp").forward(request, response);
                     return;
