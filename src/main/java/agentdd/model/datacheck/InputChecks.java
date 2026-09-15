@@ -19,7 +19,7 @@ public final class InputChecks {
         return value == null ? "" : value.trim(); 
     }
 
-    private static void add(Map<String, String> errors, String key, boolean valid, String message) {
+    public static void add(Map<String, String> errors, String key, boolean valid, String message) {
         if (!valid) errors.putIfAbsent(key, message);
     }
 
