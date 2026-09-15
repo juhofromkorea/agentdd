@@ -58,9 +58,31 @@
         if (D.checkDate(v.inceptionDate) && D.checkDate(v.conclusionDate)) add('conclusionDate', D.checkInsurancePeriod(v.inceptionDate, v.conclusionDate), '満期日は始期日より後にしてください。');
         if (D.checkRequired(v.birthday)) add('birthday', D.checkBirthday(v.birthday), '生年月日は本日以前の日付にしてください。');
         if (D.checkRequired(v.postcode)) add('postcode', D.checkpostcode(v.postcode), '郵便番号は123-4567または1234567の形式で入力してください。');
-        ['telephoneNo', 'mobilephoneNo', 'faxNo'].forEach(name => {
-            if (D.checkRequired(v[name])) add(name, D.checkPhoneNoFormat(v[name]), '電話番号は半角数字10～11桁で入力してください（ハイフン可）。');
-        });
+        
+        if (D.checkRequired(v.telephoneNo)) {
+            add(
+                'telephoneNo',
+                D.checkPhoneNoFormat(v.telephoneNo, 10),
+                '電話番号は半角数字10桁で入力してください（ハイフン可）。'
+            );
+        }
+
+        if (D.checkRequired(v.mobilephoneNo)) {
+            add(
+                'mobilephoneNo',
+                D.checkPhoneNoFormat(v.mobilephoneNo, 11),
+                '携帯電話番号は半角数字11桁で入力してください（ハイフン可）。'
+            );
+        }
+
+        if (D.checkRequired(v.faxNo)) {
+            add(
+                'faxNo',
+                D.checkPhoneNoFormat(v.faxNo, 10),
+                'FAX番号は半角数字10桁で入力してください（ハイフン可）。'
+            );
+        }
+
         const candidates = { insuredKbn: ['1', '2'], gender: ['1', '2'], licenseColor: ['1', '2', '3'], ageLimit: ['1', '2', '3'], paymentMethod: ['1', '2', '3'], installment: ['1', '6', '12'], inceptionTime: ['09', '10', '11', '12', '13', '14', '15', '16', '17', '18'], conclusionTime: ['09', '10', '11', '12', '13', '14', '15', '16', '17', '18'] };
         Object.entries(candidates).forEach(([name, choices]) => {
             if (D.checkRequired(v[name])) add(name, D.checkClaimMaster(v[name], choices), '選択肢から選び直してください。');

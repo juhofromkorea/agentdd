@@ -269,19 +269,38 @@
 
                     <label class="estimate-field">
                       <span class="estimate-field__label">電話番号</span>
-                      <input class="estimate-control" type="tel" name="telephoneNo"
-                        value="${fn:escapeXml(contract.telephoneNo)}" form="coverage-form" placeholder="例：00-0000-0000" />
+                      <input 
+                        class="estimate-control" 
+                        type="tel" 
+                        name="telephoneNo"
+                        value="${fn:escapeXml(contract.telephoneNo)}" 
+                        form="coverage-form" 
+                        maxlength="13"
+                        placeholder="例：00-0000-0000" />
                     </label>
+
                     <label class="estimate-field">
                       <span class="estimate-field__label">携帯電話番号</span>
-                      <input class="estimate-control" type="tel" name="mobilephoneNo"
-                        value="${fn:escapeXml(contract.mobilephoneNo)}" form="coverage-form" placeholder="例：000-0000-0000" />
+                      <input 
+                        class="estimate-control" 
+                        type="tel" 
+                        name="mobilephoneNo"
+                        value="${fn:escapeXml(contract.mobilephoneNo)}" 
+                        form="coverage-form" 
+                        maxlength="14"
+                        placeholder="例：000-0000-0000" />
                     </label>
 
                     <label class="estimate-field estimate-field--wide">
                       <span class="estimate-field__label">FAX番号</span>
-                      <input class="estimate-control estimate-control--half" type="tel" name="faxNo"
-                        value="${fn:escapeXml(contract.faxNo)}" form="coverage-form" placeholder="例：00-0000-0000" />
+                      <input 
+                        class="estimate-control estimate-control--half" 
+                        type="tel" 
+                        name="faxNo"
+                        value="${fn:escapeXml(contract.faxNo)}" 
+                        form="coverage-form" 
+                        maxlength="13"
+                        placeholder="例：00-0000-0000" />
                     </label>
 
                     <label class="estimate-field">

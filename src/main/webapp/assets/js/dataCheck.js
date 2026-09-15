@@ -5,17 +5,23 @@
     const required = value => text(value) !== '';
     function date(value) {
         const raw = text(value);
-        if (!/^(?:\d{8}|\d{4}-\d{2}-\d{2})$/.test(raw)) return null;
+        if (!/^(?:\d{8}|\d{4}-\d{2}-\d{2})$/.test(raw)) {
+            return null;
+        }
         const digits = raw.replaceAll('-', '');
-        const y = Number(digits.slice(0, 4)), m = Number(digits.slice(4, 6)), d = Number(digits.slice(6, 8));
+        const y = Number(digits.slice(0, 4)), 
+            m = Number(digits.slice(4, 6)), 
+            d = Number(digits.slice(6, 8));
         const result = new Date(0);
         result.setFullYear(y, m - 1, d);
         result.setHours(0, 0, 0, 0);
         return y > 0 && result.getFullYear() === y && result.getMonth() === m - 1 && result.getDate() === d ? result : null;
     }
+
     function amount(value, max = '999999999999999999') {
         return /^\d{1,18}$/.test(text(value)) && BigInt(text(value)) <= BigInt(max);
     }
+
     const D = {
         text, date,
         checkReceptionNumber: (polNo, claimNo) => required(polNo) !== required(claimNo), // 01
@@ -36,7 +42,22 @@
         checkInsurancePeriod: (start, end) => !!date(start) && !!date(end) && date(end) > date(start), // 12
         checkBirthday: (birthday, today = new Date()) => !!date(birthday) && date(birthday) <= today, // 13
         checkpostcode: value => /^(?:\d{7}|\d{3}-\d{4})$/.test(text(value)), // 14 DBの7桁表示とも互換
-        checkPhoneNoFormat: value => /^(?:\d{10,11}|\d{2,5}-\d{1,4}-\d{4})$/.test(text(value)) && /^(?:\d{10}|\d{11})$/.test(text(value).replaceAll('-', '')), // 15
+        
+        checkPhoneNoFormat(value, digitCount) {
+            const raw = text(value);
+
+            if (digitCount === 10) {
+                return /^(?:\d{10}|\d{2,5}-\d{1,4}-\d{4})$/.test(raw)
+                    && /^\d{10}$/.test(raw.replaceAll('-', ''));
+            }
+
+            if (digitCount === 11) {
+                return /^(?:\d{11}|\d{3}-\d{4}-\d{4})$/.test(raw);
+            }
+
+            return false;
+        },
+
         checkPhoneNoFilledIn: (tel, mobile) => required(tel) || required(mobile), // 16
         checkAmount: amount, // 17 BigIntで18桁を正確に比較
         checkRatingBlame: value => amount(value, 100), // 18
@@ -64,6 +85,9 @@
         checkDamage: (price, state) => (required(price) && amount(price) && BigInt(text(price)) > 0n) === required(state) // 30 現行モデルの0=未入力と統一
     };
     D.checkAgeIimit = D.checkAgeLimit; // 一覧の綴りに対する互換エイリアス
-    if (typeof module !== 'undefined' && module.exports) module.exports = D;
-    else root.DataCheck = Object.freeze(D);
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = D;
+    } else {
+        root.DataCheck = Object.freeze(D);
+    }
 })(globalThis);
