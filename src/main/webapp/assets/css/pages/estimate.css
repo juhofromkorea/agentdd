@@ -896,3 +896,16 @@ html.dark-mode .app-shell
     transition: none;
   }
 }
+
+@media (min-width: 721px) {
+  .estimate-table__action-buttons {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 5px;
+  }
+
+  .estimate-table__action-buttons form {
+    margin: 0;
+  }
+}
