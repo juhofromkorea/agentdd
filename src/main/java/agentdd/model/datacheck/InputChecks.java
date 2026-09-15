@@ -112,30 +112,57 @@ public final class InputChecks {
 
     public static Map<String, String> estimate(HttpServletRequest request, boolean draft) {
         
-        Map<String, String> v = estimateValues(request), e = new LinkedHashMap<>();
+        Map<String, String> v = estimateValues(request), 
+            e = new LinkedHashMap<>();
         
-        if (!draft) {
-            for (String name : new String[] {
-                    "insuredKbn", "nameKanji1", "nameKana1", 
-                    "postcode", "addressKanji1", "addressKana1", 
-                    "inceptionDate", "conclusionDate", "inceptionTime", 
-                    "conclusionTime", "paymentMethod", "installment", 
-                    "maker", "carName", "licenseNo", "licenseColor", "ageLimit"}) {
-                add(e, name, !v.get(name).isEmpty(), "入力・選択してください。");
-            }
-            if ("1".equals(v.get("insuredKbn"))) {
-                for (String name : new String[] {
-                        "nameKanji2", "nameKana2", "gender", "birthday"}) {
-                    add(e, name, !v.get(name).isEmpty(), "入力・選択してください。");
-                }
-            }
+        String[] requiredFields;
 
-            boolean phone = !v.get("telephoneNo").isEmpty() || !v.get("mobilephoneNo").isEmpty();
-
-            add(e, "telephoneNo", phone, "電話番号・携帯電話番号のどちらかを入力してください。");
-            add(e, "mobilephoneNo", phone, "電話番号・携帯電話番号のどちらかを入力してください。");
+        if (draft) {
+            // 一時保存一覧に表示するための必須項目
+            requiredFields = new String[] {
+                "insuredKbn", "nameKanji1",
+                "postcode", "addressKanji1"
+            };
+        } else {
+            // 保険料試算時の必須項目
+            requiredFields = new String[] {
+                "insuredKbn", "nameKanji1", "nameKana1", 
+                "postcode", "addressKanji1", "addressKana1", 
+                "inceptionDate", "conclusionDate", "inceptionTime", 
+                "conclusionTime", "paymentMethod", "installment", 
+                "maker", "carName", "licenseNo", "licenseColor", "ageLimit"
+            };
         }
 
+        for (String name : requiredFields) {
+            add(e, name, !v.get(name).isEmpty(), 
+                "入力・選択してください。");
+        }
+        
+        if ("1".equals(v.get("insuredKbn"))) {
+
+            if (draft) {
+                // 一時保存一覧で姓名を表示するため
+                add(e, "nameKanji2", !v.get("nameKanji2").isEmpty(),
+                    "入力・選択してください。");
+            } else {
+                for (String name : new String[] {
+                        "nameKanji2", "nameKana2", "gender", "birthday"}) {
+                    add(e, name, !v.get(name).isEmpty(), 
+                        "入力・選択してください。");
+                }
+            }
+        }
+
+        boolean phone = 
+            !v.get("telephoneNo").isEmpty() 
+            || !v.get("mobilephoneNo").isEmpty();
+
+        add(e, "telephoneNo", phone, 
+            "電話番号・携帯電話番号のどちらかを入力してください。");
+        add(e, "mobilephoneNo", phone, 
+            "電話番号・携帯電話番号のどちらかを入力してください。");
+        
         for (String name : new String[] {"nameKana1", "nameKana2"}) {
             if (!v.get(name).isEmpty()) {
                 add(e, name, v.get(name).matches("[ァ-ヺー・　 ]+"), "全角カタカナで入力してください。");

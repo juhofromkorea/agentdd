@@ -275,7 +275,7 @@
                         name="telephoneNo"
                         value="${fn:escapeXml(contract.telephoneNo)}" 
                         form="coverage-form" 
-                        maxlength="13"
+                        maxlength="12"
                         placeholder="例：00-0000-0000" />
                     </label>
 
@@ -287,7 +287,7 @@
                         name="mobilephoneNo"
                         value="${fn:escapeXml(contract.mobilephoneNo)}" 
                         form="coverage-form" 
-                        maxlength="14"
+                        maxlength="13"
                         placeholder="例：000-0000-0000" />
                     </label>
 
@@ -299,7 +299,7 @@
                         name="faxNo"
                         value="${fn:escapeXml(contract.faxNo)}" 
                         form="coverage-form" 
-                        maxlength="13"
+                        maxlength="12"
                         placeholder="例：00-0000-0000" />
                     </label>
 
@@ -593,7 +593,18 @@
                               <c:out value="${tempSave.contract.addressKanji2}" />
                             </td>
                             <td data-label="連絡先">
-                              <c:out value="${tempSave.contract.formattedTelephoneNo}" />
+                              <c:if test="${not empty tempSave.contract.telephoneNo}">
+                                <c:out value="${tempSave.contract.formattedTelephoneNo}" />
+                              </c:if>
+
+                              <c:if test="${not empty tempSave.contract.telephoneNo
+                                            and not empty tempSave.contract.mobilephoneNo}">
+                                <br />
+                              </c:if>
+
+                              <c:if test="${not empty tempSave.contract.mobilephoneNo}">
+                                <c:out value="${tempSave.contract.formattedMobilephoneNo}" />
+                              </c:if>
                             </td>
                             <td data-label="操作" class="estimate-table__actions">
                               <form action="${pageContext.request.contextPath}/tempSaveResume"

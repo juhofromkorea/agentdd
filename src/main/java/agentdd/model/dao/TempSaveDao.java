@@ -99,7 +99,8 @@ public class TempSaveDao {
         List<TempSave> tempSaveList = new ArrayList<>();
         String sql = "SELECT save_no, `user`, created_at, "
                 + "name_kanji1, name_kanji2, postcode, "
-                + "address_kanji1, address_kanji2, telephone_no "
+                + "address_kanji1, address_kanji2, "
+                + "telephone_no, mobilephone_no, "
                 + "FROM tempsave_tbl "
                 + "WHERE `user` = ? "
                 + "ORDER BY created_at DESC";
@@ -121,6 +122,7 @@ public class TempSaveDao {
                     contract.setAddressKanji1(rs.getString("address_kanji1"));
                     contract.setAddressKanji2(rs.getString("address_kanji2"));
                     contract.setTelephoneNo(rs.getString("telephone_no"));
+                    contract.setMobilephoneNo(rs.getString("mobilephone_no"));
                     tempSave.setContract(contract);
 
                     tempSaveList.add(tempSave);
