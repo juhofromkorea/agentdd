@@ -120,24 +120,48 @@
 
                     <label class="estimate-field estimate-field--personal">
                       <span class="estimate-field__label">姓（漢字）</span>
-                      <input class="estimate-control" type="text" name="nameKanji1"
-                        value="${fn:escapeXml(contract.nameKanji1)}" form="coverage-form" placeholder="例：東京" />
+                      <input 
+                        class="estimate-control" 
+                        type="text" 
+                        name="nameKanji1"
+                        value="${fn:escapeXml(contract.nameKanji1)}" 
+                        form="coverage-form" 
+                        maxlength="48"
+                        placeholder="例：東京" />
                     </label>
                     <label class="estimate-field estimate-field--personal">
                       <span class="estimate-field__label">名（漢字）</span>
-                      <input class="estimate-control" type="text" name="nameKanji2"
-                        value="${fn:escapeXml(contract.nameKanji2)}" form="coverage-form" placeholder="例：太郎" />
+                      <input 
+                        class="estimate-control" 
+                        type="text" 
+                        name="nameKanji2"
+                        value="${fn:escapeXml(contract.nameKanji2)}" 
+                        form="coverage-form" 
+                        maxlength="48"
+                        placeholder="例：太郎" />
                     </label>
 
                     <label class="estimate-field estimate-field--personal">
                       <span class="estimate-field__label">姓（カナ）</span>
-                      <input class="estimate-control" type="text" name="nameKana1" value="${fn:escapeXml(contract.nameKana1)}"
-                        form="coverage-form" placeholder="例：トウキョウ" />
+                      <input 
+                        class="estimate-control" 
+                        type="text" 
+                        name="nameKana1" 
+                        value="${fn:escapeXml(contract.nameKana1)}"
+                        form="coverage-form" 
+                        maxlength="48"
+                        placeholder="例：トウキョウ" />
                     </label>
                     <label class="estimate-field estimate-field--personal">
                       <span class="estimate-field__label">名（カナ）</span>
-                      <input class="estimate-control" type="text" name="nameKana2" value="${fn:escapeXml(contract.nameKana2)}"
-                        form="coverage-form" placeholder="例：タロウ" />
+                      <input 
+                        class="estimate-control" 
+                        type="text" 
+                        name="nameKana2" 
+                        value="${fn:escapeXml(contract.nameKana2)}"
+                        form="coverage-form" 
+                        maxlength="48"
+                        placeholder="例：タロウ" />
                     </label>
 
                     <div class="estimate-field estimate-field--personal" role="group"
@@ -170,13 +194,25 @@
 
                     <label class="estimate-field estimate-field--corporation">
                       <span class="estimate-field__label">会社名（漢字）</span>
-                      <input class="estimate-control" type="text" name="nameKanji1"
-                        value="${fn:escapeXml(contract.nameKanji1)}" form="coverage-form" placeholder="例：株式会社サンプル商事" />
+                      <input 
+                        class="estimate-control" 
+                        type="text" 
+                        name="nameKanji1"
+                        value="${fn:escapeXml(contract.nameKanji1)}" 
+                        form="coverage-form" 
+                        maxlength="48"
+                        placeholder="例：株式会社サンプル商事" />
                     </label>
                     <label class="estimate-field estimate-field--corporation">
                       <span class="estimate-field__label">会社名（カナ）</span>
-                      <input class="estimate-control" type="text" name="nameKana1" value="${fn:escapeXml(contract.nameKana1)}"
-                        form="coverage-form" placeholder="例：カブシキガイシャサンプルショウジ" />
+                      <input 
+                        class="estimate-control" 
+                        type="text" 
+                        name="nameKana1" 
+                        value="${fn:escapeXml(contract.nameKana1)}"
+                        form="coverage-form" 
+                        maxlength="48"
+                        placeholder="例：カブシキガイシャサンプルショウジ" />
                     </label>
 
                     <label class="estimate-field estimate-field--wide">
@@ -188,24 +224,47 @@
 
                     <label class="estimate-field">
                       <span class="estimate-field__label">住所1（漢字）</span>
-                      <input class="estimate-control" type="text" name="addressKanji1"
-                        value="${fn:escapeXml(contract.addressKanji1)}" form="coverage-form" placeholder="例：東京都多摩市" />
+                      <input 
+                        class="estimate-control" 
+                        type="text" 
+                        name="addressKanji1"
+                        value="${fn:escapeXml(contract.addressKanji1)}" 
+                        form="coverage-form" 
+                        maxlength="48"
+                        placeholder="例：東京都多摩市" />
                     </label>
                     <label class="estimate-field">
                       <span class="estimate-field__label">住所2（漢字）</span>
-                      <input class="estimate-control" type="text" name="addressKanji2"
-                        value="${fn:escapeXml(contract.addressKanji2)}" form="coverage-form" placeholder="例：1-1-1" />
+                      <input 
+                        class="estimate-control" 
+                        type="text" 
+                        name="addressKanji2"
+                        value="${fn:escapeXml(contract.addressKanji2)}" 
+                        form="coverage-form" 
+                        maxlength="48"
+                        placeholder="例：1-1-1" />
                     </label>
 
                     <label class="estimate-field">
                       <span class="estimate-field__label">住所1（カナ）</span>
-                      <input class="estimate-control" type="text" name="addressKana1"
-                        value="${fn:escapeXml(contract.addressKana1)}" form="coverage-form" placeholder="例：トウキョウトタマシ" />
+                      <input 
+                        class="estimate-control" 
+                        type="text" 
+                        name="addressKana1"
+                        value="${fn:escapeXml(contract.addressKana1)}" 
+                        form="coverage-form" 
+                        maxlength="48"
+                        placeholder="例：トウキョウトタマシ" />
                     </label>
                     <label class="estimate-field">
                       <span class="estimate-field__label">住所2（カナ）</span>
-                      <input class="estimate-control" type="text" name="addressKana2"
-                        value="${fn:escapeXml(contract.addressKana2)}" form="coverage-form" placeholder="例：1-1-1" />
+                      <input class="estimate-control" 
+                        type="text" 
+                        name="addressKana2"
+                        value="${fn:escapeXml(contract.addressKana2)}" 
+                        form="coverage-form" 
+                        maxlength="48"
+                        placeholder="例：1-1-1" />
                     </label>
 
                     <label class="estimate-field">
@@ -380,8 +439,14 @@
 
                   <label class="estimate-field">
                     <span class="estimate-field__label">車のナンバー</span>
-                    <input class="estimate-control" type="text" name="licenseNo" value="${fn:escapeXml(claim.licenseNo)}"
-                      required placeholder="例：品川300あ00-0000" />
+                    <input 
+                      class="estimate-control" 
+                      type="text" 
+                      name="licenseNo" 
+                      value="${fn:escapeXml(claim.licenseNo)}"
+                      required 
+                      maxlength="24"
+                      placeholder="例：品川300あ00-00" />
                   </label>
 
                   <label class="estimate-field">
