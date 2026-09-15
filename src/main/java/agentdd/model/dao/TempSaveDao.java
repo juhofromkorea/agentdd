@@ -100,7 +100,7 @@ public class TempSaveDao {
         String sql = "SELECT save_no, `user`, created_at, "
                 + "name_kanji1, name_kanji2, postcode, "
                 + "address_kanji1, address_kanji2, "
-                + "telephone_no, mobilephone_no, "
+                + "telephone_no, mobilephone_no "
                 + "FROM tempsave_tbl "
                 + "WHERE `user` = ? "
                 + "ORDER BY created_at DESC";
