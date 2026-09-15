@@ -79,6 +79,13 @@ public class CancelController extends HttpServlet {
 
                 }
 
+                if (!Integer.valueOf(0).equals(contract.getStatusFlg()) || contract.isCancelFlg()) {
+                    request.setAttribute("fieldErrors", java.util.Map.of("polNo", "解約申請可能な契約ではありません。計上前・解約済みでないか確認してください。"));
+                    con.rollback();
+                    request.getRequestDispatcher("/WEB-INF/view/cancellation/cancellation.jsp").forward(request, response);
+                    return;
+                }
+
                 // ⑤ 証券番号に紐づく補償情報を取得
                 claim = claimDao.getClaim(polNo);
 
