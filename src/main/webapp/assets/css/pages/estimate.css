@@ -810,9 +810,24 @@ html.dark-mode .app-shell
   }
 
   .estimate-table td.estimate-table__actions {
-    grid-template-columns: 88px repeat(2, minmax(0, 1fr));
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+  }
+
+  .estimate-table__action-buttons {
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .estimate-table__action-buttons form {
+    margin: 0;
+  }
+
+  .estimate-table__action-buttons .estimate-row-button {
+    width: auto;
   }
 
   .estimate-row-button {

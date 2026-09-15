@@ -607,21 +607,23 @@
                               </c:if>
                             </td>
                             <td data-label="操作" class="estimate-table__actions">
-                              <form action="${pageContext.request.contextPath}/tempSaveResume"
-                                method="post">
-                                <input type="hidden" name="tempSaveId"
-                                  value="${tempSave.tempSaveId}" />
-                                <button class="button estimate-row-button estimate-row-button--resume"
-                                  type="submit">再開</button>
-                              </form>
-                              <form action="${pageContext.request.contextPath}/tempSaveDelete"
-                                method="post"
-                                data-confirm-delete>
-                                <input type="hidden" name="tempSaveId"
-                                  value="${tempSave.tempSaveId}" />
-                                <button class="button estimate-row-button estimate-row-button--delete"
-                                  type="submit">削除</button>
-                              </form>
+                              <div class="estimate-table__action-buttons">
+                                <form action="${pageContext.request.contextPath}/tempSaveResume"
+                                  method="post">
+                                  <input type="hidden" name="tempSaveId"
+                                    value="${tempSave.tempSaveId}" />
+                                  <button class="button estimate-row-button estimate-row-button--resume"
+                                    type="submit">再開</button>
+                                </form>
+                                <form action="${pageContext.request.contextPath}/tempSaveDelete"
+                                  method="post"
+                                  data-confirm-delete>
+                                  <input type="hidden" name="tempSaveId"
+                                    value="${tempSave.tempSaveId}" />
+                                  <button class="button estimate-row-button estimate-row-button--delete"
+                                    type="submit">削除</button>
+                                </form>
+                              </div>
                             </td>
                           </tr>
                         </c:forEach>
