@@ -81,6 +81,8 @@ public class EstimateCalcController extends HttpServlet {
                 request.setAttribute("fieldErrors", Map.of("_form", "先に保険料試算・申込書印刷確認を実行してください。"));
             } else if ("missing".equals(result)) {
                 request.setAttribute("errorMessage", "一時保存情報が見つかりません。");
+            } else if ("updated".equals(result)) {
+                request.setAttribute("message", "一時保存を更新しました。");
             }
             request.setAttribute("openSaved", "saved".equals(request.getParameter("tab")));
             request.getRequestDispatcher(

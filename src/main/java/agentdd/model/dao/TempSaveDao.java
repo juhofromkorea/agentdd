@@ -259,6 +259,75 @@ public class TempSaveDao {
         }
     }
 
+    public int update(TempSave tempSave) throws SQLException {
+        String sql = "UPDATE tempsave_tbl SET "
+                + "created_at = ?, "
+                + "status_flg = ?, cancel_flg = ?, "
+                + "inception_date = ?, inception_time = ?, "
+                + "conclusion_date = ?, conclusion_time = ?, "
+                + "payment_method = ?, installment = ?, insured_kbn = ?, "
+                + "name_kana1 = ?, name_kana2 = ?, "
+                + "name_kanji1 = ?, name_kanji2 = ?, "
+                + "postcode = ?, "
+                + "address_kana1 = ?, address_kana2 = ?, "
+                + "address_kanji1 = ?, address_kanji2 = ?, "
+                + "birthday = ?, gender = ?, "
+                + "telephone_no = ?, mobilephone_no = ?, fax_no = ?, "
+                + "maker = ?, car_name = ?, license_no = ?, "
+                + "vehicle_price = ?, vehicle_rates = ?, bodily_rates = ?, "
+                + "property_damage_rates = ?, accident_rates = ?, "
+                + "license_color = ?, age_limit = ? "
+                + "WHERE save_no = ? AND `user` = ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            Contract contract = tempSave.getContract();
+            Claim claim = tempSave.getClaim();
+            int i = 1;
+
+            setDateTime(ps, i++, tempSave.getCreatedAt());
+
+            setInteger(ps, i++, contract.getStatusFlg());
+            ps.setBoolean(i++, contract.isCancelFlg());
+            ps.setString(i++, contract.getInceptionDate());
+            ps.setString(i++, contract.getInceptionTime());
+            ps.setString(i++, contract.getConclusionDate());
+            ps.setString(i++, contract.getConclusionTime());
+            setInteger(ps, i++, contract.getPaymentMethod());
+            setInteger(ps, i++, contract.getInstallment());
+            setInteger(ps, i++, contract.getInsuredKbn());
+            ps.setString(i++, contract.getNameKana1());
+            ps.setString(i++, contract.getNameKana2());
+            ps.setString(i++, contract.getNameKanji1());
+            ps.setString(i++, contract.getNameKanji2());
+            ps.setString(i++, contract.getPostcode());
+            ps.setString(i++, contract.getAddressKana1());
+            ps.setString(i++, contract.getAddressKana2());
+            ps.setString(i++, contract.getAddressKanji1());
+            ps.setString(i++, contract.getAddressKanji2());
+            ps.setString(i++, contract.getBirthday());
+            setInteger(ps, i++, contract.getGender());
+            ps.setString(i++, contract.getTelephoneNo());
+            ps.setString(i++, contract.getMobilephoneNo());
+            ps.setString(i++, contract.getFaxNo());
+
+            ps.setString(i++, claim.getMaker());
+            ps.setString(i++, claim.getCarName());
+            ps.setString(i++, claim.getLicenseNo());
+            setInteger(ps, i++, claim.getVehiclePrice());
+            setInteger(ps, i++, claim.getVehicleRates());
+            setInteger(ps, i++, claim.getBodilyRates());
+            setInteger(ps, i++, claim.getPropertyDamageRates());
+            setInteger(ps, i++, claim.getAccidentRates());
+            setInteger(ps, i++, claim.getLicenseColor());
+            setInteger(ps, i++, claim.getAgeLimit());
+
+            ps.setString(i++, tempSave.getTempSaveId());
+            ps.setString(i++, tempSave.getUserId());
+
+            return ps.executeUpdate();
+        }
+    }
+
     private LocalDateTime readDateTime(ResultSet rs, String column) throws SQLException {
         Timestamp timestamp = rs.getTimestamp(column);
         return timestamp == null ? null : timestamp.toLocalDateTime();

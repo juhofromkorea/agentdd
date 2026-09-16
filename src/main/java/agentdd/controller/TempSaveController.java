@@ -50,7 +50,17 @@ public class TempSaveController extends HttpServlet {
         Contract contract = readContract(req);
         Claim claim = readClaim(req);
         TempSave tempSave = new TempSave();
-        tempSave.setTempSaveId(createTempSaveId());
+
+        // tempSave.setTempSaveId(createTempSaveId());
+        String tempSaveId = req.getParameter("tempSaveId");
+        boolean updating = tempSaveId != null && !tempSaveId.isBlank();
+
+        if (updating) {
+            tempSave.setTempSaveId(tempSaveId);
+        } else {
+            tempSave.setTempSaveId(createTempSaveId());
+        }
+
         tempSave.setUserId(userId);
         tempSave.setCreatedAt(LocalDateTime.now(ZoneId.of("Asia/Tokyo")));
         tempSave.setContract(contract);
@@ -90,22 +100,30 @@ public class TempSaveController extends HttpServlet {
                 transactionStarted = true;
                 tempSaveDao.deleteExpired(userId, LocalDateTime.now(ZoneId.of("Asia/Tokyo")).minusMonths(1));
 
-                if (tempSaveDao.countByUserId(userId) >= TEMP_SAVE_LIMIT) {
-                    // 期限切れの掃除だけは確定してから上限画面へ戻す。
-                    con.commit();
-                    req.setAttribute("fieldErrors", Map.of("_form", "一時保存できる件数は5件までです。一覧から不要な保存を削除してください。"));
-                    req.setAttribute("contract", contract);
-                    req.setAttribute("claim", claim);
-                    req.setAttribute("calculated", false);
-                    req.setAttribute("vehicles", vehicles);
-                    req.setAttribute("tempSaveList", tempSaveDao.selectAll(userId));
-                    req.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(req, resp);
-                    return;
+                if (updating) {
+                    if (tempSaveDao.update(tempSave) != 1) {
+                        throw new SQLException("更新対象の一時保存情報が見つかりませんでした。");
+                    }
+                } else {
+                    if (tempSaveDao.countByUserId(userId) >= TEMP_SAVE_LIMIT) {
+                        // 期限切れの掃除だけは確定してから上限画面へ戻す。
+                        con.commit();
+                        req.setAttribute("fieldErrors", Map.of("_form", "一時保存できる件数は5件までです。一覧から不要な保存を削除してください。"));
+                        req.setAttribute("contract", contract);
+                        req.setAttribute("claim", claim);
+                        req.setAttribute("calculated", false);
+                        req.setAttribute("vehicles", vehicles);
+                        req.setAttribute("tempSaveList", tempSaveDao.selectAll(userId));
+                        req.getRequestDispatcher("/WEB-INF/view/estimate/estimate.jsp").forward(req, resp);
+                        return;
+                    }
+                    if (tempSaveDao.insert(tempSave) != 1) {
+                        throw new SQLException("一時保存情報を登録できませんでした。");
+                    }
                 }
-                if (tempSaveDao.insert(tempSave) != 1) {
-                    throw new SQLException("一時保存情報を登録できませんでした。");
-                }
+
                 con.commit();
+
             } catch (SQLException | RuntimeException e) {
                 if (transactionStarted) {
                     try {
@@ -134,8 +152,15 @@ public class TempSaveController extends HttpServlet {
                     .forward(req, resp);
             return;
         }
+
         // POST後に再送信されないよう、保存結果はPRGで返す。
-        resp.sendRedirect(req.getContextPath() + "/estimatecalc?result=saved");
+        String result = updating ? "updated" : "saved";
+
+        resp.sendRedirect(
+            req.getContextPath() 
+            + "/estimatecalc?result=" + result
+            + "&tempSaveId=" + tempSave.getTempSaveId()
+        );
     }
 
     private Contract readContract(HttpServletRequest req) {

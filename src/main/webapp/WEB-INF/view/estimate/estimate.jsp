@@ -405,8 +405,17 @@
             </section>
 
             <section class="estimate-panel estimate-panel--coverage">
-              <form id="coverage-form" data-validation="estimate" data-calculated="${calculated eq true}" class="estimate-form"
-                action="${pageContext.request.contextPath}/estimatecalc" method="post">
+              <form id="coverage-form" 
+                data-validation="estimate" 
+                data-calculated="${calculated eq true}" 
+                class="estimate-form"
+                action="${pageContext.request.contextPath}/estimatecalc" 
+                method="post">
+
+                <input type="hidden"
+                  name="tempSaveId"
+                  value="${fn:escapeXml(param.tempSaveId)}" />
+                  
                 <fieldset class="estimate-section">
                   <legend>試算結果</legend>
 

@@ -85,6 +85,10 @@ public class TempSaveResumeController extends HttpServlet {
         session.removeAttribute("printClaim");
 
         // GET側で車両マスタと一覧を再取得してから、契約条件タブを表示する。
-        resp.sendRedirect(req.getContextPath() + "/estimatecalc?resumed=1");
+        resp.sendRedirect(
+            req.getContextPath() 
+            + "/estimatecalc?resumed=1&tempSaveId="
+            + tempSaveId
+        );
     }
 }
