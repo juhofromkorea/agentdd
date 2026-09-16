@@ -47,7 +47,7 @@ public class VehicleDao {
 
                 ResultSet rs = pstmt.executeQuery();
                 if (rs.next()) {
-                claim.setVehiclePrice(rs.getInt("vehicle_price") * 10);
+                claim.setVehiclePrice(rs.getInt("vehicle_price") * 10000);
                 claim.setVehicleRates(rs.getInt("vehicle_rates"));
                 claim.setBodilyRates(rs.getInt("bodily_rates"));
                 claim.setPropertyDamageRates(rs.getInt("property_damage_rates"));
