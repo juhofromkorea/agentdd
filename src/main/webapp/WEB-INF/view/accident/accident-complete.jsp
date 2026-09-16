@@ -71,7 +71,16 @@
                 <dd><c:out value="${polNo}" /></dd>
               </div>
               <div>
-                <dt>契約者名</dt>
+                <dt>
+                  <c:choose>
+                    <c:when test="${contract.insuredKbn == 2}">
+                      会社名
+                    </c:when>
+                    <c:otherwise>
+                      契約者名
+                    </c:otherwise>
+                  </c:choose>
+                </dt>
                 <dd><c:out value="${contractorName}" /></dd>
               </div>
               <div>
