@@ -130,7 +130,7 @@ public class CancelController extends HttpServlet {
 
         } catch (SQLException e) {
             getServletContext().log("DB更新に失敗しました。", e);
-            request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
+            request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
             request.getRequestDispatcher(
                     "/WEB-INF/view/error/error.jsp").forward(request, response);
 
