@@ -217,8 +217,11 @@
 
                     <label class="estimate-field estimate-field--wide">
                       <span class="estimate-field__label">郵便番号</span>
-                      <input class="estimate-control estimate-control--half" type="text" name="postcode"
-                        value="${fn:escapeXml(contract.postcode)}" form="coverage-form" inputmode="numeric"
+                      <input class="estimate-control estimate-control--half" 
+                        type="text" 
+                        name="postcode"
+                        value="${fn:escapeXml(contract.formattedPostcode)}" 
+                        form="coverage-form" inputmode="numeric"
                         placeholder="例：111-1111" />
                     </label>
 
@@ -273,7 +276,7 @@
                         class="estimate-control" 
                         type="tel" 
                         name="telephoneNo"
-                        value="${fn:escapeXml(contract.telephoneNo)}" 
+                        value="${fn:escapeXml(contract.formattedTelephoneNo)}" 
                         form="coverage-form" 
                         maxlength="12"
                         placeholder="例：00-0000-0000" />
@@ -285,7 +288,7 @@
                         class="estimate-control" 
                         type="tel" 
                         name="mobilephoneNo"
-                        value="${fn:escapeXml(contract.mobilephoneNo)}" 
+                        value="${fn:escapeXml(contract.formattedMobilephoneNo)}" 
                         form="coverage-form" 
                         maxlength="13"
                         placeholder="例：000-0000-0000" />
@@ -297,7 +300,7 @@
                         class="estimate-control estimate-control--half" 
                         type="tel" 
                         name="faxNo"
-                        value="${fn:escapeXml(contract.faxNo)}" 
+                        value="${fn:escapeXml(contract.formattedFaxNo)}" 
                         form="coverage-form" 
                         maxlength="12"
                         placeholder="例：00-0000-0000" />
@@ -415,7 +418,7 @@
                 <input type="hidden"
                   name="tempSaveId"
                   value="${fn:escapeXml(param.tempSaveId)}" />
-                  
+
                 <fieldset class="estimate-section">
                   <legend>試算結果</legend>
 
