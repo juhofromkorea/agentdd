@@ -24,6 +24,22 @@
         form.noValidate = true; // 初期化成功後のみ、ブラウザ標準吹き出しを置き換える。
         const slots = new Map();
         let submitted = false, lastButton = null;
+
+        const sectionSlots = new Map(
+            Array.from(
+                document.querySelectorAll(
+                    '[data-error-slot]'
+                )
+            )
+            .filter(slot =>
+                slot.dataset.errorForm === form.id
+            )
+            .map(slot => [
+                slot.dataset.errorSlot,
+                slot
+            ])
+        );
+
         function ensureSlots() {
             controls(form).forEach(el => {
 
@@ -83,12 +99,51 @@
                 }
             });
 
-            const unresolved = Object.keys(errors).some(name => name !== '_form' && !controls(form).some(el => el.name === name));
+            let firstSectionError = null;
+
+            sectionSlots.forEach((slot, name) => {
+                const message = errors[name] || '';
+
+                slot.textContent = message;
+                slot.hidden = !message;
+
+                if (message && !firstSectionError) {
+                    firstSectionError = slot;
+                }
+            });
+
+            const unresolved = Object.keys(errors).some(
+                name =>
+                    name !== '_form'
+                    && !controls(form).some(
+                        el => el.name === name
+                    )
+                    && !sectionSlots.has(name)
+            );
+
             summary.textContent = errors._form || (unresolved ? '入力内容を確認してください。' : '');
             summary.hidden = !summary.textContent;
 
-            if (focus && first) { 
-                reveal(first); first.focus();
+            if (focus && first) {
+                reveal(first);
+                first.focus();
+
+            } else if (focus && firstSectionError) {
+                const receptionTab =
+                    document.getElementById(
+                        'accident-tab-reception'
+                    );
+
+                if (receptionTab) {
+                    receptionTab.checked = true;
+                }
+
+                firstSectionError.focus();
+                firstSectionError.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+
             } else if (focus && !summary.hidden) {
                 summary.focus();
             }

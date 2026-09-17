@@ -27,14 +27,62 @@
                 add('ratingBlameYourself', D.checkRatingBlame(b), '過失割合は0～100の半角数字で入力してください。');
                 const totalOK = D.checkFaultRateTotal(a, b) || (!complete && D.checkRatingBlame(a) && D.checkRatingBlame(b) && Number(a) + Number(b) === 0);
                 ['ratingBlameMyself', 'ratingBlameYourself'].forEach(name => add(name, totalOK, complete ? '過失割合の合計を100にしてください。' : '合計を100にしてください。未定の場合は双方を空欄または0にしてください。'));
-                ['Car', 'Bodily', 'Property', 'Accident'].forEach(type => {
-                    const price = 'damage' + type + 'Price', state = 'damage' + type + 'State';
-                    if (D.checkRequired(v[price])) add(price, D.checkAmount(v[price]), '損害額は0以上・18桁以内の半角数字で入力してください。');
-                    if (!errors[price] && !D.checkDamage(v[price], v[state])) {
-                        add(price, false, '損害額（1以上）と損害状況をセットで入力してください。');
-                        add(state, false, '損害額（1以上）と損害状況をセットで入力してください。');
+                const damageTypes = [
+                    'Car',
+                    'Bodily',
+                    'Property',
+                    'Accident'
+                ];
+
+                damageTypes.forEach(type => {
+                    const price = 'damage' + type + 'Price';
+                    const state = 'damage' + type + 'State';
+
+                    // 損害額の桁数・文字種チェック
+                    if (D.checkRequired(v[price])) {
+                        add(
+                            price,
+                            D.checkAmount(v[price]),
+                            '損害額は0以上・18桁以内の半角数字で入力してください。'
+                        );
+                    }
+
+                    // 損害額が1円以上の場合、損害状況も必須とする。
+                    // 損害状況を入力した場合も、損害額は1円以上必須とする。
+                    if (!errors[price]
+                            && !D.checkDamage(v[price], v[state])) {
+
+                        add(
+                            price,
+                            false,
+                            '損害額（1以上）と損害状況をセットで入力してください。'
+                        );
+
+                        add(
+                            state,
+                            false,
+                            '損害額（1以上）と損害状況をセットで入力してください。'
+                        );
                     }
                 });
+
+                // 事故受付完了時は、少なくとも1項目の損害額を1円以上必須とする。
+                if (complete) {
+                    const hasPositiveDamage = damageTypes.some(type => {
+                        const value = D.text(
+                            v['damage' + type + 'Price']
+                        );
+
+                        return D.checkAmount(value)
+                                && BigInt(value) > 0n;
+                    });
+
+                    add(
+                        '_damage',
+                        hasPositiveDamage,
+                        '事故受付完了時は、いずれか1つの損害額を1円以上で入力してください。'
+                    );
+                }
             }
             FormErrors.controls(form).forEach(el => {
                 if (el.maxLength > -1) add(el.name, D.checkLength(v[el.name], el.maxLength), el.maxLength + '文字以内で入力してください。');
