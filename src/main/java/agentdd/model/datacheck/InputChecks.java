@@ -3,8 +3,11 @@ package agentdd.model.datacheck;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.Period;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import jakarta.servlet.http.HttpServletRequest;
 import agentdd.model.data.Contract;
 
@@ -19,7 +22,8 @@ public final class InputChecks {
         return value == null ? "" : value.trim(); 
     }
 
-    public static void add(Map<String, String> errors, String key, boolean valid, String message) {
+    public static void add(Map<String, String> errors, String key, 
+            boolean valid, String message) {
         if (!valid) {
             errors.putIfAbsent(key, message);
         }
@@ -31,7 +35,8 @@ public final class InputChecks {
             return null;
         }
         try { 
-            return LocalDate.parse(s.replace("-", ""), DateTimeFormatter.BASIC_ISO_DATE); 
+            return LocalDate.parse(s.replace("-", ""), 
+                    DateTimeFormatter.BASIC_ISO_DATE); 
         }
         catch (DateTimeParseException e) { 
             return null; 
@@ -49,11 +54,12 @@ public final class InputChecks {
     }
 
     private static final String[] ESTIMATE_FIELDS = {
-        "insuredKbn", "nameKanji1", "nameKanji2", "nameKana1", "nameKana2", "gender", "birthday",
-        "postcode", "addressKanji1", "addressKanji2", "addressKana1", "addressKana2",
-        "telephoneNo", "mobilephoneNo", "faxNo", "inceptionDate", "inceptionTime",
-        "conclusionDate", "conclusionTime", "paymentMethod", "installment", "maker", "carName",
-        "licenseNo", "licenseColor", "ageLimit"
+        "insuredKbn", "nameKanji1", "nameKanji2", "nameKana1", 
+        "nameKana2", "gender", "birthday", "postcode", 
+        "addressKanji1", "addressKanji2", "addressKana1", "addressKana2",
+        "telephoneNo", "mobilephoneNo", "faxNo", "inceptionDate", 
+        "inceptionTime", "conclusionDate", "conclusionTime", "paymentMethod", 
+        "installment", "maker", "carName", "licenseNo", "licenseColor", "ageLimit"
     };
 
     public static Map<String, String> login(
@@ -165,7 +171,8 @@ public final class InputChecks {
         
         for (String name : new String[] {"nameKana1", "nameKana2"}) {
             if (!v.get(name).isEmpty()) {
-                add(e, name, v.get(name).matches("[ァ-ヺー・　 ]+"), "全角カタカナで入力してください。");
+                add(e, name, v.get(name).matches("[ァ-ヺー・　 ]+"), 
+                    "全角カタカナで入力してください。");
             }
         }
 
@@ -177,25 +184,41 @@ public final class InputChecks {
         
         enums.forEach((name, pattern) -> { 
             if (!v.get(name).isEmpty()) {
-                add(e, name, v.get(name).matches(pattern), "選択肢から選び直してください。");
+                add(e, name, v.get(name).matches(pattern), 
+                    "選択肢から選び直してください。");
             }});
         
         for (String name : new String[] {"inceptionDate", "conclusionDate", "birthday"}) {
             if (!v.get(name).isEmpty()) {
-                add(e, name, date(v.get(name)) != null, "有効な日付を入力してください。");
+                add(e, name, date(v.get(name)) != null, 
+                    "有効な日付を入力してください。");
             }
         }
 
-        LocalDate start = date(v.get("inceptionDate")), end = date(v.get("conclusionDate")), birthday = date(v.get("birthday"));
+        LocalDate start = date(v.get("inceptionDate")), 
+                end = date(v.get("conclusionDate")), 
+                birthday = date(v.get("birthday"));
         
         if (start != null && end != null) {
-            add(e, "conclusionDate", end.isAfter(start), "満期日は始期日より後にしてください。");
+            add(e, "conclusionDate", end.isAfter(start), 
+                "満期日は始期日より後にしてください。");
         }
         if (birthday != null) {
-            add(e, "birthday", !birthday.isAfter(LocalDate.now()), "生年月日は本日以前の日付にしてください。");
+            add(e, "birthday", !birthday.isAfter(LocalDate.now()), 
+                "生年月日は本日以前の日付にしてください。");
         }
         if (!v.get("postcode").isEmpty()) {
-            add(e, "postcode", v.get("postcode").matches("(?:[0-9]{7}|[0-9]{3}-[0-9]{4})"), "郵便番号は123-4567または1234567の形式で入力してください。");
+            add(e, "postcode", v.get("postcode").matches("(?:[0-9]{7}|[0-9]{3}-[0-9]{4})"), 
+                "郵便番号は123-4567または1234567の形式で入力してください。");
+        }
+        if (!draft && "1".equals(v.get("insuredKbn"))
+                && birthday != null
+                && start != null
+                && v.get("ageLimit").matches("[123]")) {
+
+            add(e, "birthday", matchesAgeLimit(birthday, v.get("ageLimit"), start),
+                    "年齢条件と生年月日が一致していません。"
+                    + "年齢条件または生年月日を見直してください。");
         }
         
         String telephoneNo = v.get("telephoneNo");
@@ -206,10 +229,7 @@ public final class InputChecks {
                             "(?:[0-9]{10}|[0-9]{2,5}-[0-9]{1,4}-[0-9]{4})")
                     && telephoneNo.replace("-", "").matches("[0-9]{10}");
 
-            add(
-                    e,
-                    "telephoneNo",
-                    validTelephone,
+            add(e, "telephoneNo", validTelephone,
                     "電話番号は半角数字10桁で入力してください（ハイフン可）。");
         }
 
@@ -220,10 +240,7 @@ public final class InputChecks {
                     mobilephoneNo.matches(
                             "(?:[0-9]{11}|[0-9]{3}-[0-9]{4}-[0-9]{4})");
 
-            add(
-                    e,
-                    "mobilephoneNo",
-                    validMobilephone,
+            add(e, "mobilephoneNo", validMobilephone,
                     "携帯電話番号は半角数字11桁で入力してください（ハイフン可）。");
         }
 
@@ -235,31 +252,58 @@ public final class InputChecks {
                             "(?:[0-9]{10}|[0-9]{2,5}-[0-9]{1,4}-[0-9]{4})")
                     && faxNo.replace("-", "").matches("[0-9]{10}");
 
-            add(
-                    e,
-                    "faxNo",
-                    validFax,
+            add(e, "faxNo", validFax,
                     "FAX番号は半角数字10桁で入力してください（ハイフン可）。");
         }
 
         return e;
     }
 
-    public static Map<String, String> accident(Map<String, String> v, Contract contract, boolean complete) {
+    public static Map<String, String> accident(
+            Map<String, String> v, Contract contract, boolean complete) {
+
         Map<String, String> e = new LinkedHashMap<>();
-        if (complete) for (String name : new String[] {"accidentDate", "accidentLocationKanji1", "accidentLocationKana1", "accidentSituation"}) add(e, name, !text(v.get(name)).isEmpty(), "入力してください。");
-        
-        if (!text(v.get("accidentDate")).isEmpty()) {
-            LocalDate d = date(v.get("accidentDate")), start = date(contract.getInceptionDate()), end = date(contract.getConclusionDate());
-            add(e, "accidentDate", text(v.get("accidentDate")).matches("[0-9]{8}") && d != null && start != null && end != null && !d.isBefore(start) && !d.isAfter(end) && !d.isAfter(LocalDate.now()), "事故日は有効な日付（YYYYMMDD）で、契約期間内かつ本日以前にしてください。");
+
+        if (complete) {
+            for (String name : new String[] {
+                "accidentDate", "accidentLocationKanji1", 
+                "accidentLocationKana1", "accidentSituation"}) {
+                    add(e, name, !text(v.get(name)).isEmpty(), 
+                        "入力してください。");
+                }
         }
 
-        String mine = text(v.get("ratingBlameMyself")), theirs = text(v.get("ratingBlameYourself"));
+        if (!text(v.get("accidentDate")).isEmpty()) {
 
-        if (mine.isEmpty()) mine = "0";
-        if (theirs.isEmpty()) theirs = "0";
-        add(e, "ratingBlameMyself", amount(mine, 100), "過失割合は0～100の半角数字で入力してください。");
-        add(e, "ratingBlameYourself", amount(theirs, 100), "過失割合は0～100の半角数字で入力してください。");
+            LocalDate d = date(v.get("accidentDate")), 
+                    start = date(contract.getInceptionDate()), 
+                    end = date(contract.getConclusionDate());
+
+            add(e, "accidentDate", text(v.get("accidentDate")).matches("[0-9]{8}") 
+                    && d != null 
+                    && start != null 
+                    && end != null 
+                    && !d.isBefore(start) 
+                    && !d.isAfter(end) 
+                    && !d.isAfter(LocalDate.now()), 
+                "事故日は有効な日付（YYYYMMDD）で、契約期間内かつ本日以前にしてください。");
+        }
+
+        String mine = text(v.get("ratingBlameMyself")), 
+            theirs = text(v.get("ratingBlameYourself"));
+
+        if (mine.isEmpty()) {
+            mine = "0";
+        }
+
+        if (theirs.isEmpty()) {
+            theirs = "0";
+        }
+
+        add(e, "ratingBlameMyself", amount(mine, 100), 
+            "過失割合は0～100の半角数字で入力してください。");
+        add(e, "ratingBlameYourself", amount(theirs, 100), 
+            "過失割合は0～100の半角数字で入力してください。");
         
         if (amount(mine, 100) && amount(theirs, 100)) {
             long total = Long.parseLong(mine) + Long.parseLong(theirs);
@@ -269,19 +313,106 @@ public final class InputChecks {
             }
         }
         
-        for (String type : new String[] {"Car", "Bodily", "Property", "Accident"}) {
-            String price = "damage" + type + "Price", state = "damage" + type + "State", s = text(v.get(price));
-            boolean valid = s.isEmpty() || amount(s, 999_999_999_999_999_999L);
-            add(e, price, valid, "損害額は0以上・18桁以内の半角数字で入力してください。");
-            if (valid) {
-                boolean paired = (!s.isEmpty() && Long.parseLong(s) > 0) == !text(v.get(state)).isEmpty();
-                for (String name : new String[] {price, state}) add(e, name, paired, "損害額（1以上）と損害状況をセットで入力してください。");
+        boolean hasPositiveDamage = false;
+        boolean allDamageAmountsValid = true;
+
+        for (String type : new String[] {
+                "Car",
+                "Bodily",
+                "Property",
+                "Accident"}) {
+
+            String price = "damage" + type + "Price";
+            String state = "damage" + type + "State";
+            String amountText = text(v.get(price));
+            String stateText = text(v.get(state));
+
+            // 空欄または0～18桁の金額であることを確認する。
+            boolean validAmount =
+                    amountText.isEmpty()
+                    || amount(
+                            amountText,
+                            999_999_999_999_999_999L);
+
+            add(
+                e,
+                price,
+                validAmount,
+                "損害額は0以上・18桁以内の半角数字で入力してください。");
+
+            if (!validAmount) {
+                allDamageAmountsValid = false;
+                continue;
             }
+
+            boolean positiveAmount =
+                    !amountText.isEmpty()
+                    && Long.parseLong(amountText) > 0;
+
+            if (positiveAmount) {
+                hasPositiveDamage = true;
+            }
+
+            // 金額が1円以上であることと、損害状況が入力されていることを
+            // 同じ条件にする。
+            boolean paired =
+                    positiveAmount == !stateText.isEmpty();
+
+            add(
+                e,
+                price,
+                paired,
+                "損害額（1以上）と損害状況をセットで入力してください。");
+
+            add(
+                e,
+                state,
+                paired,
+                "損害額（1以上）と損害状況をセットで入力してください。");
+        }
+
+        // 「事故受付完了」の場合のみ、損害額が全て0・空欄であることを禁止する。
+        if (complete && allDamageAmountsValid) {
+            add(
+                e,
+                "_damage",
+                hasPositiveDamage,
+                "事故受付完了時は、いずれか1つの損害額を1円以上で入力してください。");
         }
 
         for (String name : new String[] {"accidentLocationKanji1", "accidentLocationKanji2", "accidentLocationKana1", "accidentLocationKana2", "damageCarState", "damageBodilyState", "damagePropertyState", "damageAccidentState"}) add(e, name, v.getOrDefault(name, "").length() <= 48, "48文字以内で入力してください。");
         add(e, "accidentSituation", v.getOrDefault("accidentSituation", "").length() <= 100, "100文字以内で入力してください。");
         
         return e;
+    }
+
+    private static boolean matchesAgeLimit(
+            LocalDate birthday, 
+            String ageLimit, 
+            LocalDate inceptionDate) {
+        if (birthday == null || inceptionDate == null
+                || birthday.isAfter(inceptionDate)) {
+            return false;
+        }
+
+        int minimumAge;
+
+        switch (ageLimit) {
+            case "1":
+                minimumAge = 0;
+                break;
+            case "2":
+                minimumAge = 21;
+                break;
+            case "3":
+                minimumAge = 26;
+                break;
+            default:
+                return false;
+        }
+
+        int age = Period.between(birthday, inceptionDate).getYears();
+
+        return age >= minimumAge;
     }
 }

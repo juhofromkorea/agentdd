@@ -82,7 +82,11 @@
             const d = date(value), s = date(start), e = date(end);
             return !!d && !!s && !!e && d >= s && d <= e && d <= today;
         },
-        checkDamage: (price, state) => (required(price) && amount(price) && BigInt(text(price)) > 0n) === required(state) // 30 現行モデルの0=未入力と統一
+        checkDamage: (price, state) => 
+            (required(price) 
+                && amount(price) 
+                && BigInt(text(price)) > 0n) 
+            === required(state) // 30 現行モデルの0=未入力と統一
     };
     D.checkAgeIimit = D.checkAgeLimit; // 一覧の綴りに対する互換エイリアス
     if (typeof module !== 'undefined' && module.exports) {

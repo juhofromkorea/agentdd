@@ -192,13 +192,18 @@
         }
 
         // 保険契約者が運転者であるか・年齢の基準日は一覧だけでは確定しない。
-        if (policy.ageBasis === 'inceptionDate' 
-                && v.insuredKbn === '1' 
+        if (v.insuredKbn === '1' 
                 && D.checkDate(v.birthday) 
                 && D.checkDate(v.inceptionDate) 
                 && D.checkRequired(v.ageLimit)) {
-            add('ageLimit', D.checkAgeLimit(v.birthday, v.ageLimit, v.inceptionDate), 
-                '始期日時点の年齢に合う年齢条件を選択してください。');
+            add(
+                'birthday',
+                D.checkAgeLimit(
+                    v.birthday,
+                    v.ageLimit,
+                    v.inceptionDate),
+                '年齢条件と生年月日が一致していません。'
+                    + '年齢条件または生年月日を見直してください。');
         }
 
         if (D.checkTransfer(v.paymentMethod, v.installment, policy.paymentCombinations) === false) {
@@ -242,5 +247,66 @@
             }
         });
     });
+
+    const birthdayControl =
+        form.elements.namedItem('birthday');
+
+    const inceptionDateControl =
+        form.elements.namedItem('inceptionDate');
+
+    const ageLimitControl =
+        form.elements.namedItem('ageLimit');
+
+    function refreshAgeLimitOptions() {
+        const individual =
+            form.elements.namedItem('insuredKbn').value === '1';
+
+        const birthday = birthdayControl.value;
+        const inceptionDate = inceptionDateControl.value;
+
+        const canJudge =
+            individual
+            && D.checkDate(birthday)
+            && D.checkDate(inceptionDate);
+
+        Array.from(ageLimitControl.options).forEach(option => {
+            if (!option.value) {
+                option.disabled = true;
+                return;
+            }
+
+            option.disabled =
+                canJudge
+                && !D.checkAgeLimit(
+                    birthday,
+                    option.value,
+                    inceptionDate);
+        });
+    }
+
+    birthdayControl.addEventListener(
+        'input',
+        refreshAgeLimitOptions);
+
+    birthdayControl.addEventListener(
+        'change',
+        refreshAgeLimitOptions);
+
+    inceptionDateControl.addEventListener(
+        'input',
+        refreshAgeLimitOptions);
+
+    inceptionDateControl.addEventListener(
+        'change',
+        refreshAgeLimitOptions);
+
+    document.querySelectorAll('[name="insuredKbn"]')
+        .forEach(control => {
+            control.addEventListener(
+                'change',
+                refreshAgeLimitOptions);
+        });
+
+    refreshAgeLimitOptions();
 
 })();
