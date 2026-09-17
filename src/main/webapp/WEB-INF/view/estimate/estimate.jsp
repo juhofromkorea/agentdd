@@ -503,7 +503,7 @@
                     <span class="estimate-field__label">車両保険金額</span>
                     <output class="estimate-control estimate-control--readonly">
                       <c:if test="${calculated}">
-                        <fmt:formatNumber value="${claim.vehiclePrice}" type="number" />円
+                        <fmt:formatNumber value="${claim.vehiclePrice}" type="number" />万円
                       </c:if>
                     </output>
                   </label>
