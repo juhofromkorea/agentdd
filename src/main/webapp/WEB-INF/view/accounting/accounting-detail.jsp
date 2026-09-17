@@ -211,7 +211,7 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>車両保険金額</dt>
-                    <dd>${claim.vehiclePrice}円</dd>
+                    <dd>${claim.vehiclePrice}万円</dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>免許証の色</dt>
