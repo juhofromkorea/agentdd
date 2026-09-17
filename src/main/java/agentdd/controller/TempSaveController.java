@@ -153,6 +153,13 @@ public class TempSaveController extends HttpServlet {
             return;
         }
 
+        session.setAttribute("contract", contract);
+        session.setAttribute("claim", claim);
+        session.setAttribute("calculated", Boolean.FALSE);
+        session.removeAttribute("estimateSnapshot");
+        session.removeAttribute("printContract");
+        session.removeAttribute("printClaim");
+
         // POST後に再送信されないよう、保存結果はPRGで返す。
         String result = updating ? "updated" : "saved";
 
