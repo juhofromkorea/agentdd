@@ -39,6 +39,41 @@ class InputChecksTest {
     }
 
     /**
+     * 新規試算チェック用の正常なリクエストパラメーターを生成する。
+     */
+    private Map<String, String[]> createValidEstimateParams() {
+        Map<String, String[]> params = new HashMap<>();
+
+        params.put("insuredKbn", new String[]{"1"});
+        params.put("nameKanji1", new String[]{"東海"});
+        params.put("nameKanji2", new String[]{"太郎"});
+        params.put("nameKana1", new String[]{"トウカイ"});
+        params.put("nameKana2", new String[]{"タロウ"});
+        params.put("gender", new String[]{"1"});
+        params.put("birthday", new String[]{"1990-01-01"});
+        params.put("postcode", new String[]{"100-0001"});
+        params.put("addressKanji1", new String[]{"東京都"});
+        params.put("addressKana1", new String[]{"トウキョウト"});
+        params.put("telephoneNo", new String[]{"03-0000-0000"});
+        params.put("mobilephoneNo", new String[]{""});
+
+        params.put("inceptionDate", new String[]{"2026-10-01"});
+        params.put("inceptionTime", new String[]{"09"});
+        params.put("conclusionDate", new String[]{"2027-10-01"});
+        params.put("conclusionTime", new String[]{"18"});
+
+        params.put("paymentMethod", new String[]{"1"});
+        params.put("installment", new String[]{"12"});
+        params.put("maker", new String[]{"トヨタ"});
+        params.put("carName", new String[]{"プリウス"});
+        params.put("licenseNo", new String[]{"123456789012"});
+        params.put("licenseColor", new String[]{"1"});
+        params.put("ageLimit", new String[]{"1"});
+
+        return params;
+    }
+
+    /**
      * HttpServletRequestの簡易スタブを生成するヘルパーメソッド。
      * リクエストパラメーターのマップを受け取り、必要な値のみを返却するリクエストを構築します。
      */
