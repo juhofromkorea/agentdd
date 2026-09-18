@@ -79,37 +79,6 @@ public class AccidentDao {
         return accident;
     }
 
-
-    /**
-     * 証券番号を指定して、既に登録されている事故受付データを取得します。
-     * 
-     * @param polNo 証券番号
-     * @return 検索結果の事故受付データ (該当データがない場合は null)
-     * @throws SQLException
-     */
-    public Accident getAccidentByPolNo(String polNo) throws SQLException {
-        Accident accident = null;
-        String sql = "SELECT cl.*, co.pol_no FROM claim_tbl cl " +
-                "JOIN cover_tbl cv ON cl.cover_id = cv.cover_id " +
-                "JOIN contractinfo_tbl co ON cv.insatsu_renban = co.insatsu_renban " +
-                    "WHERE co.pol_no = ?";
-
-        try (PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setString(1, polNo);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    accident = new Accident();
-                    accident.setClaimNo(rs.getString("claim_no"));
-                    accident.setPolNo(rs.getString("pol_no"));
-                    accident.setCoverId(rs.getInt("cover_id"));
-                    accident.setClaimStatus(rs.getInt("claim_status"));
-                }
-            }
-        }
-        return accident;
-    }
-
     /**
      * 新規の事故受付番号を自動採番する（C0000001から順に採番）
      * @return 新規事故受付番号
