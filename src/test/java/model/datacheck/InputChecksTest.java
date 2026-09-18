@@ -475,4 +475,69 @@ class InputChecksTest {
         assertEquals("パスワードを入力してください。", errors.get("password"));
     }
 
+    @Test
+    void estimate_age_limit_error() {
+        Map<String, String[]> params = createValidEstimateParams();
+
+        params.put("birthday", new String[]{"2015-01-01"});
+        params.put("inceptionDate", new String[]{"2026-10-01"});
+        params.put("ageLimit", new String[]{"3"});
+
+        Map<String, String> errors =
+                InputChecks.estimate(
+                        createDummyRequest(params),
+                        false);
+
+        assertEquals(
+                "年齢条件と生年月日が一致していません。"
+                        + "年齢条件または生年月日を見直してください。",
+                errors.get("birthday"));
+    }
+
+    @Test
+    void accident_complete_requires_positive_damage() {
+        Map<String, String> values = new HashMap<>();
+
+        values.put("accidentDate", "20260501");
+        values.put("accidentLocationKanji1", "東京都");
+        values.put("accidentLocationKana1", "トウキョウト");
+        values.put("accidentSituation", "接触事故");
+        values.put("ratingBlameMyself", "50");
+        values.put("ratingBlameYourself", "50");
+
+        values.put("damageCarPrice", "0");
+        values.put("damageBodilyPrice", "0");
+        values.put("damagePropertyPrice", "0");
+        values.put("damageAccidentPrice", "0");
+
+        Map<String, String> errors =
+                InputChecks.accident(
+                        values,
+                        dummyContract,
+                        true);
+
+        assertEquals(
+                "事故受付完了時は、いずれか1つの損害額を1円以上で入力してください。",
+                errors.get("_damage"));
+    }
+
+    @Test
+    void accident_update_allows_zero_damage() {
+        Map<String, String> values = new HashMap<>();
+
+        values.put("ratingBlameMyself", "0");
+        values.put("ratingBlameYourself", "0");
+        values.put("damageCarPrice", "0");
+        values.put("damageBodilyPrice", "0");
+        values.put("damagePropertyPrice", "0");
+        values.put("damageAccidentPrice", "0");
+
+        Map<String, String> errors =
+                InputChecks.accident(
+                        values,
+                        dummyContract,
+                        false);
+
+        assertFalse(errors.containsKey("_damage"));
+    }
 }
