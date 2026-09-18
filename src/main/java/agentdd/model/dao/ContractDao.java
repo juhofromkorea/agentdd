@@ -220,24 +220,9 @@ public class ContractDao {
         }
     }
 
-    private int updateCancellation(String keyColumn, String value) throws SQLException {
-        // keyColumnは本クラス内の固定値のみ使用し、入力値はプレースホルダーに設定する。
-        String sql = "UPDATE CONTRACTINFO_TBL SET cancel_flg = b'1', status_flg = 9 "
-                + "WHERE " + keyColumn + " = ? AND cancel_flg = b'0' AND status_flg = 0";
-        try (PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setString(1, value);
-            return stmt.executeUpdate();
-        }
-    }
-
     public boolean updateKeijoStatus(String insatsurenban) throws SQLException {
         setAccount(insatsurenban);
         return true;
-    }
-
-    /** 互換用。従来どおり印刷連番を受け取り、解約フラグと状態フラグの両方を変更する。 */
-    public boolean updateCancelFlag(String insatsurenban) throws SQLException {
-        return updateCancellation("insatsu_renban", insatsurenban) == 1;
     }
 
     /** 互換用。新規試算を登録し、登録できた場合はtrueを返す。 */
