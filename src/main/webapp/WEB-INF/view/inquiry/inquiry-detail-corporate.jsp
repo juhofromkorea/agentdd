@@ -105,6 +105,9 @@
                         <c:when test="${contract.cancelFlg}">
                           解約済み
                         </c:when>
+                        <c:when test="${contract.statusFlg eq 0}">
+                          契約済み
+                        </c:when>
                         <c:otherwise>
                           <c:out value="${contract.statusStr}" />
                         </c:otherwise>
