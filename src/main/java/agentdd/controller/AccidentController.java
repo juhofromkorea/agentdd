@@ -213,34 +213,37 @@ public class AccidentController extends HttpServlet {
                     ).forward(request, response);
                     return;
                 }
+
+                // 契約状態の確認後、新規受付の場合だけ既存事故を確認する
+                if (hasPolNo) {
+                    Accident existingAccident =
+                            accidentDao.getAccidentByPolNo(polNo);
+
+                    if (existingAccident != null) {
+                        request.setAttribute(
+                                "fieldErrors",
+                                java.util.Map.of(
+                                        "polNo",
+                                        "既にこの証券番号の事故受付番号が存在します。"
+                                        + "（受付番号: "
+                                        + existingAccident.getClaimNo()
+                                        + "）"
+                                )
+                        );
+                        request.getRequestDispatcher(
+                                "/WEB-INF/view/accident/accident.jsp"
+                        ).forward(request, response);
+                        return;
+                    }
+                }
+
                 String jsp = Integer.valueOf(2).equals(contractData.getInsuredKbn())
                         ? "/WEB-INF/view/accident/accident-detail-corporate.jsp"
                         : "/WEB-INF/view/accident/accident-detail.jsp";
                 request.getRequestDispatcher(jsp).forward(request, response);
                 return;
             }
-            // 契約状態の確認後、新規受付の場合だけ既存事故を確認する
-            if (hasPolNo) {
-                Accident existingAccident =
-                        accidentDao.getAccidentByPolNo(polNo);
 
-                if (existingAccident != null) {
-                    request.setAttribute(
-                            "fieldErrors",
-                            java.util.Map.of(
-                                    "polNo",
-                                    "既にこの証券番号の事故受付番号が存在します。"
-                                    + "（受付番号: "
-                                    + existingAccident.getClaimNo()
-                                    + "）"
-                            )
-                    );
-                    request.getRequestDispatcher(
-                            "/WEB-INF/view/accident/accident.jsp"
-                    ).forward(request, response);
-                    return;
-                }
-            }
             }
 
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
