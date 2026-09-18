@@ -68,20 +68,31 @@
 
                 // 事故受付完了時は、少なくとも1項目の損害額を1円以上必須とする。
                 if (complete) {
-                    const hasPositiveDamage = damageTypes.some(type => {
+                    const allDamageAmountsValid = damageTypes.every(type => {
                         const value = D.text(
                             v['damage' + type + 'Price']
                         );
 
-                        return D.checkAmount(value)
-                                && BigInt(value) > 0n;
+                        return value === '' || D.checkAmount(value);
                     });
 
-                    add(
-                        '_damage',
-                        hasPositiveDamage,
-                        '事故受付完了時は、いずれか1つの損害額を1円以上で入力してください。'
-                    );
+                    if (allDamageAmountsValid) {
+                        const hasPositiveDamage = damageTypes.some(type => {
+                            const value = D.text(
+                                v['damage' + type + 'Price']
+                            );
+
+                            return value !== ''
+                                && D.checkAmount(value)
+                                && BigInt(value) > 0n;
+                        });
+
+                        add(
+                            '_damage',
+                            hasPositiveDamage,
+                            '事故受付完了時は、いずれか1つの損害額を1円以上で入力してください。'
+                        );
+                    }
                 }
             }
             FormErrors.controls(form).forEach(el => {

@@ -25,15 +25,26 @@ public class CancelCompleteController extends HttpServlet {
 
         request.setCharacterEncoding(SystemConst.CHAR_SET);
 
-        // セッションスコープから証券番号を取得する
         HttpSession session = request.getSession();
         Contract contract = null;
         ContractDao contractDao = null;
-        String polNo = (String) session.getAttribute("polNo");
+        String polNo = null;
 
         try (Connection con = ConnectionManager.getConnection()) {
             con.setAutoCommit(false);
             try {
+                polNo = InputChecks.text(request.getParameter("polNo"));
+
+                if (!polNo.matches("B[0-9]{9}")) {
+                    request.setAttribute(
+                            "error",
+                            "証券番号が不正です。最初からやり直してください。");
+                    request.getRequestDispatcher(
+                            "/WEB-INF/view/error/error.jsp")
+                            .forward(request, response);
+                    return;
+                }
+
                 // DAOを生成
                 contractDao = new ContractDao(con);
                 // コントラクトオブジェクトの生成
@@ -42,6 +53,8 @@ public class CancelCompleteController extends HttpServlet {
                     request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
                     request.getRequestDispatcher(
                             "/WEB-INF/view/error/error.jsp").forward(request, response);
+
+                    return;
                 }
 
                 // 証券番号に紐づいた状態フラグを変更する
@@ -77,7 +90,7 @@ public class CancelCompleteController extends HttpServlet {
 
         } catch (SQLException e) {
             getServletContext().log("DB更新に失敗しました。", e);
-            request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
+            request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
             request.getRequestDispatcher(
                     "/WEB-INF/view/error/error.jsp").forward(request, response);
 
