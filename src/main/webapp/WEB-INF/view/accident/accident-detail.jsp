@@ -139,7 +139,6 @@
 
                 <fieldset class="accident-form-section">
                   <legend>損害情報</legend>
-                  
                   <p
                     class="field-error accident-damage-total-error"
                     data-error-form="accident-form"
@@ -149,7 +148,6 @@
                     tabindex="-1"
                     hidden>
                   </p>
-
                   <div class="accident-damage-list">
                     <details class="accident-damage-section" open>
                       <summary>車両</summary>
