@@ -87,10 +87,31 @@ public class AccidentSubmitController extends HttpServlet {
                     polNo = trimmed(accident.getPolNo());
                 }
 
-                Contract contract = contractDao.getContract(polNo);
-                Claim claim = claimDao.getClaim(polNo);
-                if (contract == null || claim == null || claim.getCoverId() == null) {
-                    throw new BusinessException("関連する契約・補償情報が見つかりませんでした。");
+                Contract contract =
+                        contractDao.getContract(polNo);
+                Claim claim =
+                        claimDao.getClaim(polNo);
+
+                if (contract == null) {
+                    throw new BusinessException(
+                            "関連する契約情報が見つかりませんでした。");
+                }
+
+                if (contract.isCancelFlg()) {
+                    throw new BusinessException(
+                            ErrorMsgConst.ACCIDENT_CANCELLED);
+                }
+
+                if (Integer.valueOf(9).equals(
+                        contract.getStatusFlg())) {
+                    throw new BusinessException(
+                            ErrorMsgConst.ACCIDENT_CANCEL_PENDING);
+                }
+
+                if (claim == null
+                        || claim.getCoverId() == null) {
+                    throw new BusinessException(
+                            "関連する補償情報が見つかりませんでした。");
                 }
                 if (!isNew && accident.getCoverId() != claim.getCoverId()) {
                     throw new BusinessException("事故と補償情報の関連を確認できませんでした。");

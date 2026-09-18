@@ -114,15 +114,6 @@ public class AccidentController extends HttpServlet {
                 // B: 証券番号が入力された場合 (新規受付)
                 else if (hasPolNo) {
 
-                    // すでにこの証券番号で事故受付が登録されていないかチェック
-                    Accident existingAccident = accidentDao.getAccidentByPolNo(polNo);
-                    if (existingAccident != null) {
-                            request.setAttribute("fieldErrors", java.util.Map.of("polNo",
-                                "既にこの証券番号の事故受付番号が存在します。（受付番号: " + existingAccident.getClaimNo() + "）"));
-                            request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp").forward(request, response);
-                            return;
-                    }
-
                     Contract contractData = contractDao.getContract(polNo);
 
                     if (contractData == null) {
@@ -148,15 +139,78 @@ public class AccidentController extends HttpServlet {
                     request.setAttribute("claim", claimData);
                 }
 
-                Contract contractData = (Contract) request.getAttribute("contract");
-                Claim claimData = (Claim) request.getAttribute("claim");
-                Accident accidentData = (Accident) request.getAttribute("accident");
-                if (contractData == null || claimData == null || claimData.getCoverId() == null
-                        || accidentData == null || accidentData.getCoverId() != claimData.getCoverId()) {
-                    request.setAttribute("fieldErrors", java.util.Map.of(hasClaimNo ? "claimNo" : "polNo",
-                            "関連する契約・補償情報が見つかりませんでした。"));
-                    request.getRequestDispatcher("/WEB-INF/view/accident/accident.jsp")
-                            .forward(request, response);
+                Contract contractData =
+                        (Contract) request.getAttribute("contract");
+                Claim claimData =
+                        (Claim) request.getAttribute("claim");
+                Accident accidentData =
+                        (Accident) request.getAttribute("accident");
+
+                String errorField =
+                        hasClaimNo ? "claimNo" : "polNo";
+
+                // 契約情報が存在しない場合
+                if (contractData == null) {
+                    request.setAttribute(
+                            "fieldErrors",
+                            java.util.Map.of(
+                                    errorField,
+                                    "関連する契約情報が見つかりませんでした。"
+                            )
+                    );
+                    request.getRequestDispatcher(
+                            "/WEB-INF/view/accident/accident.jsp"
+                    ).forward(request, response);
+                    return;
+                }
+
+                // 解約完了を先に判定する
+                if (contractData.isCancelFlg()) {
+                    request.setAttribute(
+                            "fieldErrors",
+                            java.util.Map.of(
+                                    errorField,
+                                    ErrorMsgConst.ACCIDENT_CANCELLED
+                            )
+                    );
+                    request.getRequestDispatcher(
+                            "/WEB-INF/view/accident/accident.jsp"
+                    ).forward(request, response);
+                    return;
+                }
+
+                // 解約申込中を判定する
+                if (Integer.valueOf(9).equals(
+                        contractData.getStatusFlg())) {
+                    request.setAttribute(
+                            "fieldErrors",
+                            java.util.Map.of(
+                                    errorField,
+                                    ErrorMsgConst.ACCIDENT_CANCEL_PENDING
+                            )
+                    );
+                    request.getRequestDispatcher(
+                            "/WEB-INF/view/accident/accident.jsp"
+                    ).forward(request, response);
+                    return;
+                }
+
+                // 契約は存在するが、補償・事故情報の関連が不正な場合
+                if (claimData == null
+                        || claimData.getCoverId() == null
+                        || accidentData == null
+                        || accidentData.getCoverId()
+                                != claimData.getCoverId()) {
+                    request.setAttribute(
+                            "fieldErrors",
+                            java.util.Map.of(
+                                    errorField,
+                                    "関連する契約・補償情報が見つかりませんでした。"
+                            )
+                    );
+                    request.getRequestDispatcher(
+                            "/WEB-INF/view/accident/accident.jsp"
+                    ).forward(request, response);
                     return;
                 }
                 String jsp = Integer.valueOf(2).equals(contractData.getInsuredKbn())
@@ -164,6 +218,28 @@ public class AccidentController extends HttpServlet {
                         : "/WEB-INF/view/accident/accident-detail.jsp";
                 request.getRequestDispatcher(jsp).forward(request, response);
                 return;
+            }
+            // 契約状態の確認後、新規受付の場合だけ既存事故を確認する
+            if (hasPolNo) {
+                Accident existingAccident =
+                        accidentDao.getAccidentByPolNo(polNo);
+
+                if (existingAccident != null) {
+                    request.setAttribute(
+                            "fieldErrors",
+                            java.util.Map.of(
+                                    "polNo",
+                                    "既にこの証券番号の事故受付番号が存在します。"
+                                    + "（受付番号: "
+                                    + existingAccident.getClaimNo()
+                                    + "）"
+                            )
+                    );
+                    request.getRequestDispatcher(
+                            "/WEB-INF/view/accident/accident.jsp"
+                    ).forward(request, response);
+                    return;
+                }
             }
             }
 

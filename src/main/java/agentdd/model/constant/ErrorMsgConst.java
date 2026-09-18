@@ -17,4 +17,12 @@ public class ErrorMsgConst {
     public static final String LOGIN_ERROR = "ユーザーIDまたはパスワードが正しくありません。";
 
     public static final String ACCOUNT_LOCKED = "アカウントがロックされています。管理者にお問い合わせください。";
+
+    /** 解約申込中の契約で事故受付を行った場合 */
+    public static final String ACCIDENT_CANCEL_PENDING =
+            "この契約は解約申込中のため、事故受付できません。";
+
+    /** 解約済みの契約で事故受付を行った場合 */
+    public static final String ACCIDENT_CANCELLED =
+            "この契約は解約済みのため、事故受付できません。";
 }

@@ -99,7 +99,16 @@
                   </div>
                   <div class="accounting-data-row">
                     <dt>契約状態</dt>
-                    <dd>${contract.statusStr}</dd>
+                    <dd>
+                      <c:choose>
+                        <c:when test="${contract.cancelFlg}">
+                          解約済み
+                        </c:when>
+                        <c:otherwise>
+                          <c:out value="${contract.statusStr}" />
+                        </c:otherwise>
+                      </c:choose>
+                    </dd>
                   </div>
                   <div class="accounting-data-row">
                     <dt>被保険者区分</dt>
