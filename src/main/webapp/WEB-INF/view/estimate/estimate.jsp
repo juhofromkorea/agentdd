@@ -15,7 +15,6 @@
   <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/layout.css" />
   <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/components.css" />
   <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/pages/estimate.css" />
-  <script src="${pageContext.request.contextPath}/assets/js/theme.js"></script>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/validation.css" />
   <script defer src="${pageContext.request.contextPath}/assets/js/dataCheck.js"></script>
   <script defer src="${pageContext.request.contextPath}/assets/js/formErrors.js"></script>
