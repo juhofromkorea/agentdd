@@ -514,7 +514,7 @@ class InputChecksTest {
     void estimate_age_limit_error() {
         Map<String, String[]> params = createValidEstimateParams();
 
-        params.put("birthday", new String[]{"2015-01-01"});
+        params.put("birthday", new String[]{"2005-01-01"});
         params.put("inceptionDate", new String[]{"2026-10-01"});
         params.put("ageLimit", new String[]{"3"});
 
@@ -526,6 +526,23 @@ class InputChecksTest {
         assertEquals(
                 "年齢条件と生年月日が一致していません。"
                         + "年齢条件または生年月日を見直してください。",
+                errors.get("birthday"));
+    }
+
+    @Test
+    void estimate_minimum_driving_age_error() {
+        Map<String, String[]> params = createValidEstimateParams();
+
+        params.put("birthday", new String[]{"2015-01-01"});
+        params.put("ageLimit", new String[]{"1"});
+
+        Map<String, String> errors =
+                InputChecks.estimate(
+                        createDummyRequest(params),
+                        false);
+
+        assertEquals(
+                "運転免許を取得できる年齢に達していません。",
                 errors.get("birthday"));
     }
 

@@ -17,6 +17,7 @@ public final class InputChecks {
 
     private static final ZoneId JAPAN_ZONE =
         ZoneId.of("Asia/Tokyo");
+    private static final int MINIMUM_DRIVING_AGE = 18;
 
     private InputChecks() { 
 
@@ -207,10 +208,23 @@ public final class InputChecks {
             add(e, "conclusionDate", end.isAfter(start), 
                 "満期日は始期日より後にしてください。");
         }
+        LocalDate today = LocalDate.now(JAPAN_ZONE);
+
         if (birthday != null) {
-            add(e, "birthday", !birthday.isAfter(LocalDate.now(JAPAN_ZONE)), 
-                "生年月日は本日以前の日付にしてください。");
+            add(e, "birthday", !birthday.isAfter(today),
+                    "生年月日は本日以前の日付にしてください。");
+
+            if (!draft && "1".equals(v.get("insuredKbn"))) {
+                int currentAge =
+                        Period.between(birthday, today).getYears();
+
+                add(e, "birthday",
+                        !birthday.isAfter(today)
+                                && currentAge >= MINIMUM_DRIVING_AGE,
+                        "運転免許を取得できる年齢に達していません。");
+            }
         }
+        
         if (!v.get("postcode").isEmpty()) {
             add(e, "postcode", v.get("postcode").matches("(?:[0-9]{7}|[0-9]{3}-[0-9]{4})"), 
                 "郵便番号は123-4567または1234567の形式で入力してください。");

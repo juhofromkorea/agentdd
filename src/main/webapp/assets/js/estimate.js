@@ -142,6 +142,16 @@
                 '生年月日は本日以前の日付にしてください。');
         }
 
+        if (!saving
+                && v.insuredKbn === '1'
+                && D.checkDate(v.birthday)) {
+            add(
+                'birthday',
+                D.checkMinimumAge(v.birthday, 18),
+                '運転免許を取得できる年齢に達していません。'
+            );
+        }
+
         if (D.checkRequired(v.postcode)) {
             add('postcode', D.checkpostcode(v.postcode), 
                 '郵便番号は123-4567または1234567の形式で入力してください。');

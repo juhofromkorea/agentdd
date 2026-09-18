@@ -62,6 +62,39 @@
         checkAmount: amount, // 17 BigIntで18桁を正確に比較
         checkRatingBlame: value => amount(value, 100), // 18
         checkContractItem: (values, names) => names.every(name => required(values[name])), // 19
+
+        checkMinimumAge(birthday, minimumAge, atDate = new Date()) {
+            const birth = date(birthday);
+            const base = atDate instanceof Date
+                ? new Date(atDate)
+                : date(atDate);
+            const minimum = Number(minimumAge);
+
+            if (!birth
+                    || !base
+                    || Number.isNaN(base.getTime())
+                    || !Number.isInteger(minimum)
+                    || minimum < 0
+                    || birth > base) {
+                return false;
+            }
+
+            const age =
+                base.getFullYear()
+                - birth.getFullYear()
+                - (
+                    base.getMonth() < birth.getMonth()
+                    || (
+                        base.getMonth() === birth.getMonth()
+                        && base.getDate() < birth.getDate()
+                    )
+                    ? 1
+                    : 0
+                );
+
+            return age >= minimum;
+        },
+        
         checkAgeLimit(birthday, ageLimit, atDate) { // 20 基準日は呼出側が渡す
             const birth = date(birthday), at = date(atDate);
             const minimum = { 1: 0, 2: 21, 3: 26 }[ageLimit];
