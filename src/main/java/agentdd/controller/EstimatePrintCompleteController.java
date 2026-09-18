@@ -2,6 +2,7 @@ package agentdd.controller;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -27,6 +28,8 @@ import agentdd.model.dao.TempSaveDao;
 public class EstimatePrintCompleteController extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
+    private static final ZoneId JAPAN_ZONE =
+        ZoneId.of("Asia/Tokyo");
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -55,7 +58,7 @@ public class EstimatePrintCompleteController extends HttpServlet {
                 request.setAttribute("vehicles", new VehicleDao(con).findAll());
                 TempSaveDao tempSaveDao = new TempSaveDao(con);
                 tempSaveDao.deleteExpired(
-                        loginUser.getUserId(), LocalDateTime.now().minusMonths(1));
+                        loginUser.getUserId(), LocalDateTime.now(JAPAN_ZONE).minusMonths(1));
                 request.setAttribute(
                         "tempSaveList", tempSaveDao.selectAll(loginUser.getUserId()));
                 con.commit();

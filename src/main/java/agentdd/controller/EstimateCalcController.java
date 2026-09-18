@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 
 import jakarta.servlet.ServletException;
@@ -29,6 +30,8 @@ import agentdd.model.datacheck.InputChecks;
 public class EstimateCalcController extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
+    private static final ZoneId JAPAN_ZONE =
+        ZoneId.of("Asia/Tokyo");
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -56,7 +59,7 @@ public class EstimateCalcController extends HttpServlet {
                 TempSaveDao tempSaveDao = new TempSaveDao(con);
                 // バッチを追加しなくても、画面を開いたタイミングで期限切れを掃除する。
                 tempSaveDao.deleteExpired(
-                        loginUser.getUserId(), LocalDateTime.now().minusMonths(1));
+                        loginUser.getUserId(), LocalDateTime.now(JAPAN_ZONE).minusMonths(1));
                 request.setAttribute(
                         "tempSaveList", tempSaveDao.selectAll(loginUser.getUserId()));
                 request.setAttribute("vehicles", new VehicleDao(con).findAll());
@@ -253,7 +256,7 @@ public class EstimateCalcController extends HttpServlet {
 
                 TempSaveDao tempSaveDao = new TempSaveDao(con);
                 tempSaveDao.deleteExpired(
-                        loginUser.getUserId(), LocalDateTime.now().minusMonths(1));
+                        loginUser.getUserId(), LocalDateTime.now(JAPAN_ZONE).minusMonths(1));
                 request.setAttribute(
                         "tempSaveList", tempSaveDao.selectAll(loginUser.getUserId()));
 

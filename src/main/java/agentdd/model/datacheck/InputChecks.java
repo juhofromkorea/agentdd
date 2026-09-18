@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.Period;
+import java.time.ZoneId;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -13,6 +14,9 @@ import agentdd.model.data.Contract;
 
 /** JSを通らないリクエストにも適用する、入力値の検査。DB検査はController/DAOに残す。 */
 public final class InputChecks {
+
+    private static final ZoneId JAPAN_ZONE =
+        ZoneId.of("Asia/Tokyo");
 
     private InputChecks() { 
 
@@ -204,7 +208,7 @@ public final class InputChecks {
                 "満期日は始期日より後にしてください。");
         }
         if (birthday != null) {
-            add(e, "birthday", !birthday.isAfter(LocalDate.now()), 
+            add(e, "birthday", !birthday.isAfter(LocalDate.now(JAPAN_ZONE)), 
                 "生年月日は本日以前の日付にしてください。");
         }
         if (!v.get("postcode").isEmpty()) {
@@ -285,7 +289,7 @@ public final class InputChecks {
                     && end != null 
                     && !d.isBefore(start) 
                     && !d.isAfter(end) 
-                    && !d.isAfter(LocalDate.now()), 
+                    && !d.isAfter(LocalDate.now(JAPAN_ZONE)), 
                 "事故日は有効な日付（YYYYMMDD）で、契約期間内かつ本日以前にしてください。");
         }
 

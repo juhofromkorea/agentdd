@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import agentdd.model.constant.ErrorMsgConst;
 import agentdd.model.dao.ConnectionManager;
@@ -21,6 +22,8 @@ import jakarta.servlet.http.HttpSession;
 public class TempSaveResumeController extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
+    private static final ZoneId JAPAN_ZONE =
+        ZoneId.of("Asia/Tokyo");
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -48,7 +51,7 @@ public class TempSaveResumeController extends HttpServlet {
             con.setAutoCommit(false);
             try {
                 TempSaveDao tempSaveDao = new TempSaveDao(con);
-                tempSaveDao.deleteExpired(userId, LocalDateTime.now().minusMonths(1));
+                tempSaveDao.deleteExpired(userId, LocalDateTime.now(JAPAN_ZONE).minusMonths(1));
                 tempSave = tempSaveDao.select(tempSaveId, userId);
                 if (tempSave == null) {
                     // 期限切れの掃除だけは確定してから一覧へ戻す。
