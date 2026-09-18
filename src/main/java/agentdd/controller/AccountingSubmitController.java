@@ -48,7 +48,18 @@ public class AccountingSubmitController extends HttpServlet {
         try (Connection con = ConnectionManager.getConnection()) {
             con.setAutoCommit(false);
             try {
-                insatsuRenban = (String) session.getAttribute("insatsuRenban");
+                insatsuRenban = InputChecks.text(request.getParameter("insatsuRenban"));
+
+                if (!insatsuRenban.matches("A[0-9]{7}")) {
+                    request.setAttribute(
+                            "error",
+                            "印刷連番が不正です。最初からやり直してください。");
+                    request.getRequestDispatcher(
+                            "/WEB-INF/view/error/error.jsp")
+                            .forward(request, response);
+                    return;
+                }
+
                 contractDao = new ContractDao(con);
                 contract = contractDao.getContractForAccount(insatsuRenban);
 
@@ -75,13 +86,16 @@ public class AccountingSubmitController extends HttpServlet {
             }
 
             Contract updateContract = contractDao.getContractForAccount(insatsuRenban);
+            String jsp = Integer.valueOf(2).equals(updateContract.getInsuredKbn())
+                    ? "/WEB-INF/view/accounting/accounting-complete-corporate.jsp"
+                    : "/WEB-INF/view/accounting/accounting-complete.jsp";
+
             request.setAttribute("contract", updateContract);
-            request.getRequestDispatcher("/WEB-INF/view/accounting/accounting-complete.jsp")
-                    .forward(request, response);
+            request.getRequestDispatcher(jsp).forward(request, response);
 
         } catch (SQLException e) {
             e.printStackTrace();
-            request.setAttribute("error", ErrorMsgConst.UNEXPECTED_ERROR);
+            request.setAttribute("error", ErrorMsgConst.SYSTEM_ERROR);
             request.getRequestDispatcher("/WEB-INF/view/error/error.jsp")
                     .forward(request, response);
         }

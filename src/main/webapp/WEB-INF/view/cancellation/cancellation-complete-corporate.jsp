@@ -73,7 +73,7 @@
                 <dd>${contract.polNo}</dd>
               </div>
               <div>
-                <dt>契約者名</dt>
+                <dt>会社名</dt>
                 <dd>${contract.nameKanji1}</dd>
               </div>
             </dl>
